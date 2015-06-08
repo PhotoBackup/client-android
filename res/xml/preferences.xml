@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="PBPreferences"
+    android:title="PhotoBackup Settings">
+
+    <SwitchPreference
+        android:key="PREF_SERVICE_RUNNING"
+        android:title="@string/service_title"
+        android:summaryOn="@string/service_state_running"
+        android:summaryOff="@string/service_state_not_running"
+        android:defaultValue="false"
+        android:disableDependentsState="true" />
+
+    <CheckBoxPreference
+        android:key="PREF_WIFI_ONLY"
+        android:title="@string/only_wifi_title"
+        android:summaryOn="@string/only_wifi"
+        android:summaryOff="@string/not_only_wifi"
+        android:defaultValue="false"
+        android:dependency="PREF_SERVICE_RUNNING" />
+
+
+    <PreferenceCategory
+        android:title="@string/server_conf"
+        android:key="server_conf">
+    
+    	<EditTextPreference
+    		android:key="PREF_SERVER_URL"
+    		android:title="@string/server_url_title"
+    		android:summary="@string/server_url_summary"   
+    		android:inputType="textUri"
+    		android:defaultValue=""
+    		android:dependency="PREF_SERVICE_RUNNING" />
+
+    	<EditTextPreference
+    		android:key="PREF_SERVER_PASS"
+    		android:title="@string/server_password_title"
+    		android:summary="@string/server_password_summary"   
+    		android:inputType="textPassword"
+    		android:defaultValue=""
+    		android:dependency="PREF_SERVICE_RUNNING" />
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory
+        android:title="@string/info_conf"
+        android:key="info_conf">
+
+        <Preference android:key="uploadJournalPref"
+                    android:enabled="false"
+                    android:title="@string/journal_noaccess">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetPackage="fr.s13d.photobackup"
+                android:targetClass="fr.s13d.photobackup.PBJournalActivity"/>
+        </Preference>
+    </PreferenceCategory>
+
+</PreferenceScreen>

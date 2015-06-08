@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">PhotoBackup</string>
+
+    <string name="service_title">Service</string>
+    <string name="service_state_running">PhotoBackup is running.</string>
+    <string name="service_state_not_running">PhotoBackup is not running.</string>
+
+    <string name="server_conf">Server configuration</string>
+    <string name="server_url_title">Server address</string>
+    <string name="server_url_summary">The address of the server.</string>
+    <string name="server_password_title">Server password</string>
+    <string name="server_password_summary">The password of the server.</string>
+    <string name="server_password_summary_set">The password is set.</string>
+
+    <string name="only_wifi_title">Used network</string>
+    <string name="only_wifi">Over Wi-Fi only</string>
+    <string name="not_only_wifi">Over Wi-Fi or mobile network</string>
+
+    <string name="toast_urisyntaxexception">The server address is invalid!</string>
+    <string name="toast_serverpassempty">The password cannot be empty!</string>
+    <string name="toast_configuration_ok">Server configuration is valid, great!</string>
+    <string name="toast_configuration_ko">Server test failed, please verify your configuration.</string>
+
+    <string name="info_conf">Informations</string>
+    <string name="journal_title">Upload journal</string>
+    <string name="journal_noaccess">Launch the service to access the journal.</string>
+    <string name="journal_backedup">Backed up</string>
+    <string name="journal_waiting">Waiting</string>
+    <string name="journal_error">Error</string>
+
+    <string name="notif_start_text">Your photo is being backed up on your server.</string>
+    <plurals name="notif_success">
+        <item quantity="zero"> </item>
+        <item quantity="other">%d on your server</item>
+    </plurals>
+    <plurals name="notif_failure">
+        <item quantity="one">%d failure</item>
+        <item quantity="other">%d failures</item>
+    </plurals>
+
+    <string name="name">Name of the photo</string>
+    <string name="thumbnail_description">Thumbnail of the photo</string>
+
+</resources>

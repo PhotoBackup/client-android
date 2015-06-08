@@ -1,0 +1,8 @@
+<resources>
+
+    <style name="ErrorTextStyle">
+		<item name="android:textColor">#e55</item>
+		<item name="android:textSize">20sp</item>
+	</style>
+
+</resources>

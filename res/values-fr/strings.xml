@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">PhotoBackup</string>
+
+    <string name="service_title">Service</string>
+    <string name="service_state_running">PhotoBackup est actif.</string>
+    <string name="service_state_not_running">PhotoBackup est inactif.</string>
+
+    <string name="server_conf">Configuration du serveur</string>
+    <string name="server_url_title">Adresse</string>
+    <string name="server_url_summary">L\'adresse du serveur où sont envoyées vos photos.</string>
+    <string name="server_password_title">Mot de passe</string>
+    <string name="server_password_summary">Le mot de passe du serveur.</string>
+    <string name="server_password_summary_set">Le mot de passe est renseigné.</string>
+
+    <string name="only_wifi_title">Réseau utilisé</string>
+    <string name="only_wifi">Via Wi-Fi uniquement</string>
+    <string name="not_only_wifi">Via Wi-Fi ou réseau mobile</string>
+
+    <string name="toast_urisyntaxexception">L\'adresse du serveur est invalide !</string>
+    <string name="toast_serverpassempty">Le mot de passe ne peut pas être vide !</string>
+    <string name="toast_configuration_ok">La configuration du serveur est bonne.</string>
+    <string name="toast_configuration_ko">Le test du serveur a échoué, merci de vérifier sa configuration.</string>
+
+    <string name="info_conf">Informations</string>
+    <string name="journal_title">Journal d\'envoi</string>
+    <string name="journal_noaccess">Activez le service pour voir le journal.</string>
+    <string name="journal_backedup">Sauvegardé</string>
+    <string name="journal_waiting">En attente</string>
+    <string name="journal_error">Erreur</string>
+
+    <string name="notif_start_text">Votre photo est en cours de sauvegarde.</string>
+    <plurals name="notif_success">
+        <item quantity="one">%d sur votre serveur</item>
+        <item quantity="other">%d sur votre serveur</item>
+    </plurals>
+    <plurals name="notif_failure">
+        <item quantity="one">%d échec</item>
+        <item quantity="other">%d échecs</item>
+    </plurals>
+
+    <string name="name">Nom de la photo</string>
+    <string name="thumbnail_description">Vignette de la photo</string>
+
+</resources>
