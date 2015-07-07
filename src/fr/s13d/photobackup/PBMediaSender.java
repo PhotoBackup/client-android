@@ -50,6 +50,7 @@ public class PBMediaSender {
     private final static String LOG_TAG = "PBMediaSender";
     private final static String PASSWORD_PARAM = "password";
     private final static String UPFILE_PARAM = "upfile";
+    private final static String FILESIZE_PARAM = "filesize";
     private final static String TEST_PATH = "/test";
     private final Context context;
     private final String serverUrl;
@@ -118,7 +119,9 @@ public class PBMediaSender {
         notificationManager.notify(0, builder.build());
 
         try { // Add media file as request parameter
-            params.put(UPFILE_PARAM, new File(media.getPath()));
+            File upfile = new File(media.getPath());
+            params.put(UPFILE_PARAM, upfile);
+            params.put(FILESIZE_PARAM, upfile.length());
         }
         catch(FileNotFoundException e) {
             sendDidFail(media, e);
