@@ -56,6 +56,14 @@
                 android:targetPackage="fr.s13d.photobackup"
                 android:targetClass="fr.s13d.photobackup.PBJournalActivity"/>
         </Preference>
+
+        <Preference android:key="aboutPref"
+            android:title="@string/about_title">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetPackage="fr.s13d.photobackup"
+                android:targetClass="fr.s13d.photobackup.PBAboutActivity"/>
+        </Preference>
     </PreferenceCategory>
 
 </PreferenceScreen>
