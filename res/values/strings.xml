@@ -35,12 +35,6 @@
     on your home server. This way, you are the unique owner and user of your pictures.
     To install and configure a server, see:</string>
 
-
-    PhotoBackup pour Android sauvegarde les photos de cet appareil
-    sur votre serveur personnel. Ainsi, vous restez l'unique propriétaire et utilisateur
-    de vos photographies. Pour installer et configurer un serveur, voir :\n\n
-    https://photobackup.github.io/
-
     <string name="notif_start_text">Your photo is being backed up on your server.</string>
     <plurals name="notif_success">
         <item quantity="zero"> </item>
