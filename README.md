@@ -8,3 +8,4 @@ It is available on the
 [Google Play](https://play.google.com/store/apps/details?id=fr.s13d.photobackup)
 and soon on F-Droid.
 
+<img src="https://github.com/PhotoBackup/PhotoBackup.github.io/blob/master/img/android-screen1.png" alt="Screenshot" width="540px" />
