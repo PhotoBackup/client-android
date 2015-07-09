@@ -53,7 +53,7 @@ public class PBSettingsFragment extends PreferenceFragment
     private SharedPreferences.Editor preferencesEditor;
     private Preference uploadJournalPref;
 
-    private boolean hashIsComputed = false;
+
     private boolean isBoundToService = false;
     private final ServiceConnection serviceConnection = new ServiceConnection() {
 
@@ -116,7 +116,7 @@ public class PBSettingsFragment extends PreferenceFragment
             isBoundToService = true;
         }
 
-        updateServerPasswordPreference(preferences);
+        updateServerPasswordPreference();
         updateUploadJournalPreference();
     }
 
@@ -137,6 +137,7 @@ public class PBSettingsFragment extends PreferenceFragment
     @Override
     public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
 
+        Log.i(LOG_TAG, "onSharedPreferenceChanged: " + key);
         if (key.equals(PREF_SERVICE_RUNNING)) {
             startOrStopService(sharedPreferences);
 
@@ -144,13 +145,11 @@ public class PBSettingsFragment extends PreferenceFragment
             updateServerUrlPreference();
 
         } else if (key.equals(PREF_SERVER_PASS)) {
-            createAndSetServerPass(sharedPreferences);
-            updateServerPasswordPreference(sharedPreferences);
-
-        } else if (key.equals(PREF_SERVER_PASS_HASH)) {
-            // Remove the real password from the preferences, for security.
-            preferencesEditor.putString(PREF_SERVER_PASS, "").apply();
-            hashIsComputed = true;
+            final String pass = sharedPreferences.getString(PREF_SERVER_PASS, "");
+            if (!pass.isEmpty()) {
+                createAndSetServerPass(sharedPreferences);
+                updateServerPasswordPreference();
+            }
 
         } else if (key.equals(PREF_WIFI_ONLY)) {
             Boolean wifiOnly = sharedPreferences.getBoolean(PREF_WIFI_ONLY, DEFAULT_WIFI_ONLY);
@@ -204,13 +203,13 @@ public class PBSettingsFragment extends PreferenceFragment
 
     private boolean validatePreferences() {
         String serverUrl = preferences.getString(PREF_SERVER_URL, "");
-        if (!URLUtil.isValidUrl(serverUrl) || serverUrl == null || serverUrl.isEmpty()) {
+        if (!URLUtil.isValidUrl(serverUrl) || serverUrl.isEmpty()) {
             Toast.makeText(getActivity(), R.string.toast_urisyntaxexception, Toast.LENGTH_LONG).show();
             return false;
         }
 
         String serverPassHash = preferences.getString(PREF_SERVER_PASS_HASH, "");
-        if (serverPassHash != null && serverPassHash.isEmpty()) {
+        if (serverPassHash.isEmpty()) {
             Toast.makeText(getActivity(), R.string.toast_serverpassempty, Toast.LENGTH_LONG).show();
             return false;
         }
@@ -236,47 +235,45 @@ public class PBSettingsFragment extends PreferenceFragment
 
     private void createAndSetServerPass(final SharedPreferences sharedPreferences) {
         // store only the hash of the password in the preferences
-        if (!hashIsComputed) {
-            MessageDigest md;
-            try {
-                md = MessageDigest.getInstance("SHA-512");
-            } catch (NoSuchAlgorithmException e) {
-                Log.e(LOG_TAG, "ERROR: " + e.getMessage());
-                return;
-            }
-
-            final String pass = sharedPreferences.getString(PREF_SERVER_PASS, null);
-            if (pass == null) {
-                return;
-            }
-
-            // compute the hash
-            md.update(pass.getBytes());
-            byte[] mb = md.digest();
-            String hash = "";
-            for (byte temp : mb) {
-                String s = Integer.toHexString(temp);
-                while (s.length() < 2) {
-                    s = "0" + s;
-                }
-                s = s.substring(s.length() - 2);
-                hash += s;
-            }
-
-            // set the hash in the preferences
-            preferencesEditor.putString(PREF_SERVER_PASS_HASH, hash);
-            preferencesEditor.apply();
-
-        } else {
-            hashIsComputed = false;
+        MessageDigest md;
+        try {
+            md = MessageDigest.getInstance("SHA-512");
+        } catch (NoSuchAlgorithmException e) {
+            Log.e(LOG_TAG, "ERROR: " + e.getMessage());
+            return;
         }
+
+        final String pass = sharedPreferences.getString(PREF_SERVER_PASS, null);
+        if (pass == null) {
+            return;
+        }
+
+        // compute the hash
+        md.update(pass.getBytes());
+        byte[] mb = md.digest();
+        String hash = "";
+        for (byte temp : mb) {
+            String s = Integer.toHexString(temp);
+            while (s.length() < 2) {
+                s = "0" + s;
+            }
+            s = s.substring(s.length() - 2);
+            hash += s;
+        }
+
+        // set the hash in the preferences
+        preferencesEditor.putString(PREF_SERVER_PASS_HASH, hash);
+        preferencesEditor.apply();
+
+        // Remove the real password from the preferences, for security.
+        preferencesEditor.putString(PREF_SERVER_PASS, "").apply();
     }
 
 
-    private void updateServerPasswordPreference(final SharedPreferences sharedPreferences) {
-        final String serverPassHash = sharedPreferences.getString(PREF_SERVER_PASS_HASH, "");
+    private void updateServerPasswordPreference() {
+        final String serverPassHash = preferences.getString(PREF_SERVER_PASS_HASH, "");
         final EditTextPreference serverPassTextPreference = (EditTextPreference) findPreference(PREF_SERVER_PASS);
-        if (serverPassHash != null && serverPassHash.isEmpty()) {
+        if (serverPassHash.isEmpty()) {
             serverPassTextPreference.setSummary(getResources().getString(R.string.server_password_summary));
         } else {
             serverPassTextPreference.setSummary(getResources().getString(R.string.server_password_summary_set));
@@ -292,13 +289,17 @@ public class PBSettingsFragment extends PreferenceFragment
 
     private void updateUploadJournalPreference() {
         // isAdded() to be sure the fragment is currently attached to the activity
-        if (isAdded() && isPhotoBackupServiceRunning() && currentService != null) {
-            uploadJournalPref.setTitle(this.getResources().getString(R.string.journal_title) +
-                " (" + currentService.getMediaSize() + ")");
-            uploadJournalPref.setEnabled(currentService.getMediaSize() > 0);
-        } else {
-            uploadJournalPref.setTitle(this.getResources().getString(R.string.journal_noaccess));
-            uploadJournalPref.setEnabled(false);
+        try {
+            if (isPhotoBackupServiceRunning() && currentService != null) {
+                uploadJournalPref.setTitle(this.getResources().getString(R.string.journal_title) +
+                        " (" + currentService.getMediaSize() + ")");
+                uploadJournalPref.setEnabled(currentService.getMediaSize() > 0);
+            } else {
+                uploadJournalPref.setTitle(this.getResources().getString(R.string.journal_noaccess));
+                uploadJournalPref.setEnabled(false);
+            }
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
         }
     }
 
