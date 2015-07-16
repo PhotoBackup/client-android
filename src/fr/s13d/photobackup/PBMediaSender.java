@@ -79,7 +79,7 @@ public class PBMediaSender {
         this.builder.setContentIntent(resultPendingIntent);
 
         this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        serverUrl = prefs.getString(PBSettingsFragment.PREF_SERVER_URL, "");
+        serverUrl = removeFinalSlashes(prefs.getString(PBSettingsFragment.PREF_SERVER_URL, ""));
         params.put(PASSWORD_PARAM, prefs.getString(PBSettingsFragment.PREF_SERVER_PASS_HASH, ""));
 
     }
@@ -218,6 +218,23 @@ public class PBMediaSender {
         }
 
         notificationManager.notify(0, builder.build());
+    }
+
+
+    ///////////
+    // Utils //
+    ///////////
+    static public String removeFinalSlashes(String s) {
+        if (s == null || s.length() == 0) {
+            return s;
+        }
+        int count = 0;
+        int length = s.length();
+        while (s.charAt(length - 1 - count) == '/') {
+            count++;
+        }
+
+        return s.substring(0, s.length() - count);
     }
 
 }
