@@ -153,7 +153,8 @@ public class PBSettingsFragment extends PreferenceFragment
 
         } else if (key.equals(PREF_WIFI_ONLY)) {
             Boolean wifiOnly = sharedPreferences.getBoolean(PREF_WIFI_ONLY, DEFAULT_WIFI_ONLY);
-            preferencesEditor.putBoolean(PREF_WIFI_ONLY, wifiOnly).apply();
+            Log.i(LOG_TAG, "wifiOnly = " + wifiOnly);
+            //preferencesEditor.putBoolean(PREF_WIFI_ONLY, wifiOnly).apply();
 
         } else if (sharedPreferences == null) {
             Log.e(LOG_TAG, "Error: preferences == null");

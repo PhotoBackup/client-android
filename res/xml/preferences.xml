@@ -12,13 +12,10 @@
         android:defaultValue="false"
         android:disableDependentsState="true" />
 
-    <CheckBoxPreference
+    <fr.s13d.photobackup.PSSingleSelectPreference
         android:key="PREF_WIFI_ONLY"
         android:title="@string/only_wifi_title"
-        android:summaryOn="@string/only_wifi"
-        android:summaryOff="@string/not_only_wifi"
-        android:defaultValue="false"
-        android:dependency="PREF_SERVICE_RUNNING" />
+        android:defaultValue="false" />
 
 
     <PreferenceCategory

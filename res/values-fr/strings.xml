@@ -14,7 +14,7 @@
     <string name="server_password_summary">Le mot de passe du serveur.</string>
     <string name="server_password_summary_set">Le mot de passe est renseigné.</string>
 
-    <string name="only_wifi_title">Réseau utilisé</string>
+    <string name="only_wifi_title">Sauvegarde</string>
     <string name="only_wifi">Via Wi-Fi uniquement</string>
     <string name="not_only_wifi">Via Wi-Fi ou réseau mobile</string>
 
@@ -45,6 +45,7 @@
         <item quantity="other">%d échecs</item>
     </plurals>
 
+    <string name="cancel">Annuler</string>
     <string name="name">Nom de la photo</string>
     <string name="thumbnail_description">Vignette de la photo</string>
 

@@ -14,7 +14,7 @@
     <string name="server_password_summary">The password of the server.</string>
     <string name="server_password_summary_set">The password is set.</string>
 
-    <string name="only_wifi_title">Used network</string>
+    <string name="only_wifi_title">Backup</string>
     <string name="only_wifi">Over Wi-Fi only</string>
     <string name="not_only_wifi">Over Wi-Fi or mobile network</string>
 
@@ -45,6 +45,7 @@
         <item quantity="other">%d failures</item>
     </plurals>
 
+    <string name="cancel">Cancel</string>
     <string name="name">Name of the photo</string>
     <string name="thumbnail_description">Thumbnail of the photo</string>
 
