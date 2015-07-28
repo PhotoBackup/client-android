@@ -192,6 +192,7 @@ public class PBMediaSender {
 
 
     private void sendDidFail(final PBMedia media, final Throwable e) {
+        builder.setSmallIcon(R.drawable.ic_error_outline_white_48dp);
         media.setState(PBMedia.PBMediaState.ERROR);
         for (PBMediaSenderInterface senderInterface : interfaces) {
             senderInterface.onSendFailure();
