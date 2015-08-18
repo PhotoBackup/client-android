@@ -22,13 +22,23 @@ package fr.s13d.photobackup;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 public class PBBootBroadcastReceiver extends BroadcastReceiver {
 
-	@Override
+    private static final String LOG_TAG = "PBBootBroadcastReceiver";
+
+    @Override
 	public void onReceive(final Context context, final Intent intent) {
-		Intent startServiceIntent = new Intent(context, PBService.class);
-		context.startService(startServiceIntent);
+
+		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+		final boolean running = preferences.getBoolean(PBSettingsFragment.PREF_SERVICE_RUNNING, false);
+        Log.i(LOG_TAG, running ? "Starting PhotoBackup" : "Not starting PhotoBackup");
+		if (running) {
+			final Intent startServiceIntent = new Intent(context, PBService.class);
+			context.startService(startServiceIntent);
+		}
 	}
 
 }
