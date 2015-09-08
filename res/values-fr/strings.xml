@@ -6,6 +6,7 @@
     <string name="service_title">Service</string>
     <string name="service_state_running">PhotoBackup est actif.</string>
     <string name="service_state_not_running">PhotoBackup est inactif.</string>
+    <string name="service_stopped">PhotoBackup s\'est arrêté..</string>
 
     <string name="server_conf">Configuration du serveur</string>
     <string name="server_url_title">Adresse</string>
@@ -20,6 +21,7 @@
 
     <string name="toast_urisyntaxexception">L\'adresse du serveur est invalide !</string>
     <string name="toast_serverpassempty">Le mot de passe ne peut pas être vide !</string>
+    <string name="toast_test_configuration">Test du serveur</string>
     <string name="toast_configuration_ok">La configuration du serveur est bonne.</string>
     <string name="toast_configuration_ko">Le test du serveur a échoué, merci de vérifier sa configuration.</string>
 
@@ -48,5 +50,6 @@
     <string name="cancel">Annuler</string>
     <string name="name">Nom de la photo</string>
     <string name="thumbnail_description">Vignette de la photo</string>
+    <string name="stop_service">Arrêter le service</string>
 
 </resources>

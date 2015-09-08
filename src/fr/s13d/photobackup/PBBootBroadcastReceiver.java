@@ -34,7 +34,6 @@ public class PBBootBroadcastReceiver extends BroadcastReceiver {
 
 		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 		final boolean running = preferences.getBoolean(PBSettingsFragment.PREF_SERVICE_RUNNING, false);
-        Log.i(LOG_TAG, running ? "Starting PhotoBackup" : "Not starting PhotoBackup");
 		if (running) {
 			final Intent startServiceIntent = new Intent(context, PBService.class);
 			context.startService(startServiceIntent);

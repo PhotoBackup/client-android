@@ -20,9 +20,11 @@
 package fr.s13d.photobackup;
 
 import android.app.ActivityManager;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -32,6 +34,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
+import android.support.v4.content.LocalBroadcastManager;
 import android.webkit.URLUtil;
 import android.widget.Toast;
 
@@ -54,6 +57,7 @@ public class PBSettingsFragment extends PreferenceFragment
     private Preference uploadJournalPref;
 
 
+    // binding
     private boolean isBoundToService = false;
     private final ServiceConnection serviceConnection = new ServiceConnection() {
 
@@ -69,6 +73,19 @@ public class PBSettingsFragment extends PreferenceFragment
             Log.i(LOG_TAG, "Disconnected to service");
         }
     };
+
+    // receiver
+    private final BroadcastReceiver stopServiceBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction() != null && intent.getAction().equals(PBService.STOP_SERVICE)) {
+                // stop the service
+                final SwitchPreference switchPreference = (SwitchPreference) findPreference(PREF_SERVICE_RUNNING);
+                switchPreference.setChecked(false);
+            }
+        }
+    };
+
 
     // should correspond to what is in preferences.xml
     public static final String PREF_SERVICE_RUNNING = "PREF_SERVICE_RUNNING";
@@ -105,9 +122,8 @@ public class PBSettingsFragment extends PreferenceFragment
             preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
             preferencesEditor = preferences.edit();
             preferencesEditor.apply();
-
-            initPreferences();
         }
+        initPreferences();
         preferences.registerOnSharedPreferenceChangeListener(this);
 
         if (isPhotoBackupServiceRunning()) {
@@ -115,6 +131,10 @@ public class PBSettingsFragment extends PreferenceFragment
             getActivity().bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
             isBoundToService = true;
         }
+
+        // Register a receiver for stop service message
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(stopServiceBroadcastReceiver,
+                new IntentFilter(PBService.STOP_SERVICE));
 
         updateServerPasswordPreference();
         updateUploadJournalPreference();
@@ -124,6 +144,7 @@ public class PBSettingsFragment extends PreferenceFragment
     @Override
     public void onPause() {
         super.onPause();
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(stopServiceBroadcastReceiver);
         if (preferences != null) {
             preferences.unregisterOnSharedPreferenceChangeListener(this);
         }
@@ -327,7 +348,6 @@ public class PBSettingsFragment extends PreferenceFragment
     // PBMediaSenderEvents callbacks //
     ///////////////////////////////////
     public void onTestSuccess() {
-        Toast.makeText(getActivity(), getResources().getString(R.string.toast_configuration_ok), Toast.LENGTH_SHORT).show();
         final Intent serviceIntent = new Intent(getActivity(), PBService.class);
         getActivity().startService(serviceIntent);
         getActivity().bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
@@ -336,7 +356,6 @@ public class PBSettingsFragment extends PreferenceFragment
 
 
     public void onTestFailure() {
-        Toast.makeText(getActivity(), getResources().getString(R.string.toast_configuration_ko), Toast.LENGTH_SHORT).show();
         final SwitchPreference switchPreference = (SwitchPreference) findPreference(PBSettingsFragment.PREF_SERVICE_RUNNING);
         switchPreference.setChecked(false);
     }

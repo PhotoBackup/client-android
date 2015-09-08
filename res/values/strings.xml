@@ -6,6 +6,7 @@
     <string name="service_title">Service</string>
     <string name="service_state_running">PhotoBackup is running.</string>
     <string name="service_state_not_running">PhotoBackup is not running.</string>
+    <string name="service_stopped">PhotoBackup has stopped.</string>
 
     <string name="server_conf">Server configuration</string>
     <string name="server_url_title">Server address</string>
@@ -20,6 +21,7 @@
 
     <string name="toast_urisyntaxexception">The server address is invalid!</string>
     <string name="toast_serverpassempty">The password cannot be empty!</string>
+    <string name="toast_test_configuration">Testing server</string>
     <string name="toast_configuration_ok">Server configuration is valid, great!</string>
     <string name="toast_configuration_ko">Server test failed, please verify your configuration.</string>
 
@@ -48,5 +50,6 @@
     <string name="cancel">Cancel</string>
     <string name="name">Name of the photo</string>
     <string name="thumbnail_description">Thumbnail of the photo</string>
+    <string name="stop_service">Stop the service</string>
 
 </resources>

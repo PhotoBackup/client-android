@@ -69,14 +69,21 @@ public class PBMediaSender {
         this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         this.builder = new Notification.Builder(context);
         this.builder.setSmallIcon(R.drawable.ic_backup_white_48dp)
-                    .setContentTitle(context.getResources().getString(R.string.app_name));
+                .setContentTitle(context.getResources().getString(R.string.app_name));
 
-        // add action to reopen the activity
+        // add content intent to reopen the activity
         Intent intent = new Intent(context, PBActivity.class);
         intent.setAction(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
         this.builder.setContentIntent(resultPendingIntent);
+
+        // add button action to stop the service
+        Intent stopIntent = new Intent(context, PBService.class);
+        stopIntent.setAction(PBService.STOP_SERVICE);
+        PendingIntent stopPendingIntent = PendingIntent.getService(context, 0, stopIntent, 0);
+        this.builder.addAction(android.R.drawable.ic_delete,
+                context.getResources().getString(R.string.stop_service), stopPendingIntent);
 
         this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
         serverUrl = removeFinalSlashes(prefs.getString(PBSettingsFragment.PREF_SERVER_URL, ""));
@@ -156,11 +163,17 @@ public class PBMediaSender {
     // Send test //
     ///////////////
     public void test() {
-        Toast.makeText(context, "Testing server", Toast.LENGTH_SHORT).show();
+        final Toast toast = Toast.makeText(context,
+                context.getResources().getString(R.string.toast_test_configuration),
+                Toast.LENGTH_SHORT);
+        toast.show();
+
         client.post(serverUrl + TEST_PATH, params, new AsyncHttpResponseHandler() {
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] response) {
+                toast.setText(context.getResources().getString(R.string.toast_configuration_ok));
+                toast.show();
                 for (PBMediaSenderInterface senderInterface : interfaces) {
                     senderInterface.onTestSuccess();
                 }
@@ -168,6 +181,8 @@ public class PBMediaSender {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
+                toast.setText(context.getResources().getString(R.string.toast_configuration_ko));
+                toast.show();
                 for (PBMediaSenderInterface senderInterface : interfaces) {
                     senderInterface.onTestFailure();
                 }
