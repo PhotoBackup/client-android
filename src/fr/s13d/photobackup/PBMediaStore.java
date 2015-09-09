@@ -151,7 +151,12 @@ public class PBMediaStore {
 
             // Get all pictures on device
             final String[] projection = new String[] { "_id", "_data" };
-            final Cursor cursor = context.getContentResolver().query(uri, projection, null, null, "date_added DESC");
+            Cursor cursor = null;
+            try {
+                cursor = context.getContentResolver().query(uri, projection, null, null, "date_added DESC");
+            } catch(SecurityException e) {
+                e.printStackTrace();
+            }
 
             // loop through them to sync
             PBMedia media;

@@ -82,11 +82,11 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
 
         if (intent != null) { // explicitly launch by the user
 
-            // stop by the notification
+            // stopped by the notification
             if (intent.getAction() != null && intent.getAction().equals(PBService.STOP_SERVICE)) {
                 if (mediaSender != null) {
                     LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-                    Toast.makeText(this, R.string.service_state_not_running, Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, R.string.service_stopped, Toast.LENGTH_LONG).show();
 
                     // remove the notification
                     NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
