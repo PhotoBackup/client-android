@@ -27,6 +27,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.EditTextPreference;
@@ -34,6 +36,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.webkit.URLUtil;
 import android.widget.Toast;
@@ -56,6 +59,8 @@ public class PBSettingsFragment extends PreferenceFragment
     private SharedPreferences.Editor preferencesEditor;
     private Preference uploadJournalPref;
 
+
+    private static final int REQUEST_READ_EXTERNAL_STORAGE = 0x0;
 
     // binding
     private boolean isBoundToService = false;
@@ -336,6 +341,38 @@ public class PBSettingsFragment extends PreferenceFragment
     }
 
 
+    public void testStoragePermissions() {
+        Log.i(LOG_TAG, "testStoragePermissions()");
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            // "Dynamic" permissions did not exist before M
+            return;
+        }
+        if(ContextCompat.checkSelfPermission(getContext(), android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            disableService();
+            requestPermissions(new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE},
+                    REQUEST_READ_EXTERNAL_STORAGE);
+        }
+    }
+
+
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch(requestCode) {
+            case REQUEST_READ_EXTERNAL_STORAGE: {
+                Log.i(LOG_TAG, "Received response for READ_EXTERNAL_STORAGE permission request.");
+                if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.i(LOG_TAG, "READ_EXTERNAL_STORAGE permission granted.");
+                    enableService();
+                } else {
+                    Log.i(LOG_TAG, "READ_EXTERNAL_STORAGE was NOT granted.");
+                    Toast.makeText(getActivity(), R.string.toast_permissions_required, Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
+
+
     ////////////////////////////////////
     // PBMediaStoreListener callbacks //
     ////////////////////////////////////
@@ -348,18 +385,30 @@ public class PBSettingsFragment extends PreferenceFragment
     // PBMediaSenderEvents callbacks //
     ///////////////////////////////////
     public void onTestSuccess() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            enableService();
+            return;
+        }
+
+        testStoragePermissions();
+    }
+
+
+    public void onTestFailure() {
+        disableService();
+    }
+
+    protected void enableService() {
         final Intent serviceIntent = new Intent(getActivity(), PBService.class);
         getActivity().startService(serviceIntent);
         getActivity().bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         isBoundToService = true;
     }
 
-
-    public void onTestFailure() {
+    protected void disableService() {
         final SwitchPreference switchPreference = (SwitchPreference) findPreference(PBSettingsFragment.PREF_SERVICE_RUNNING);
         switchPreference.setChecked(false);
     }
-
 
     public void onSendSuccess() {}
     public void onSendFailure()  {}

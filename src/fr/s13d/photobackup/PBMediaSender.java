@@ -100,7 +100,9 @@ public class PBMediaSender {
 
 
     public void addInterface(PBMediaSenderInterface senderInterface) {
-        interfaces.add(senderInterface);
+        if ( !interfaces.contains(senderInterface)) {
+            interfaces.add(senderInterface);
+        }
     }
 
 
