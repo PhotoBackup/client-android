@@ -32,17 +32,17 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.widget.Toast;
 
+
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
-
-import org.apache.http.Header;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.msebera.android.httpclient.Header;
 import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
 
 
