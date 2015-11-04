@@ -19,6 +19,7 @@
 
 package fr.s13d.photobackup;
 
+import android.Manifest;
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -27,6 +28,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.EditTextPreference;
@@ -34,6 +37,9 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.webkit.URLUtil;
 import android.widget.Toast;
@@ -50,6 +56,7 @@ public class PBSettingsFragment extends PreferenceFragment
                                            PBMediaStoreInterface, PBMediaSenderInterface {
 
     private static final String LOG_TAG = "PBSettingsFragment";
+    private static final int PERMISSION_READ_EXTERNAL_STORAGE = 0;
     private static PBSettingsFragment self;
     private PBService currentService;
     private SharedPreferences preferences;
@@ -184,6 +191,23 @@ public class PBSettingsFragment extends PreferenceFragment
     }
 
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
+
+        if (requestCode == PERMISSION_READ_EXTERNAL_STORAGE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.i(LOG_TAG, "READ_EXTERNAL_STORAGE permission granted.");
+                testMediaSender(); // continue to next step
+            } else {
+                Log.i(LOG_TAG, "READ_EXTERNAL_STORAGE was NOT granted.");
+                Toast.makeText(getActivity(), R.string.toast_permission_not_granted, Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+
     /////////////////////
     // private methods //
     /////////////////////
@@ -207,7 +231,7 @@ public class PBSettingsFragment extends PreferenceFragment
         if (userDidStart) {
             if (validatePreferences()) {
                 Log.i(LOG_TAG, "start PhotoBackup service");
-                testMediaSender();
+                checkPermissions();
             } else {
                 final SwitchPreference switchPreference = (SwitchPreference) findPreference(PREF_SERVICE_RUNNING);
                 switchPreference.setChecked(false);
@@ -222,6 +246,23 @@ public class PBSettingsFragment extends PreferenceFragment
         }
     }
 
+
+    private void checkPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int permissionCheck = ContextCompat.checkSelfPermission(getContext(),
+                    Manifest.permission.READ_EXTERNAL_STORAGE);
+            if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        PERMISSION_READ_EXTERNAL_STORAGE);
+            } else {
+                Log.i(LOG_TAG, "Permission READ_EXTERNAL_STORAGE already given, cool!");
+                testMediaSender(); // next step
+            }
+        } else { // for older Android versions, continue without asking permission
+            testMediaSender();
+        }
+    }
 
     private boolean validatePreferences() {
         String serverUrl = preferences.getString(PREF_SERVER_URL, "");

@@ -24,6 +24,7 @@
     <string name="toast_test_configuration">Testing server</string>
     <string name="toast_configuration_ok">Server configuration is valid, great!</string>
     <string name="toast_configuration_ko">Server test failed, please verify your configuration.</string>
+    <string name="toast_permission_not_granted">PhotoBackup cannot work properly without the permission to read your pictures.</string>
 
     <string name="info_conf">Informations</string>
     <string name="journal_title">Upload journal</string>
