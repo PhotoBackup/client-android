@@ -19,7 +19,10 @@
 package fr.s13d.photobackup;
 
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.widget.Toast;
 
 public class PBActivity extends Activity {
 
@@ -34,6 +37,24 @@ public class PBActivity extends Activity {
 		super.onCreate(savedInstanceState);
         getFragmentManager().beginTransaction().replace(android.R.id.content, settingsFragment).commit();
 	}
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == PBSettingsFragment.PERMISSION_READ_EXTERNAL_STORAGE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.i("PBSettingsFragment", "READ_EXTERNAL_STORAGE permission granted.");
+                settingsFragment.testMediaSender(); // continue to next step
+            } else {
+                Log.i("PBSettingsFragment", "READ_EXTERNAL_STORAGE was NOT granted.");
+                Toast.makeText(this, R.string.toast_permission_not_granted, Toast.LENGTH_LONG).show();
+            }
+        }
+    }
 
 
     /////////////

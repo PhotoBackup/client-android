@@ -37,7 +37,6 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -56,12 +55,12 @@ public class PBSettingsFragment extends PreferenceFragment
                                            PBMediaStoreInterface, PBMediaSenderInterface {
 
     private static final String LOG_TAG = "PBSettingsFragment";
-    private static final int PERMISSION_READ_EXTERNAL_STORAGE = 0;
     private static PBSettingsFragment self;
     private PBService currentService;
     private SharedPreferences preferences;
     private SharedPreferences.Editor preferencesEditor;
     private Preference uploadJournalPref;
+    public static final int PERMISSION_READ_EXTERNAL_STORAGE = 0;
 
 
     // binding
@@ -188,23 +187,6 @@ public class PBSettingsFragment extends PreferenceFragment
             Log.e(LOG_TAG, "Error: preferences == null");
         }
 
-    }
-
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[],
-                                           @NonNull int[] grantResults) {
-
-        if (requestCode == PERMISSION_READ_EXTERNAL_STORAGE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.i(LOG_TAG, "READ_EXTERNAL_STORAGE permission granted.");
-                testMediaSender(); // continue to next step
-            } else {
-                Log.i(LOG_TAG, "READ_EXTERNAL_STORAGE was NOT granted.");
-                Toast.makeText(getActivity(), R.string.toast_permission_not_granted, Toast.LENGTH_LONG).show();
-            }
-        }
     }
 
 

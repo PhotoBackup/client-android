@@ -24,7 +24,7 @@
     <string name="toast_test_configuration">Test du serveur</string>
     <string name="toast_configuration_ok">La configuration du serveur est bonne.</string>
     <string name="toast_configuration_ko">Le test du serveur a échoué, merci de vérifier sa configuration.</string>
-    <string name="toast_permission_not_granted">PhotoBackup ne peut pas fonctionner correctement sans la permission d'accès à vos photos.</string>
+    <string name="toast_permission_not_granted">PhotoBackup ne peut pas fonctionner correctement sans permission d\'accès à vos photos.</string>
 
     <string name="info_conf">Informations</string>
     <string name="journal_title">Journal d\'envoi</string>
