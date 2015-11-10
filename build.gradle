@@ -10,14 +10,14 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "22.0.1"
+    buildToolsVersion "23.0.2"
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 13
-        versionName "0.6.4"
+        versionCode 14
+        versionName "0.6.5"
     }
 
     sourceSets {
