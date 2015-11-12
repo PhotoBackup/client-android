@@ -18,6 +18,12 @@
     <string name="only_wifi_title">Backup</string>
     <string name="only_wifi">Over Wi-Fi only</string>
     <string name="not_only_wifi">Over Wi-Fi or mobile network</string>
+    <string name="only_wifi_default">@string/only_wifi</string>
+
+    <string name="only_recent_upload_title">Pictures to upload</string>
+    <string name="only_recent_upload">Only newly taken</string>
+    <string name="not_only_recent_upload">All pictures of the device</string>
+    <string name="only_recent_upload_default">@string/only_recent_upload</string>
 
     <string name="toast_urisyntaxexception">The server address is invalid!</string>
     <string name="toast_serverpassempty">The password cannot be empty!</string>
@@ -29,7 +35,7 @@
     <string name="info_conf">Informations</string>
     <string name="journal_title">Upload journal</string>
     <string name="journal_noaccess">Launch the service to access the journal.</string>
-    <string name="journal_backedup">Backed up</string>
+    <string name="journal_backedup">Saved</string>
     <string name="journal_waiting">Waiting</string>
     <string name="journal_error">Error</string>
 

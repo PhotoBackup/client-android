@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="pref_wifi_entries">
+        <item>@string/only_wifi</item>
+        <item>@string/not_only_wifi</item>
+    </string-array>
+    <string-array name="pref_wifi_values">
+        <item>@string/only_wifi</item>
+        <item>@string/not_only_wifi</item>
+    </string-array>
+
+    <string-array name="pref_upload_entries">
+        <item>@string/only_recent_upload</item>
+        <item>@string/not_only_recent_upload</item>
+    </string-array>
+    <string-array name="pref_upload_values">
+        <item>@string/only_recent_upload</item>
+        <item>@string/not_only_recent_upload</item>
+    </string-array>
+
+
+</resources>

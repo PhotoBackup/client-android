@@ -12,11 +12,28 @@
         android:defaultValue="false"
         android:disableDependentsState="true" />
 
-    <fr.s13d.photobackup.PSSingleSelectPreference
+<!--    <fr.s13d.photobackup.PSSingleSelectPreference
         android:key="PREF_WIFI_ONLY"
         android:title="@string/only_wifi_title"
+        android:defaultValue="false" />-->
+
+    <ListPreference
+        android:key="PREF_WIFI_ONLY"
+        android:dependency="PREF_SERVICE_RUNNING"
+        android:title="@string/only_wifi_title"
+        android:dialogTitle="@string/only_wifi_title"
+        android:entries="@array/pref_wifi_entries"
+        android:entryValues="@array/pref_wifi_values"
         android:defaultValue="false" />
 
+    <ListPreference
+        android:key="PREF_RECENT_UPLOAD_ONLY"
+        android:dependency="PREF_SERVICE_RUNNING"
+        android:title="@string/only_recent_upload_title"
+        android:dialogTitle="@string/only_recent_upload_title"
+        android:entries="@array/pref_upload_entries"
+        android:entryValues="@array/pref_upload_values"
+        android:defaultValue="@string/only_recent_upload" />
 
     <PreferenceCategory
         android:title="@string/server_conf"

@@ -108,21 +108,24 @@ public class PBMediaSender {
     // Send media //
     ////////////////
     public void send(final PBMedia media) {
-        // user preference
-        Boolean wifiOnly = prefs.getBoolean(PBSettingsFragment.PREF_WIFI_ONLY,
-                                            PBSettingsFragment.DEFAULT_WIFI_ONLY);
-
-        // test current network
+        // network
+        String wifiOnlyString = prefs.getString(PBSettingsFragment.PREF_WIFI_ONLY,
+                context.getResources().getString(R.string.only_wifi_default));
+        Boolean wifiOnly = wifiOnlyString.equals(context.getResources().getString(R.string.only_wifi));
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info = cm.getActiveNetworkInfo();
-        if (wifiOnly) {
-            if (info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI) {
-                sendMedia(media); // send if on wifi and user ask for wifi only
-            }
-        } else {
-            sendMedia(media); // always send if user do not care about wifi only
-        }
+        Boolean onWifi = info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI;
 
+        // recently taken picture
+        String uploadRecentOnlyString = prefs.getString(PBSettingsFragment.PREF_RECENT_UPLOAD_ONLY,
+                context.getResources().getString(R.string.only_recent_upload_default));
+        Boolean uploadRecentOnly = uploadRecentOnlyString.equals(context.getResources().getString(R.string.only_recent_upload));
+        Boolean recentPicture = (System.currentTimeMillis() / 1000 - media.getDateAdded()) < 60;
+
+        // test to send or not
+        if ((!wifiOnly || onWifi) && (!uploadRecentOnly || recentPicture)) {
+            sendMedia(media);
+        }
     }
 
 

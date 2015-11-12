@@ -18,6 +18,12 @@
     <string name="only_wifi_title">Sauvegarde</string>
     <string name="only_wifi">Via Wi-Fi uniquement</string>
     <string name="not_only_wifi">Via Wi-Fi ou réseau mobile</string>
+    <string name="only_wifi_default">@string/only_wifi</string>
+
+    <string name="only_recent_upload_title">Photos à sauvegarder</string>
+    <string name="only_recent_upload">Seulement les nouvelles</string>
+    <string name="not_only_recent_upload">Toutes les photos de l\'appareil</string>
+    <string name="only_recent_upload_default">@string/only_recent_upload</string>
 
     <string name="toast_urisyntaxexception">L\'adresse du serveur est invalide !</string>
     <string name="toast_serverpassempty">Le mot de passe ne peut pas être vide !</string>

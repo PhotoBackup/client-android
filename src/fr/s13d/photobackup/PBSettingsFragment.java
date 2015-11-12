@@ -20,6 +20,7 @@
 package fr.s13d.photobackup;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -33,6 +34,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.EditTextPreference;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
@@ -99,7 +101,7 @@ public class PBSettingsFragment extends PreferenceFragment
     private static final String PREF_SERVER_PASS = "PREF_SERVER_PASS";
     public static final String PREF_SERVER_PASS_HASH = "PREF_SERVER_PASS_HASH";
     public static final String PREF_WIFI_ONLY = "PREF_WIFI_ONLY";
-    public static final Boolean DEFAULT_WIFI_ONLY = false;
+    public static final String PREF_RECENT_UPLOAD_ONLY = "PREF_RECENT_UPLOAD_ONLY";
 
 
     //////////////////
@@ -179,9 +181,10 @@ public class PBSettingsFragment extends PreferenceFragment
             }
 
         } else if (key.equals(PREF_WIFI_ONLY)) {
-            Boolean wifiOnly = sharedPreferences.getBoolean(PREF_WIFI_ONLY, DEFAULT_WIFI_ONLY);
-            Log.i(LOG_TAG, "wifiOnly = " + wifiOnly);
-            //preferencesEditor.putBoolean(PREF_WIFI_ONLY, wifiOnly).apply();
+            setSummaries();
+
+        } else if (key.equals(PREF_RECENT_UPLOAD_ONLY)) {
+            setSummaries();
 
         } else if (sharedPreferences == null) {
             Log.e(LOG_TAG, "Error: preferences == null");
@@ -203,6 +206,22 @@ public class PBSettingsFragment extends PreferenceFragment
 
         // show set server url
         updateServerUrlPreference();
+
+        // initiate preferences summaries
+        setSummaries();
+    }
+
+
+    private void setSummaries() {
+        String wifiOnly = preferences.getString(PREF_WIFI_ONLY,
+                getResources().getString(R.string.only_wifi_default)); // default
+        final ListPreference wifiPreference = (ListPreference) findPreference(PREF_WIFI_ONLY);
+        wifiPreference.setSummary(wifiOnly);
+
+        String recentUploadOnly = preferences.getString(PREF_RECENT_UPLOAD_ONLY,
+                getResources().getString(R.string.only_recent_upload_default)); // default
+        final ListPreference recentUploadPreference = (ListPreference) findPreference(PREF_RECENT_UPLOAD_ONLY);
+        recentUploadPreference.setSummary(recentUploadOnly);
     }
 
 
@@ -266,14 +285,17 @@ public class PBSettingsFragment extends PreferenceFragment
     // Returns the current state of the PhotoBackup Service
     // See http://stackoverflow.com/a/5921190/417006
     private boolean isPhotoBackupServiceRunning() {
-        final ActivityManager manager = (ActivityManager) getActivity().getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (PBService.class.getName().equals(service.service.getClassName())) {
-                Log.i(LOG_TAG, "Service is running");
-                return true;
+        final Activity activity = getActivity();
+        if (activity != null) {
+            final ActivityManager manager = (ActivityManager) getActivity().getSystemService(Context.ACTIVITY_SERVICE);
+            for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+                if (PBService.class.getName().equals(service.service.getClassName())) {
+                    Log.i(LOG_TAG, "Service is running");
+                    return true;
+                }
             }
         }
-        Log.i(LOG_TAG, "Service is NOT running");
+        Log.i(LOG_TAG, "Service or activity is NOT running");
         return false;
     }
 
@@ -379,7 +401,7 @@ public class PBSettingsFragment extends PreferenceFragment
 
 
     public void onTestFailure() {
-        final SwitchPreference switchPreference = (SwitchPreference) findPreference(PBSettingsFragment.PREF_SERVICE_RUNNING);
+        final SwitchPreference switchPreference = (SwitchPreference) findPreference(PREF_SERVICE_RUNNING);
         switchPreference.setChecked(false);
     }
 

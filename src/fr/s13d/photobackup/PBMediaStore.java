@@ -150,7 +150,7 @@ public class PBMediaStore {
             Set<String> inCursor = new HashSet<>();
 
             // Get all pictures on device
-            final String[] projection = new String[] { "_id", "_data" };
+            final String[] projection = new String[] { "_id", "_data", "date_added" };
             Cursor cursor = null;
             try {
                 cursor = context.getContentResolver().query(uri, projection, null, null, "date_added DESC");

@@ -21,12 +21,14 @@ package fr.s13d.photobackup;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.provider.MediaStore;
 
 import java.io.Serializable;
 
 public class PBMedia implements Serializable {
     final private int id;
     final private String path;
+    final private long dateAdded;
     private PBMediaState state;
     Context context;
     public enum PBMediaState { WAITING, SYNCED, ERROR }
@@ -38,6 +40,7 @@ public class PBMedia implements Serializable {
     public PBMedia(Context context, Cursor mediaCursor) {
         this.id = mediaCursor.getInt(mediaCursor.getColumnIndexOrThrow("_id"));
         this.path = mediaCursor.getString(mediaCursor.getColumnIndexOrThrow("_data"));
+        this.dateAdded = mediaCursor.getLong(mediaCursor.getColumnIndexOrThrow("date_added"));
 
         // Find state from the shared preferences
         SharedPreferences preferences = context.getSharedPreferences(PBMediaStore.PhotoBackupPicturesSharedPreferences, Context.MODE_PRIVATE);
@@ -67,6 +70,10 @@ public class PBMedia implements Serializable {
 
     public String getPath() {
         return this.path;
+    }
+
+    public long getDateAdded() {
+        return this.dateAdded;
     }
 
     public PBMediaState getState() {
