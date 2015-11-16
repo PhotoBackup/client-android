@@ -20,10 +20,13 @@ package fr.s13d.photobackup;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -32,12 +35,14 @@ import java.io.File;
 
 public class PBJournalAdapter extends BaseAdapter {
 	private static LayoutInflater inflater;
-    private Context context = null;
+    private final Context context;
+    private final SharedPreferences preferences;
 
 
 	public PBJournalAdapter(final Activity activity) {
-		inflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         context = activity;
+		inflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        preferences = PreferenceManager.getDefaultSharedPreferences(activity);
 	}
 
 
@@ -49,6 +54,16 @@ public class PBJournalAdapter extends BaseAdapter {
         // fetch media from store list
         PBMedia media = PBActivity.getMediaStore().getMedias().get(position);
         if (media == null || media.getId() == -1) {
+            return view;
+        }
+
+        // check if this view has to be shown (filtering through toggle buttons)
+        Boolean synced = preferences.getBoolean(PBMedia.PBMediaState.SYNCED.name(), true);
+        Boolean waiting = preferences.getBoolean(PBMedia.PBMediaState.WAITING.name(), true);
+        Boolean error = preferences.getBoolean(PBMedia.PBMediaState.ERROR.name(), true);
+        if (media.getState() == PBMedia.PBMediaState.SYNCED && !synced ||
+            media.getState() == PBMedia.PBMediaState.WAITING && !waiting ||
+            media.getState() == PBMedia.PBMediaState.ERROR && !error) {
             return view;
         }
 
@@ -81,6 +96,11 @@ public class PBJournalAdapter extends BaseAdapter {
 
 		return view;
 	}
+
+    /*@Override
+    public Filter getFilter() {
+        return null;
+    }*/
 
     @Override
     public int getCount() {

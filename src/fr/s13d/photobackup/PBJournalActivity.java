@@ -22,21 +22,32 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ToggleButton;
 
 
 public class PBJournalActivity extends ListActivity {
 
     private PBMediaSender mediaSender;
+    private SharedPreferences preferences;
+    private SharedPreferences.Editor preferencesEditor;
+
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // layout
         setContentView(R.layout.activity_journal);
 
+        // preferences
+        initPreferences();
 
         // on click listener
         final Activity self = this;
@@ -49,7 +60,8 @@ public class PBJournalActivity extends ListActivity {
                     final PBMedia media = PBActivity.getMediaStore().getMedias().get(position);
 
                     final AlertDialog.Builder builder = new AlertDialog.Builder(self);
-                    builder.setMessage("You can backup this picture now!").setTitle("Manual backup");
+                    builder.setMessage(self.getResources().getString(R.string.manual_backup_message))
+                            .setTitle(self.getResources().getString(R.string.manual_backup_title));
                     builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             mediaSender.send(media);
@@ -66,6 +78,54 @@ public class PBJournalActivity extends ListActivity {
         // adapter
         final PBJournalAdapter adapter = new PBJournalAdapter(this);
         setListAdapter(adapter);
+    }
+
+
+    /////////////////////
+    // private methods //
+    /////////////////////
+    private void initPreferences() {
+        if (preferences == null) {
+            preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            preferencesEditor = preferences.edit();
+            preferencesEditor.apply();
+        }
+
+        // set stored values
+        ToggleButton savedButton = (ToggleButton)this.findViewById(R.id.savedToggleButton);
+        savedButton.setChecked(preferences.getBoolean(PBMedia.PBMediaState.SYNCED.name(), true));
+        ToggleButton waitingButton = (ToggleButton)this.findViewById(R.id.waitingToggleButton);
+        waitingButton.setChecked(preferences.getBoolean(PBMedia.PBMediaState.WAITING.name(), true));
+        ToggleButton errorButton = (ToggleButton)this.findViewById(R.id.errorToggleButton);
+        errorButton.setChecked(preferences.getBoolean(PBMedia.PBMediaState.ERROR.name(), true));
+    }
+
+
+    //////////////////
+    // buttons call //
+    //////////////////
+    public void clickOnSaved(View v) {
+        final ListView listView = (ListView)findViewById(android.R.id.list);
+        listView.invalidateViews();
+        Log.i("PBJournalActivity", "clickOnSaved");
+        ToggleButton btn = (ToggleButton)v;
+        preferencesEditor.putBoolean(PBMedia.PBMediaState.SYNCED.name(), btn.isChecked()).apply();
+    }
+
+    public void clickOnWaiting(View v) {
+        final ListView listView = (ListView)findViewById(android.R.id.list);
+        listView.invalidateViews();
+        Log.i("PBJournalActivity", "clickOnWaiting");
+        ToggleButton btn = (ToggleButton)v;
+        preferencesEditor.putBoolean(PBMedia.PBMediaState.WAITING.name(), btn.isChecked()).apply();
+    }
+
+    public void clickOnError(View v) {
+        final ListView listView = (ListView)findViewById(android.R.id.list);
+        listView.invalidateViews();
+        Log.i("PBJournalActivity", "clickOnError");
+        ToggleButton btn = (ToggleButton)v;
+        preferencesEditor.putBoolean(PBMedia.PBMediaState.ERROR.name(), btn.isChecked()).apply();
     }
 
 }

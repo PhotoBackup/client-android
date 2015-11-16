@@ -6,67 +6,53 @@
 
     <LinearLayout
         android:orientation="horizontal"
-        android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <ImageView
-            android:id="@+id/synced"
-            android:layout_width="wrap_content"
+        <ToggleButton
+            android:id="@+id/savedToggleButton"
+            android:drawableLeft="@android:drawable/presence_online"
+            android:drawableStart="@android:drawable/presence_online"
+            android:drawablePadding="0dip"
+            android:gravity="center"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="15dip"
-            android:layout_marginTop="15dip"
-            android:contentDescription="@string/thumbnail_description"
-            android:src="@android:drawable/presence_online" />
+            android:layout_weight="1"
+            android:layout_width="0px"
+            android:onClick="clickOnSaved"
+            android:paddingBottom="25dip"
+            android:paddingTop="20dip"
+            android:textOn="@string/journal_backedup"
+            android:textOff="@string/journal_backedup"/>
 
-        <TextView
-            android:layout_width="wrap_content"
+        <ToggleButton
+            android:id="@+id/waitingToggleButton"
+            android:drawableLeft="@android:drawable/presence_away"
+            android:drawableStart="@android:drawable/presence_away"
+            android:drawablePadding="0dip"
+            android:gravity="center"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="15dip"
-            android:layout_marginTop="15dip"
-            android:layout_marginLeft="5dip"
-            android:layout_marginStart="5dip"
-            android:text="@string/journal_backedup" />
+            android:layout_weight="1"
+            android:layout_width="0px"
+            android:onClick="clickOnWaiting"
+            android:paddingBottom="25dip"
+            android:paddingTop="20dip"
+            android:textOn="@string/journal_waiting"
+            android:textOff="@string/journal_waiting" />
 
-        <ImageView
-            android:id="@+id/local"
-            android:layout_width="wrap_content"
+        <ToggleButton
+            android:id="@+id/errorToggleButton"
+            android:drawableLeft="@android:drawable/presence_busy"
+            android:drawableStart="@android:drawable/presence_busy"
+            android:drawablePadding="0dip"
+            android:gravity="center"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="15dip"
-            android:layout_marginTop="15dip"
-            android:layout_marginLeft="15dip"
-            android:layout_marginStart="15dip"
-            android:contentDescription="@string/thumbnail_description"
-            android:src="@android:drawable/presence_away" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="15dip"
-            android:layout_marginTop="15dip"
-            android:layout_marginLeft="5dip"
-            android:layout_marginStart="5dip"
-            android:text="@string/journal_waiting" />
-
-        <ImageView
-            android:id="@+id/error"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="15dip"
-            android:layout_marginTop="15dip"
-            android:layout_marginLeft="15dip"
-            android:layout_marginStart="15dip"
-            android:contentDescription="@string/thumbnail_description"
-            android:src="@android:drawable/presence_busy" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="15dip"
-            android:layout_marginTop="15dip"
-            android:layout_marginLeft="5dip"
-            android:layout_marginStart="5dip"
-            android:text="@string/journal_error" />
+            android:layout_weight="1"
+            android:layout_width="0px"
+            android:onClick="clickOnError"
+            android:paddingBottom="25dip"
+            android:paddingTop="20dip"
+            android:textOn="@string/journal_error"
+            android:textOff="@string/journal_error" />
 
     </LinearLayout>
 

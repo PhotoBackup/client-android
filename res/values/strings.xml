@@ -21,7 +21,7 @@
     <string name="only_wifi_default">@string/only_wifi</string>
 
     <string name="only_recent_upload_title">Pictures to upload</string>
-    <string name="only_recent_upload">Only newly taken</string>
+    <string name="only_recent_upload">Newly taken only</string>
     <string name="not_only_recent_upload">All pictures of the device</string>
     <string name="only_recent_upload_default">@string/only_recent_upload</string>
 
@@ -58,5 +58,7 @@
     <string name="name">Name of the photo</string>
     <string name="thumbnail_description">Thumbnail of the photo</string>
     <string name="stop_service">Stop the service</string>
+    <string name="manual_backup_title">Manual backup</string>
+    <string name="manual_backup_message">You can backup this picture now!</string>
 
 </resources>
