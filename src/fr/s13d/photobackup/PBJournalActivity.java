@@ -37,6 +37,7 @@ public class PBJournalActivity extends ListActivity {
     private PBMediaSender mediaSender;
     private SharedPreferences preferences;
     private SharedPreferences.Editor preferencesEditor;
+    private PBJournalAdapter adapter;
 
 
     @Override
@@ -64,7 +65,7 @@ public class PBJournalActivity extends ListActivity {
                             .setTitle(self.getResources().getString(R.string.manual_backup_title));
                     builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            mediaSender.send(media);
+                            mediaSender.send(media, true);
                         }
                     });
                     builder.setNegativeButton("Cancel", null);
@@ -76,10 +77,17 @@ public class PBJournalActivity extends ListActivity {
         });
 
         // adapter
-        final PBJournalAdapter adapter = new PBJournalAdapter(this);
+        adapter = new PBJournalAdapter(this);
         setListAdapter(adapter);
+        adapter.getFilter().filter(null); // to init the view
     }
 
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        adapter.close();
+    }
 
     /////////////////////
     // private methods //
@@ -105,27 +113,24 @@ public class PBJournalActivity extends ListActivity {
     // buttons call //
     //////////////////
     public void clickOnSaved(View v) {
-        final ListView listView = (ListView)findViewById(android.R.id.list);
-        listView.invalidateViews();
         Log.i("PBJournalActivity", "clickOnSaved");
         ToggleButton btn = (ToggleButton)v;
         preferencesEditor.putBoolean(PBMedia.PBMediaState.SYNCED.name(), btn.isChecked()).apply();
+        adapter.getFilter().filter(null);
     }
 
     public void clickOnWaiting(View v) {
-        final ListView listView = (ListView)findViewById(android.R.id.list);
-        listView.invalidateViews();
         Log.i("PBJournalActivity", "clickOnWaiting");
         ToggleButton btn = (ToggleButton)v;
         preferencesEditor.putBoolean(PBMedia.PBMediaState.WAITING.name(), btn.isChecked()).apply();
+        adapter.getFilter().filter(null);
     }
 
     public void clickOnError(View v) {
-        final ListView listView = (ListView)findViewById(android.R.id.list);
-        listView.invalidateViews();
         Log.i("PBJournalActivity", "clickOnError");
         ToggleButton btn = (ToggleButton)v;
         preferencesEditor.putBoolean(PBMedia.PBMediaState.ERROR.name(), btn.isChecked()).apply();
+        adapter.getFilter().filter(null);
     }
 
 }

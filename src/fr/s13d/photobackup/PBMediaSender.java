@@ -107,7 +107,7 @@ public class PBMediaSender {
     ////////////////
     // Send media //
     ////////////////
-    public void send(final PBMedia media) {
+    public void send(final PBMedia media, boolean manual) {
         // network
         String wifiOnlyString = prefs.getString(PBSettingsFragment.PREF_WIFI_ONLY,
                 context.getResources().getString(R.string.only_wifi_default));
@@ -123,7 +123,7 @@ public class PBMediaSender {
         Boolean recentPicture = (System.currentTimeMillis() / 1000 - media.getDateAdded()) < 60;
 
         // test to send or not
-        if ((!wifiOnly || onWifi) && (!uploadRecentOnly || recentPicture)) {
+        if (manual || (!wifiOnly || onWifi) && (!uploadRecentOnly || recentPicture)) {
             sendMedia(media);
         }
     }

@@ -21,59 +21,86 @@ package fr.s13d.photobackup;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.Message;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.File;
+import java.util.ArrayList;
 
 
-public class PBJournalAdapter extends BaseAdapter {
+public class PBJournalAdapter extends BaseAdapter implements Filterable, Handler.Callback {
+    private static final String LOG_TAG = "PBJournalAdapter";
 	private static LayoutInflater inflater;
     private final Context context;
     private final SharedPreferences preferences;
+    private Handler messageHandler;
+    private ArrayList<PBMedia> items;
 
 
 	public PBJournalAdapter(final Activity activity) {
         context = activity;
 		inflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+
+        // Create and start a new thread for the handler
+        HandlerThread handlerThread = new HandlerThread("BackgroundThread");
+        handlerThread.start();
+        messageHandler = new Handler(handlerThread.getLooper(), this);
 	}
 
 
-	@Override
+    public void close() {
+        messageHandler.getLooper().quit();
+    }
+
+
+    @Override
+    public boolean handleMessage(Message message) {
+        // done on async thread
+        View view = (View)message.obj;
+        final ImageView thumbImageView = (ImageView)view.findViewById(R.id.thumbnail);
+        final Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(),
+                message.arg1, MediaStore.Images.Thumbnails.MINI_KIND, null);
+
+        // back on UI thread to set the bitmap to the view
+        new Handler(context.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                thumbImageView.setImageBitmap(bitmap);
+            }
+        });
+
+        return true;
+    }
+
+
+    @Override
 	public View getView(int position, View view, ViewGroup parent) {
         // create the view if not available
         view = (view == null) ? inflater.inflate(R.layout.list_row, parent, false) : view;
 
         // fetch media from store list
-        PBMedia media = PBActivity.getMediaStore().getMedias().get(position);
+        //PBMedia media = PBActivity.getMediaStore().getMedias().get(position);
+        PBMedia media = items.get(position);
         if (media == null || media.getId() == -1) {
             return view;
         }
 
-        // check if this view has to be shown (filtering through toggle buttons)
-        Boolean synced = preferences.getBoolean(PBMedia.PBMediaState.SYNCED.name(), true);
-        Boolean waiting = preferences.getBoolean(PBMedia.PBMediaState.WAITING.name(), true);
-        Boolean error = preferences.getBoolean(PBMedia.PBMediaState.ERROR.name(), true);
-        if (media.getState() == PBMedia.PBMediaState.SYNCED && !synced ||
-            media.getState() == PBMedia.PBMediaState.WAITING && !waiting ||
-            media.getState() == PBMedia.PBMediaState.ERROR && !error) {
-            return view;
-        }
-
         // thumbnail
-		final ImageView thumbImageView = (ImageView)view.findViewById(R.id.thumbnail);
-        // set a resource to show something nice in recycled views
-        thumbImageView.setImageResource(android.R.drawable.ic_menu_gallery);
-        // set thumbnail to the view asynchronously
-        final PBThumbnailTask task = new PBThumbnailTask(context, thumbImageView);
-        task.execute(media.getId());
+        messageHandler.obtainMessage(0, media.getId(), 0, view).sendToTarget();
 
 		// filename
 		final TextView textView = (TextView)view.findViewById(R.id.filename);
@@ -97,19 +124,63 @@ public class PBJournalAdapter extends BaseAdapter {
 		return view;
 	}
 
-    /*@Override
+
+    @Override
     public Filter getFilter() {
-        return null;
-    }*/
+        return new Filter() {
+
+            @SuppressWarnings("unchecked")
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+
+                items = (ArrayList<PBMedia>) results.values;
+                notifyDataSetChanged();
+            }
+
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+
+                FilterResults results = new FilterResults();
+                ArrayList<PBMedia> mediaList = new ArrayList<>();
+
+                // perform search
+                Boolean synced = preferences.getBoolean(PBMedia.PBMediaState.SYNCED.name(), true);
+                Boolean waiting = preferences.getBoolean(PBMedia.PBMediaState.WAITING.name(), true);
+                Boolean error = preferences.getBoolean(PBMedia.PBMediaState.ERROR.name(), true);
+                for (PBMedia media : PBActivity.getMediaStore().getMedias()) {
+                    if (media.getState() == PBMedia.PBMediaState.SYNCED && synced ||
+                            media.getState() == PBMedia.PBMediaState.WAITING && waiting ||
+                            media.getState() == PBMedia.PBMediaState.ERROR && error) {
+                        mediaList.add(media);
+                    }
+                }
+
+                results.values = mediaList;
+                results.count = mediaList.size();
+                return results;
+            }
+        };
+    }
 
     @Override
     public int getCount() {
-        return PBActivity.getMediaStore().getMedias().size();
+        int count = 0;
+        try {
+            count = items.size();
+        } catch (java.lang.NullPointerException e) {
+            Log.e(LOG_TAG, "count = " + count);
+        }
+        return count;
     }
 
     @Override
     public Object getItem(final int position) {
-        return PBActivity.getMediaStore().getMediaAt(position);
+        try {
+            return items.get(position);
+        } catch (java.lang.NullPointerException e) {
+            return null;
+        }
+        //return PBActivity.getMediaStore().getMediaAt(position);
     }
 
     @Override

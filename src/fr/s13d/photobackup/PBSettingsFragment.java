@@ -355,7 +355,6 @@ public class PBSettingsFragment extends PreferenceFragment
 
 
     private void updateUploadJournalPreference() {
-        // isAdded() to be sure the fragment is currently attached to the activity
         try {
             if (isPhotoBackupServiceRunning() && currentService != null) {
                 uploadJournalPref.setTitle(this.getResources().getString(R.string.journal_title) +

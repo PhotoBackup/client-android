@@ -123,7 +123,7 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
         if (mediaStore != null) {
             for (PBMedia media : mediaStore.getMedias()) {
                 if (media.getState() != PBMedia.PBMediaState.SYNCED) {
-                    mediaSender.send(media);
+                    mediaSender.send(media, false);
                     break;
                 }
             }
@@ -174,7 +174,8 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
                 try {
                     final PBMedia media = mediaStore.getLastMediaInStore();
                     media.setState(PBMedia.PBMediaState.WAITING);
-                    mediaSender.send(media);
+                    mediaSender.send(media, false);
+                    //mediaStore.sync();
                 }
                 catch (Exception e) {
                     Log.e(LOG_TAG, "Upload failed :-(");
