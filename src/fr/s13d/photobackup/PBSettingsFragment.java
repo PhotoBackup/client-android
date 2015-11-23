@@ -73,7 +73,7 @@ public class PBSettingsFragment extends PreferenceFragment
             PBService.Binder b = (PBService.Binder) binder;
             currentService = b.getService();
             currentService.getMediaStore().addInterface(self);
-            onSyncMediaStoreTaskPostExecute(); // update journal entries number
+            updateUploadJournalPreference(); // update journal entries number
             Log.i(LOG_TAG, "Connected to service");
         }
 

@@ -83,10 +83,9 @@ public class PBMedia implements Serializable {
     public void setState(PBMediaState mediaState) {
         if (this.state != mediaState) {
             this.state = mediaState;
-            Log.i("PBMedia", "Setting state " + mediaState.toString() + " to " + this.getPath());
-
             SharedPreferences preferences = context.getSharedPreferences(PBMediaStore.PhotoBackupPicturesSharedPreferences, Context.MODE_PRIVATE);
             preferences.edit().putString(String.valueOf(this.getId()), mediaState.name()).apply();
+            Log.i("PBMedia", "Set state " + mediaState.toString() + " to " + this.getPath());
         }
     }
 
