@@ -120,7 +120,7 @@ public class PBMediaSender {
         String uploadRecentOnlyString = prefs.getString(PBSettingsFragment.PREF_RECENT_UPLOAD_ONLY,
                 context.getResources().getString(R.string.only_recent_upload_default));
         Boolean uploadRecentOnly = uploadRecentOnlyString.equals(context.getResources().getString(R.string.only_recent_upload));
-        Boolean recentPicture = (System.currentTimeMillis() / 1000 - media.getDateAdded()) < 60;
+        Boolean recentPicture = (System.currentTimeMillis() / 1000 - media.getDateAdded()) < 600;
 
         // test to send or not
         if (manual || (!wifiOnly || onWifi) && (!uploadRecentOnly || recentPicture)) {
@@ -145,6 +145,7 @@ public class PBMediaSender {
         }
 
         // Send media
+        Log.i("PBMediaSender", "send " + media.getPath());
         client.post(serverUrl, params, new AsyncHttpResponseHandler(Looper.getMainLooper()) {
 
             @Override // called when response HTTP status is "200 OK"
