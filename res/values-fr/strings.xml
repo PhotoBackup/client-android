@@ -59,6 +59,6 @@
     <string name="thumbnail_description">Vignette de la photo</string>
     <string name="stop_service">Arrêter le service</string>
     <string name="manual_backup_title">Sauvegarde manuelle</string>
-    <string name="manual_backup_message">Vous pouvez sauvegarder cette photo maintenant !</string>
+    <string name="manual_backup_message">Sauvegarder cette photo maintenant !</string>
 
 </resources>

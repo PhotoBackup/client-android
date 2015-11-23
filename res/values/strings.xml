@@ -59,6 +59,6 @@
     <string name="thumbnail_description">Thumbnail of the photo</string>
     <string name="stop_service">Stop the service</string>
     <string name="manual_backup_title">Manual backup</string>
-    <string name="manual_backup_message">You can backup this picture now!</string>
+    <string name="manual_backup_message">Save this picture now!</string>
 
 </resources>
