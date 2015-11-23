@@ -97,15 +97,6 @@ public class PBMediaStore {
     }
 
 
-    public PBMedia getMediaAt(int position) {
-        Map<String, ?> mediasMap = context.getSharedPreferences(PhotoBackupPicturesSharedPreferences,
-                Context.MODE_PRIVATE).getAll();
-        List<String> keys = new ArrayList<>(mediasMap.keySet());
-        int mediaId = Integer.parseInt(keys.get(position));
-        return getMedia(mediaId);
-    }
-
-
     public List<PBMedia> getMedias() {
         return mediaList;
     }
@@ -162,6 +153,7 @@ public class PBMediaStore {
             PBMedia media;
             String stateString;
             PBMedia.PBMediaState state;
+            mediaList.clear();
             while (cursor != null && cursor.moveToNext()) {
                 if(syncTask.isCancelled()) {
                     Log.i(LOG_TAG, "SyncMediaStoreTask cancelled");
