@@ -24,7 +24,6 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
@@ -39,6 +38,8 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class PBJournalAdapter extends BaseAdapter implements Filterable, Handler.Callback {
@@ -48,12 +49,14 @@ public class PBJournalAdapter extends BaseAdapter implements Filterable, Handler
     private final SharedPreferences preferences;
     private Handler messageHandler;
     private ArrayList<PBMedia> items;
+    private Map<View, PBMedia> viewsContent;
 
 
 	public PBJournalAdapter(final Activity activity) {
         context = activity;
 		inflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+        viewsContent = new HashMap<>();
 
         // Create and start a new thread for the handler
         HandlerThread handlerThread = new HandlerThread("BackgroundThread");
@@ -73,7 +76,7 @@ public class PBJournalAdapter extends BaseAdapter implements Filterable, Handler
         View view = (View)message.obj;
         final ImageView thumbImageView = (ImageView)view.findViewById(R.id.thumbnail);
         final Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(),
-                message.arg1, MediaStore.Images.Thumbnails.MINI_KIND, null);
+                message.what, MediaStore.Images.Thumbnails.MINI_KIND, null);
 
         // back on UI thread to set the bitmap to the view
         new Handler(context.getMainLooper()).post(new Runnable() {
@@ -92,17 +95,21 @@ public class PBJournalAdapter extends BaseAdapter implements Filterable, Handler
         // create the view if not available
         view = (view == null) ? inflater.inflate(R.layout.list_row, parent, false) : view;
 
-        // fetch media from store list
-        //PBMedia media = PBActivity.getMediaStore().getMedias().get(position);
         PBMedia media = items.get(position);
         if (media == null || media.getId() == -1) {
             return view;
         }
 
-        // thumbnail
-        messageHandler.obtainMessage(0, media.getId(), 0, view).sendToTarget();
+        // stop message of this view, in case of recycling
+        if (viewsContent.containsKey(view)) {
+            messageHandler.removeMessages(viewsContent.get(view).getId());
+        }
+        viewsContent.put(view, media);
 
-		// filename
+        // create thumbnail
+        messageHandler.obtainMessage(media.getId(), view).sendToTarget();
+
+        // filename
 		final TextView textView = (TextView)view.findViewById(R.id.filename);
         if (media.getPath() != null) {
             final File file = new File(media.getPath());
