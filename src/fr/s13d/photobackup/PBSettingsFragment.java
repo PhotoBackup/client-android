@@ -47,6 +47,8 @@ import android.widget.Toast;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+import java.util.Objects;
 
 import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
 import fr.s13d.photobackup.interfaces.PBMediaStoreInterface;
@@ -131,6 +133,8 @@ public class PBSettingsFragment extends PreferenceFragment
             preferencesEditor = preferences.edit();
             preferencesEditor.apply();
         }
+        migratePreferences();
+
         initPreferences();
         preferences.registerOnSharedPreferenceChangeListener(this);
 
@@ -196,6 +200,22 @@ public class PBSettingsFragment extends PreferenceFragment
     /////////////////////
     // private methods //
     /////////////////////
+    private void migratePreferences() {
+        Map<String, ?> allPrefs = preferences.getAll();
+        if (allPrefs.containsKey(PREF_WIFI_ONLY)) {
+            Object obj = allPrefs.get(PREF_WIFI_ONLY);
+            if (obj instanceof Boolean) {
+                Log.i(LOG_TAG, "Migrating PREF_WIFI_ONLY for v0.7.0");
+                Boolean bool = preferences.getBoolean(PREF_WIFI_ONLY, false);
+                String wifiOnlyString = bool ? getString(R.string.only_wifi) : getString(R.string.not_only_wifi);
+                preferencesEditor.putString(PREF_WIFI_ONLY, wifiOnlyString).apply();
+                Log.i(LOG_TAG, "Migration done!");
+            }
+        }
+
+    }
+
+
     private void initPreferences() {
         // init
         uploadJournalPref = findPreference("uploadJournalPref");
