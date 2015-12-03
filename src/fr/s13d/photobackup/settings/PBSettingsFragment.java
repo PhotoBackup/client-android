@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fr.s13d.photobackup;
+package fr.s13d.photobackup.settings;
 
 import android.Manifest;
 import android.app.Activity;
@@ -48,8 +48,11 @@ import android.widget.Toast;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
-import java.util.Objects;
 
+import fr.s13d.photobackup.Log;
+import fr.s13d.photobackup.PBMediaSender;
+import fr.s13d.photobackup.PBService;
+import fr.s13d.photobackup.R;
 import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
 import fr.s13d.photobackup.interfaces.PBMediaStoreInterface;
 

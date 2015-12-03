@@ -44,6 +44,7 @@ import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
 import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
+import fr.s13d.photobackup.settings.PBSettingsFragment;
 
 
 public class PBMediaSender {
@@ -64,7 +65,7 @@ public class PBMediaSender {
     private static int failureCount = 0;
 
 
-    PBMediaSender(final Context context) {
+    public PBMediaSender(final Context context) {
         this.context = context;
         this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         this.builder = new Notification.Builder(context);

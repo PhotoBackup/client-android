@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <string-array name="pref_server_entries">
+        <item>PhotoBackup</item>
+        <item>FTP</item>
+    </string-array>
+    <string-array name="pref_server_values">
+        <item>PhotoBackup</item>
+        <item>FTP</item>
+    </string-array>
+
     <string-array name="pref_wifi_entries">
         <item>@string/only_wifi</item>
         <item>@string/not_only_wifi</item>
@@ -17,6 +27,5 @@
         <item>@string/only_recent_upload</item>
         <item>@string/not_only_recent_upload</item>
     </string-array>
-
 
 </resources>

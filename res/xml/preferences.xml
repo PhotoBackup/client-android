@@ -31,8 +31,16 @@
     <PreferenceCategory
         android:title="@string/server_conf"
         android:key="server_conf">
-    
-    	<EditTextPreference
+
+        <fr.s13d.photobackup.settings.PBServerListPreference
+            android:dialogIcon="@android:drawable/stat_sys_upload_done"
+            android:title="Pick a server"
+            android:entries="@array/pref_server_entries"
+            android:entryValues="@array/pref_server_values"
+            android:defaultValue="@string/only_recent_upload">
+        </fr.s13d.photobackup.settings.PBServerListPreference>
+
+        <EditTextPreference
     		android:key="PREF_SERVER_URL"
     		android:title="@string/server_url_title"
     		android:summary="@string/server_url_summary"   

@@ -24,6 +24,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.widget.Toast;
 
+import fr.s13d.photobackup.settings.PBSettingsFragment;
+
 public class PBActivity extends Activity {
 
     private static final PBSettingsFragment settingsFragment = new PBSettingsFragment();

@@ -19,7 +19,7 @@
 package fr.s13d.photobackup;
 
 
-final class Log {
+final public class Log {
 
 	public static void d(String tag, String message) {
         if (BuildConfig.DEBUG) {

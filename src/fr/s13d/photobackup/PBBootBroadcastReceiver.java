@@ -25,6 +25,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import fr.s13d.photobackup.settings.PBSettingsFragment;
+
 public class PBBootBroadcastReceiver extends BroadcastReceiver {
 
     private static final String LOG_TAG = "PBBootBroadcastReceiver";
