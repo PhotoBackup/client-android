@@ -120,20 +120,20 @@ public class PBSettingsFragment extends PreferenceFragment
     @Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		addPreferencesFromResource(R.xml.preferences);
-    }
-
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
         if (preferences == null) {
             preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
             preferencesEditor = preferences.edit();
             preferencesEditor.apply();
         }
         migratePreferences();
+
+        addPreferencesFromResource(R.xml.preferences);
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
 
         initPreferences();
         preferences.registerOnSharedPreferenceChangeListener(this);
