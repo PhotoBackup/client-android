@@ -361,19 +361,19 @@ public class PBSettingsFragment extends PreferenceFragment
 
 
     private void updateServerPasswordPreference() {
-        final String serverPassHash = preferences.getString(PREF_SERVER_PASS_HASH, "");
+        /*final String serverPassHash = preferences.getString(PREF_SERVER_PASS_HASH, "");
         final EditTextPreference serverPassTextPreference = (EditTextPreference) findPreference(PREF_SERVER_PASS);
         if (serverPassHash.isEmpty()) {
             serverPassTextPreference.setSummary(getResources().getString(R.string.server_password_summary));
         } else {
             serverPassTextPreference.setSummary(getResources().getString(R.string.server_password_summary_set));
-        }
+        }*/
     }
 
 
     private void updateServerUrlPreference() {
-        final EditTextPreference textPreference = (EditTextPreference) findPreference(PREF_SERVER_URL);
-        textPreference.setSummary(preferences.getString(PREF_SERVER_URL, this.getResources().getString(R.string.server_url_summary)));
+//        final EditTextPreference textPreference = (EditTextPreference) findPreference(PREF_SERVER_URL);
+//        textPreference.setSummary(preferences.getString(PREF_SERVER_URL, this.getResources().getString(R.string.server_url_summary)));
     }
 
 

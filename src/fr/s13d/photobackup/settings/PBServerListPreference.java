@@ -23,7 +23,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.preference.ListPreference;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
@@ -31,11 +30,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.CompoundButton;
-import android.widget.RadioButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import java.util.ArrayList;
 
 import fr.s13d.photobackup.Log;
 import fr.s13d.photobackup.R;
@@ -44,21 +40,31 @@ public class PBServerListPreference extends ListPreference {
 
     private static final String LOG_TAG = "PBServerListPreference";
 
-    CustomListPreferenceAdapter customListPreferenceAdapter = null;
-    Context mContext;
-    private LayoutInflater mInflater;
+    ListPreferenceAdapter listPreferenceAdapter = null;
+    Context context;
+    private LayoutInflater inflater;
     CharSequence[] entries;
     CharSequence[] entryValues;
     SharedPreferences prefs;
     SharedPreferences.Editor editor;
 
 
-    public PBServerListPreference(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        mContext = context;
-        mInflater = LayoutInflater.from(context);
-        prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+    public PBServerListPreference(Context theContext, AttributeSet attrs) {
+        super(theContext, attrs);
+        context = theContext;
+        inflater = LayoutInflater.from(context);
+        prefs = PreferenceManager.getDefaultSharedPreferences(context);
         editor = prefs.edit();
+        editor.apply();
+    }
+
+
+    @Override
+    protected View onCreateView(ViewGroup parent) {
+        LinearLayout layout = new LinearLayout(getContext());
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(250, 250);
+        layout.setLayoutParams(params);
+        return super.onCreateView(layout);
     }
 
 
@@ -72,8 +78,8 @@ public class PBServerListPreference extends ListPreference {
                     "ListPreference requires an entries array and an entryValues array which are both the same length");
         }
 
-        customListPreferenceAdapter = new CustomListPreferenceAdapter(mContext);
-        builder.setAdapter(customListPreferenceAdapter, new DialogInterface.OnClickListener() {
+        listPreferenceAdapter = new ListPreferenceAdapter(context);
+        builder.setAdapter(listPreferenceAdapter, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 Log.i(LOG_TAG, "clicked");
             }
@@ -81,10 +87,8 @@ public class PBServerListPreference extends ListPreference {
     }
 
 
-    private class CustomListPreferenceAdapter extends BaseAdapter {
-        public CustomListPreferenceAdapter(Context context) {
-
-        }
+    private class ListPreferenceAdapter extends BaseAdapter {
+        public ListPreferenceAdapter(Context context) {}
 
         public int getCount() {
             return entries.length;
@@ -100,7 +104,8 @@ public class PBServerListPreference extends ListPreference {
 
         public View getView(final int position, View row, ViewGroup parent) {
             if(row == null) {
-                row = mInflater.inflate(R.layout.list_row, parent, false);
+                row = inflater.inflate(R.layout.server_list_row, parent, false);
+
                 CustomHolder holder = new CustomHolder(row, position);
                 row.setTag(holder);
                 row.setOnClickListener(new View.OnClickListener() {
@@ -120,7 +125,7 @@ public class PBServerListPreference extends ListPreference {
             private TextView text = null;
 
             CustomHolder(View row, int position)  {
-                text = (TextView)row.findViewById(R.id.filename);
+                text = (TextView)row.findViewById(R.id.servername);
                 text.setText(entries[position]);
             }
         }

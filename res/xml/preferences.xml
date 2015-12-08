@@ -12,6 +12,14 @@
         android:defaultValue="false"
         android:disableDependentsState="true" />
 
+    <fr.s13d.photobackup.settings.PBServerListPreference
+        android:dialogIcon="@android:drawable/stat_sys_upload_done"
+        android:title="Configure a server"
+        android:entries="@array/pref_server_entries"
+        android:entryValues="@array/pref_server_values"
+        android:defaultValue="@string/only_recent_upload">
+    </fr.s13d.photobackup.settings.PBServerListPreference>
+
     <ListPreference
         android:key="PREF_WIFI_ONLY"
         android:title="@string/only_wifi_title"
@@ -28,17 +36,9 @@
         android:entryValues="@array/pref_upload_values"
         android:defaultValue="@string/only_recent_upload" />
 
-    <PreferenceCategory
+    <!--<PreferenceCategory
         android:title="@string/server_conf"
         android:key="server_conf">
-
-        <fr.s13d.photobackup.settings.PBServerListPreference
-            android:dialogIcon="@android:drawable/stat_sys_upload_done"
-            android:title="Pick a server"
-            android:entries="@array/pref_server_entries"
-            android:entryValues="@array/pref_server_values"
-            android:defaultValue="@string/only_recent_upload">
-        </fr.s13d.photobackup.settings.PBServerListPreference>
 
         <EditTextPreference
     		android:key="PREF_SERVER_URL"
@@ -56,7 +56,7 @@
     		android:defaultValue=""
     		android:dependency="PREF_SERVICE_RUNNING" />
 
-    </PreferenceCategory>
+    </PreferenceCategory>-->
 
 
     <PreferenceCategory
