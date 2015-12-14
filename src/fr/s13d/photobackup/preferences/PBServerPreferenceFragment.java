@@ -66,7 +66,7 @@ public class PBServerPreferenceFragment extends PreferenceFragment {
 
             // 2. remove/hide unused preferences depending on xml list
             PreferenceScreen screen = (PreferenceScreen) findPreference("PBServerPreferenceFragment");
-            PreferenceCategory cat = (PreferenceCategory) findPreference("basicauth");
+            PreferenceCategory cat = (PreferenceCategory) findPreference("PREF_BASIC_AUTH");
             screen.removePreference(cat);
             for (String param : serverParams) {
                 Log.i(LOG_TAG, "param: " + param);
