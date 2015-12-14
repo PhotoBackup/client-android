@@ -7,7 +7,6 @@
         android:defaultValue=""
         android:inputType="textUri"
         android:key="PREF_SERVER_URL"
-        android:summary="@string/server_url_summary"
         android:title="@string/server_url_title" />
 
     <EditTextPreference
@@ -20,7 +19,6 @@
         android:defaultValue=""
         android:inputType="textPassword"
         android:key="PREF_SERVER_PASS"
-        android:summary="@string/server_password_summary"
         android:title="@string/server_password_title" />
 
     <PreferenceCategory
@@ -28,6 +26,7 @@
         android:title="HTTP Basic Authentication">
 
         <SwitchPreference
+            android:key="PREF_SERVER_BASICAUTH_SWITCH"
             android:defaultValue="false"
             android:title="Activate Basic Auth"
             android:summaryOff="The server do not use Basic Auth"
@@ -39,14 +38,14 @@
             android:defaultValue=""
             android:inputType="text"
             android:title="Login"
-            android:dependency="PREF_SERVER_BASICAUTH" />
+            android:dependency="PREF_SERVER_BASICAUTH_SWITCH" />
 
         <EditTextPreference
             android:key="PREF_SERVER_BASICAUTH_PASS"
             android:defaultValue=""
             android:inputType="textPassword"
             android:title="Password"
-            android:dependency="PREF_SERVER_BASICAUTH" />
+            android:dependency="PREF_SERVER_BASICAUTH_SWITCH" />
 
     </PreferenceCategory>
 
