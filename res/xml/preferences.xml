@@ -12,13 +12,13 @@
         android:defaultValue="false"
         android:disableDependentsState="true" />
 
-    <fr.s13d.photobackup.settings.PBServerListPreference
-        android:dialogIcon="@android:drawable/stat_sys_upload_done"
-        android:title="Configure a server"
-        android:entries="@array/pref_server_entries"
-        android:entryValues="@array/pref_server_values"
+    <fr.s13d.photobackup.preferences.PBServerListPreference
+        android:title="@string/server_pref_title"
+        android:summary="@string/server_pref_summary"
+        android:entries="@array/pref_server_names"
+        android:entryValues="@array/pref_server_names"
         android:defaultValue="@string/only_recent_upload">
-    </fr.s13d.photobackup.settings.PBServerListPreference>
+    </fr.s13d.photobackup.preferences.PBServerListPreference>
 
     <ListPreference
         android:key="PREF_WIFI_ONLY"

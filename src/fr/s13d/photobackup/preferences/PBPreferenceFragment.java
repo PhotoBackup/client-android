@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fr.s13d.photobackup.settings;
+package fr.s13d.photobackup.preferences;
 
 import android.Manifest;
 import android.app.Activity;
@@ -33,7 +33,6 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -57,12 +56,12 @@ import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
 import fr.s13d.photobackup.interfaces.PBMediaStoreInterface;
 
 
-public class PBSettingsFragment extends PreferenceFragment
+public class PBPreferenceFragment extends PreferenceFragment
                                 implements SharedPreferences.OnSharedPreferenceChangeListener,
                                            PBMediaStoreInterface, PBMediaSenderInterface {
 
-    private static final String LOG_TAG = "PBSettingsFragment";
-    private static PBSettingsFragment self;
+    private static final String LOG_TAG = "PBPreferenceFragment";
+    private static PBPreferenceFragment self;
     private PBService currentService;
     private SharedPreferences preferences;
     private SharedPreferences.Editor preferencesEditor;
@@ -78,7 +77,7 @@ public class PBSettingsFragment extends PreferenceFragment
             PBService.Binder b = (PBService.Binder) binder;
             currentService = b.getService();
             currentService.getMediaStore().addInterface(self);
-            updateUploadJournalPreference(); // update journal entries number
+            updateUploadJournalPreference(); // update journal serverKeys number
             Log.i(LOG_TAG, "Connected to service");
         }
 
@@ -112,7 +111,7 @@ public class PBSettingsFragment extends PreferenceFragment
     //////////////////
     // Constructors //
     //////////////////
-    public PBSettingsFragment() {
+    public PBPreferenceFragment() {
         self = this;
     }
 
@@ -130,6 +129,7 @@ public class PBSettingsFragment extends PreferenceFragment
     @Override
     public void onResume() {
         super.onResume();
+        getActivity().setTitle(R.string.app_name);
 
         if (preferences == null) {
             preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());

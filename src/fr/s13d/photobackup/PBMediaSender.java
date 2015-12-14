@@ -44,7 +44,7 @@ import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
 import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
-import fr.s13d.photobackup.settings.PBSettingsFragment;
+import fr.s13d.photobackup.preferences.PBPreferenceFragment;
 
 
 public class PBMediaSender {
@@ -94,8 +94,8 @@ public class PBMediaSender {
         }
 
         this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        serverUrl = removeFinalSlashes(prefs.getString(PBSettingsFragment.PREF_SERVER_URL, ""));
-        params.put(PASSWORD_PARAM, prefs.getString(PBSettingsFragment.PREF_SERVER_PASS_HASH, ""));
+        serverUrl = removeFinalSlashes(prefs.getString(PBPreferenceFragment.PREF_SERVER_URL, ""));
+        params.put(PASSWORD_PARAM, prefs.getString(PBPreferenceFragment.PREF_SERVER_PASS_HASH, ""));
 
     }
 
@@ -110,7 +110,7 @@ public class PBMediaSender {
     ////////////////
     public void send(final PBMedia media, boolean manual) {
         // network
-        String wifiOnlyString = prefs.getString(PBSettingsFragment.PREF_WIFI_ONLY,
+        String wifiOnlyString = prefs.getString(PBPreferenceFragment.PREF_WIFI_ONLY,
                 context.getResources().getString(R.string.only_wifi_default));
         Boolean wifiOnly = wifiOnlyString.equals(context.getResources().getString(R.string.only_wifi));
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -118,7 +118,7 @@ public class PBMediaSender {
         Boolean onWifi = info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI;
 
         // recently taken picture
-        String uploadRecentOnlyString = prefs.getString(PBSettingsFragment.PREF_RECENT_UPLOAD_ONLY,
+        String uploadRecentOnlyString = prefs.getString(PBPreferenceFragment.PREF_RECENT_UPLOAD_ONLY,
                 context.getResources().getString(R.string.only_recent_upload_default));
         Boolean uploadRecentOnly = uploadRecentOnlyString.equals(context.getResources().getString(R.string.only_recent_upload));
         Boolean recentPicture = (System.currentTimeMillis() / 1000 - media.getDateAdded()) < 600;

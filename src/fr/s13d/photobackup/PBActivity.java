@@ -24,11 +24,11 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.widget.Toast;
 
-import fr.s13d.photobackup.settings.PBSettingsFragment;
+import fr.s13d.photobackup.preferences.PBPreferenceFragment;
 
 public class PBActivity extends Activity {
 
-    private static final PBSettingsFragment settingsFragment = new PBSettingsFragment();
+    private static final PBPreferenceFragment preferenceFragment = new PBPreferenceFragment();
 
 
     //////////////
@@ -37,7 +37,7 @@ public class PBActivity extends Activity {
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-        getFragmentManager().beginTransaction().replace(android.R.id.content, settingsFragment).commit();
+        getFragmentManager().beginTransaction().replace(android.R.id.content, preferenceFragment).commit();
 	}
 
 
@@ -47,12 +47,12 @@ public class PBActivity extends Activity {
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == PBSettingsFragment.PERMISSION_READ_EXTERNAL_STORAGE) {
+        if (requestCode == PBPreferenceFragment.PERMISSION_READ_EXTERNAL_STORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.i("PBSettingsFragment", "READ_EXTERNAL_STORAGE permission granted.");
-                settingsFragment.testMediaSender(); // continue to next step
+                Log.i("PBPreferenceFragment", "READ_EXTERNAL_STORAGE permission granted.");
+                preferenceFragment.testMediaSender(); // continue to next step
             } else {
-                Log.i("PBSettingsFragment", "READ_EXTERNAL_STORAGE was NOT granted.");
+                Log.i("PBPreferenceFragment", "READ_EXTERNAL_STORAGE was NOT granted.");
                 Toast.makeText(this, R.string.toast_permission_not_granted, Toast.LENGTH_LONG).show();
             }
         }
@@ -64,7 +64,7 @@ public class PBActivity extends Activity {
     /////////////
     public static PBMediaStore getMediaStore() {
         try {
-            return settingsFragment.getService().getMediaStore();
+            return preferenceFragment.getService().getMediaStore();
         }
         catch (Exception e) {
             return null;

@@ -187,7 +187,6 @@ public class PBJournalAdapter extends BaseAdapter implements Filterable, Handler
         } catch (java.lang.NullPointerException e) {
             return null;
         }
-        //return PBActivity.getMediaStore().getMediaAt(position);
     }
 
     @Override

@@ -5,11 +5,6 @@
     android:layout_height="fill_parent"
     android:padding="5dip">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@android:color/darker_gray"/>
-
     <!-- Thumbnail image on the left -->
     <ImageView
         android:id="@+id/thumbnail"
@@ -17,7 +12,7 @@
         android:layout_height="50dip"
         android:layout_centerVertical="true"
         android:contentDescription="@string/thumbnail_description"
-        android:src="@android:drawable/ic_menu_gallery" />
+        android:src="@android:drawable/sym_def_app_icon" />
 
     <TextView
         android:id="@+id/servername"

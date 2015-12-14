@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string-array name="pref_server_entries">
+    <!-- Servers configuration -->
+    <string-array name="pref_server_names">
         <item>PhotoBackup</item>
-        <item>FTP</item>
+        <item>SSH</item>
     </string-array>
-    <string-array name="pref_server_values">
-        <item>PhotoBackup</item>
-        <item>FTP</item>
+    <string-array name="pref_server_icons">
+        <item>R.drawable.ic_launcher</item>
+        <item></item><!-- empty is for default icon -->
     </string-array>
 
+    <!-- Only wifi preference parameters -->
     <string-array name="pref_wifi_entries">
         <item>@string/only_wifi</item>
         <item>@string/not_only_wifi</item>
@@ -19,6 +21,7 @@
         <item>@string/not_only_wifi</item>
     </string-array>
 
+    <!-- Only recent upload preference parameters -->
     <string-array name="pref_upload_entries">
         <item>@string/only_recent_upload</item>
         <item>@string/not_only_recent_upload</item>
