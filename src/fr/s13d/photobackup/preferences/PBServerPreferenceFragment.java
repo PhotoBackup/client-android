@@ -18,10 +18,11 @@
  */
 package fr.s13d.photobackup.preferences;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.Preference;
-import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,12 +35,16 @@ public class PBServerPreferenceFragment extends PreferenceFragment {
 
     private static final String LOG_TAG = "PBServerPreferenceFragment";
     private String serverName;
-    public static final String SERVER_NAME = "SERVER_NAME";
+    private SharedPreferences preferences;
+    private SharedPreferences.Editor preferencesEditor;
+
+    public static final String PREF_SERVER_NAME = "PREF_SERVER_NAME";
 
     //////////////////
     // Constructors //
     //////////////////
     public PBServerPreferenceFragment() {}
+
 
     //////////////
     // Override //
@@ -48,6 +53,10 @@ public class PBServerPreferenceFragment extends PreferenceFragment {
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.server_preferences);
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        preferencesEditor = preferences.edit();
+        preferencesEditor.apply();
     }
 
 
@@ -56,24 +65,35 @@ public class PBServerPreferenceFragment extends PreferenceFragment {
         View view = super.onCreateView(inflater, container, savedInstanceState);
 
         Bundle bundle = getArguments();
-        if (bundle!= null && bundle.containsKey(SERVER_NAME)) {
-            serverName = bundle.getString(SERVER_NAME);
-            getActivity().setTitle(serverName + " server settings");
-
-            // access configuration in servers_params.xml file
-            final int arrayId = getActivity().getResources().getIdentifier(serverName, "array", getActivity().getPackageName());
-            final String[] serverParams = getActivity().getResources().getStringArray(arrayId);
-
-            // 2. remove/hide unused preferences depending on xml list
-            PreferenceScreen screen = (PreferenceScreen) findPreference("PBServerPreferenceFragment");
-            PreferenceCategory cat = (PreferenceCategory) findPreference("PREF_BASIC_AUTH");
-            screen.removePreference(cat);
-            for (String param : serverParams) {
-                Log.i(LOG_TAG, "param: " + param);
-            }
-
+        if (bundle!= null && bundle.containsKey(PREF_SERVER_NAME)) {
+            serverName = bundle.getString(PREF_SERVER_NAME);
+            configurePreference();
         }
         return view;
+    }
+
+
+    /////////////////////
+    // Private methods //
+    /////////////////////
+    private void configurePreference() {
+        getActivity().setTitle(serverName + " server settings");
+
+        // save server name into the preferences
+        preferencesEditor.putString(PREF_SERVER_NAME, serverName);
+
+        // access configuration in servers_params.xml file
+        final int arrayId = getActivity().getResources().getIdentifier(serverName, "array", getActivity().getPackageName());
+        final String[] serverPrefsToRemove = getActivity().getResources().getStringArray(arrayId);
+
+        // remove unused preferences given in xml list
+        PreferenceScreen screen = (PreferenceScreen) findPreference(LOG_TAG);
+        for (String param : serverPrefsToRemove) {
+            Log.i(LOG_TAG, "Remove preference named: " + param);
+            Preference pref = findPreference(param);
+            screen.removePreference(pref);
+        }
+
     }
 
 }

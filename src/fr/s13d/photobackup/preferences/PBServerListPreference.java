@@ -117,7 +117,7 @@ public class PBServerListPreference extends ListPreference {
         private void clickedAtPosition(int position) {
             // build new preference fragment from server position in list
             Bundle fragmentArguments = new Bundle(1);
-            fragmentArguments.putString(PBServerPreferenceFragment.SERVER_NAME,
+            fragmentArguments.putString(PBServerPreferenceFragment.PREF_SERVER_NAME,
                     servers[position].toString());
             PBServerPreferenceFragment fragment = new PBServerPreferenceFragment();
             fragment.setArguments(fragmentArguments);
