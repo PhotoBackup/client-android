@@ -124,7 +124,6 @@ public class PBPreferenceFragment extends PreferenceFragment
     @Override
     public void onResume() {
         super.onResume();
-        getActivity().setTitle(R.string.app_name);
 
         if (preferences == null) {
             preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());

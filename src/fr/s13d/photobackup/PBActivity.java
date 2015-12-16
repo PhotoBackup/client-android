@@ -22,6 +22,7 @@ import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import fr.s13d.photobackup.preferences.PBPreferenceFragment;
@@ -38,6 +39,7 @@ public class PBActivity extends Activity {
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
         getFragmentManager().beginTransaction().replace(android.R.id.content, preferenceFragment).commit();
+        resetActionBar();
 	}
 
 
@@ -56,6 +58,25 @@ public class PBActivity extends Activity {
                 Toast.makeText(this, R.string.toast_permission_not_granted, Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            getFragmentManager().popBackStackImmediate();
+            resetActionBar();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    /////////////////////
+    // private methods //
+    /////////////////////
+    private void resetActionBar() {
+        setTitle(R.string.app_name);
+        getActionBar().setDisplayHomeAsUpEnabled(false);
     }
 
 

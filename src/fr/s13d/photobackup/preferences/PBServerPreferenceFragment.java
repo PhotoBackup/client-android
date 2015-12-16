@@ -129,6 +129,7 @@ public class PBServerPreferenceFragment extends PreferenceFragment
     /////////////////////
     private void configurePreference() {
         getActivity().setTitle(serverName + " server settings");
+        getActivity().getActionBar().setDisplayHomeAsUpEnabled(true); // Back button
 
         // save server name into the preferences
         preferencesEditor.putString(PREF_SERVER_NAME, serverName);

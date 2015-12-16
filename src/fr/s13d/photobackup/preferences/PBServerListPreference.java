@@ -79,7 +79,8 @@ public class PBServerListPreference extends ListPreference {
 
 
     class ListPreferenceAdapter extends BaseAdapter {
-        public ListPreferenceAdapter() {}
+        public ListPreferenceAdapter() {
+        }
 
         public int getCount() {
             return servers.length;
@@ -150,7 +151,7 @@ public class PBServerListPreference extends ListPreference {
                 final int drawableId = context.getResources().getIdentifier(drawableName,
                         "drawable", context.getPackageName());
                 if (drawableId != 0) {
-                    final ImageView imageView = (ImageView)row.findViewById(R.id.thumbnail);
+                    final ImageView imageView = (ImageView) row.findViewById(R.id.thumbnail);
                     imageView.setImageResource(drawableId);
                 }
             }
