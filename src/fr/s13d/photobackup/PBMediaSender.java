@@ -45,6 +45,7 @@ import java.util.List;
 import cz.msebera.android.httpclient.Header;
 import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
 import fr.s13d.photobackup.preferences.PBPreferenceFragment;
+import fr.s13d.photobackup.preferences.PBServerPreferenceFragment;
 
 
 public class PBMediaSender {
@@ -94,8 +95,8 @@ public class PBMediaSender {
         }
 
         this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        serverUrl = removeFinalSlashes(prefs.getString(PBPreferenceFragment.PREF_SERVER_URL, ""));
-        params.put(PASSWORD_PARAM, prefs.getString(PBPreferenceFragment.PREF_SERVER_PASS_HASH, ""));
+        serverUrl = removeFinalSlashes(prefs.getString(PBServerPreferenceFragment.PREF_SERVER_URL, ""));
+        params.put(PASSWORD_PARAM, prefs.getString(PBServerPreferenceFragment.PREF_SERVER_PASS_HASH, ""));
 
     }
 

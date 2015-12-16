@@ -44,8 +44,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.webkit.URLUtil;
 import android.widget.Toast;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 import fr.s13d.photobackup.Log;
@@ -101,9 +99,6 @@ public class PBPreferenceFragment extends PreferenceFragment
 
     // should correspond to what is in preferences.xml
     public static final String PREF_SERVICE_RUNNING = "PREF_SERVICE_RUNNING";
-    public static final String PREF_SERVER_URL = "PREF_SERVER_URL";
-    private static final String PREF_SERVER_PASS = "PREF_SERVER_PASS";
-    public static final String PREF_SERVER_PASS_HASH = "PREF_SERVER_PASS_HASH";
     public static final String PREF_WIFI_ONLY = "PREF_WIFI_ONLY";
     public static final String PREF_RECENT_UPLOAD_ONLY = "PREF_RECENT_UPLOAD_ONLY";
 
@@ -151,7 +146,6 @@ public class PBPreferenceFragment extends PreferenceFragment
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(stopServiceBroadcastReceiver,
                 new IntentFilter(PBService.STOP_SERVICE));
 
-        updateServerPasswordPreference();
         updateUploadJournalPreference();
     }
 
@@ -176,16 +170,6 @@ public class PBPreferenceFragment extends PreferenceFragment
         Log.i(LOG_TAG, "onSharedPreferenceChanged: " + key);
         if (key.equals(PREF_SERVICE_RUNNING)) {
             startOrStopService(sharedPreferences);
-
-        } else if (key.equals(PREF_SERVER_URL)) {
-            updateServerUrlPreference();
-
-        } else if (key.equals(PREF_SERVER_PASS)) {
-            final String pass = sharedPreferences.getString(PREF_SERVER_PASS, "");
-            if (!pass.isEmpty()) {
-                createAndSetServerPass(sharedPreferences);
-                updateServerPasswordPreference();
-            }
 
         } else if (key.equals(PREF_WIFI_ONLY)) {
             setSummaries();
@@ -226,9 +210,6 @@ public class PBPreferenceFragment extends PreferenceFragment
         // switch on if service is running
         final SwitchPreference switchPreference = (SwitchPreference) findPreference(PREF_SERVICE_RUNNING);
         switchPreference.setChecked(isPhotoBackupServiceRunning());
-
-        // show set server url
-        updateServerUrlPreference();
 
         // initiate preferences summaries
         setSummaries();
@@ -289,13 +270,13 @@ public class PBPreferenceFragment extends PreferenceFragment
     }
 
     private boolean validatePreferences() {
-        String serverUrl = preferences.getString(PREF_SERVER_URL, "");
+        String serverUrl = preferences.getString(PBServerPreferenceFragment.PREF_SERVER_URL, "");
         if (!URLUtil.isValidUrl(serverUrl) || serverUrl.isEmpty()) {
             Toast.makeText(getActivity(), R.string.toast_urisyntaxexception, Toast.LENGTH_LONG).show();
             return false;
         }
 
-        String serverPassHash = preferences.getString(PREF_SERVER_PASS_HASH, "");
+        String serverPassHash = preferences.getString(PBServerPreferenceFragment.PREF_SERVER_PASS_HASH, "");
         if (serverPassHash.isEmpty()) {
             Toast.makeText(getActivity(), R.string.toast_serverpassempty, Toast.LENGTH_LONG).show();
             return false;
@@ -320,60 +301,6 @@ public class PBPreferenceFragment extends PreferenceFragment
         }
         Log.i(LOG_TAG, "Service or activity is NOT running");
         return false;
-    }
-
-
-    private void createAndSetServerPass(final SharedPreferences sharedPreferences) {
-        // store only the hash of the password in the preferences
-        MessageDigest md;
-        try {
-            md = MessageDigest.getInstance("SHA-512");
-        } catch (NoSuchAlgorithmException e) {
-            Log.e(LOG_TAG, "ERROR: " + e.getMessage());
-            return;
-        }
-
-        final String pass = sharedPreferences.getString(PREF_SERVER_PASS, null);
-        if (pass == null) {
-            return;
-        }
-
-        // compute the hash
-        md.update(pass.getBytes());
-        byte[] mb = md.digest();
-        String hash = "";
-        for (byte temp : mb) {
-            String s = Integer.toHexString(temp);
-            while (s.length() < 2) {
-                s = "0" + s;
-            }
-            s = s.substring(s.length() - 2);
-            hash += s;
-        }
-
-        // set the hash in the preferences
-        preferencesEditor.putString(PREF_SERVER_PASS_HASH, hash);
-        preferencesEditor.apply();
-
-        // Remove the real password from the preferences, for security.
-        preferencesEditor.putString(PREF_SERVER_PASS, "").apply();
-    }
-
-
-    private void updateServerPasswordPreference() {
-        /*final String serverPassHash = preferences.getString(PREF_SERVER_PASS_HASH, "");
-        final EditTextPreference serverPassTextPreference = (EditTextPreference) findPreference(PREF_SERVER_PASS);
-        if (serverPassHash.isEmpty()) {
-            serverPassTextPreference.setSummary(getResources().getString(R.string.server_password_summary));
-        } else {
-            serverPassTextPreference.setSummary(getResources().getString(R.string.server_password_summary_set));
-        }*/
-    }
-
-
-    private void updateServerUrlPreference() {
-//        final EditTextPreference textPreference = (EditTextPreference) findPreference(PREF_SERVER_URL);
-//        textPreference.setSummary(preferences.getString(PREF_SERVER_URL, this.getResources().getString(R.string.server_url_summary)));
     }
 
 
