@@ -71,10 +71,10 @@ public class PBActivity extends Activity {
     }
 
 
-    /////////////////////
-    // private methods //
-    /////////////////////
-    private void resetActionBar() {
+    /////////////
+    // methods //
+    /////////////
+    public void resetActionBar() {
         setTitle(R.string.app_name);
         getActionBar().setDisplayHomeAsUpEnabled(false);
     }

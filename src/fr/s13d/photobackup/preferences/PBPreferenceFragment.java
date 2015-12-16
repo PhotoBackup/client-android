@@ -47,6 +47,7 @@ import android.widget.Toast;
 import java.util.Map;
 
 import fr.s13d.photobackup.Log;
+import fr.s13d.photobackup.PBActivity;
 import fr.s13d.photobackup.PBMediaSender;
 import fr.s13d.photobackup.PBService;
 import fr.s13d.photobackup.R;
@@ -205,6 +206,7 @@ public class PBPreferenceFragment extends PreferenceFragment
     private void initPreferences() {
         // init
         uploadJournalPref = findPreference("uploadJournalPref");
+        ((PBActivity)getActivity()).resetActionBar();
 
         // switch on if service is running
         final SwitchPreference switchPreference = (SwitchPreference) findPreference(PREF_SERVICE_RUNNING);
