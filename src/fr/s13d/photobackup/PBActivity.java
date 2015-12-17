@@ -39,7 +39,7 @@ public class PBActivity extends Activity {
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
         getFragmentManager().beginTransaction().replace(android.R.id.content, preferenceFragment).commit();
-        resetActionBar();
+        setActionBar();
 	}
 
 
@@ -65,7 +65,7 @@ public class PBActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             getFragmentManager().popBackStackImmediate();
-            resetActionBar();
+            setActionBar();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -74,9 +74,12 @@ public class PBActivity extends Activity {
     /////////////
     // methods //
     /////////////
-    public void resetActionBar() {
+    public void setActionBar() {
+        // title and back button of the action bar
         setTitle(R.string.app_name);
-        getActionBar().setDisplayHomeAsUpEnabled(false);
+        if (getActionBar() != null) {
+            getActionBar().setDisplayHomeAsUpEnabled(false);
+        }
     }
 
 

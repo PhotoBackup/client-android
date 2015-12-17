@@ -44,6 +44,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.webkit.URLUtil;
 import android.widget.Toast;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import fr.s13d.photobackup.Log;
@@ -100,6 +101,7 @@ public class PBPreferenceFragment extends PreferenceFragment
 
     // should correspond to what is in preferences.xml
     public static final String PREF_SERVICE_RUNNING = "PREF_SERVICE_RUNNING";
+    public static final String PREF_SERVER = "PREF_SERVER";
     public static final String PREF_WIFI_ONLY = "PREF_WIFI_ONLY";
     public static final String PREF_RECENT_UPLOAD_ONLY = "PREF_RECENT_UPLOAD_ONLY";
 
@@ -206,7 +208,7 @@ public class PBPreferenceFragment extends PreferenceFragment
     private void initPreferences() {
         // init
         uploadJournalPref = findPreference("uploadJournalPref");
-        ((PBActivity)getActivity()).resetActionBar();
+        ((PBActivity)getActivity()).setActionBar();
 
         // switch on if service is running
         final SwitchPreference switchPreference = (SwitchPreference) findPreference(PREF_SERVICE_RUNNING);
@@ -218,15 +220,38 @@ public class PBPreferenceFragment extends PreferenceFragment
 
 
     private void setSummaries() {
-        String wifiOnly = preferences.getString(PREF_WIFI_ONLY,
+        final String wifiOnly = preferences.getString(PREF_WIFI_ONLY,
                 getResources().getString(R.string.only_wifi_default)); // default
         final ListPreference wifiPreference = (ListPreference) findPreference(PREF_WIFI_ONLY);
         wifiPreference.setSummary(wifiOnly);
 
-        String recentUploadOnly = preferences.getString(PREF_RECENT_UPLOAD_ONLY,
+        final String recentUploadOnly = preferences.getString(PREF_RECENT_UPLOAD_ONLY,
                 getResources().getString(R.string.only_recent_upload_default)); // default
         final ListPreference recentUploadPreference = (ListPreference) findPreference(PREF_RECENT_UPLOAD_ONLY);
         recentUploadPreference.setSummary(recentUploadOnly);
+
+        final String serverUrl = preferences.getString(PBServerPreferenceFragment.PREF_SERVER_URL, null);
+        if (serverUrl != null) {
+            final String serverName = preferences.getString(PREF_SERVER, null);
+            if (serverName != null) {
+                final PBServerListPreference serverPreference = (PBServerListPreference) findPreference(PREF_SERVER);
+                serverPreference.setSummary(serverName + " @ " + serverUrl);
+
+                // bonus: left icon of the server
+                final int serverNamesId = getResources().getIdentifier("pref_server_names", "array", getActivity().getPackageName());
+                final String[] serverNames = getResources().getStringArray(serverNamesId);
+                final int serverPosition = Arrays.asList(serverNames).indexOf(serverName);
+                final int serverIconsId = getResources().getIdentifier("pref_server_icons", "array", getActivity().getPackageName());
+                final String[] serverIcons = getResources().getStringArray(serverIconsId);
+                final String serverIcon = serverIcons[serverPosition];
+                final String[] parts = serverIcon.split("\\.");
+                final String drawableName = parts[parts.length - 1];
+                final int id = getResources().getIdentifier(drawableName, "drawable", getActivity().getPackageName());
+                if (id != 0) {
+                    serverPreference.setIcon(id);
+                }
+            }
+        }
     }
 
 

@@ -51,6 +51,9 @@ public class PBServerListPreference extends ListPreference {
     SharedPreferences.Editor editor;
 
 
+    //////////////////
+    // Constructors //
+    //////////////////
     public PBServerListPreference(Context theContext, AttributeSet attrs) {
         super(theContext, attrs);
         context = theContext;
@@ -61,6 +64,9 @@ public class PBServerListPreference extends ListPreference {
     }
 
 
+    //////////////
+    // Override //
+    //////////////
     @Override
     protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {
         servers = getEntryValues();
@@ -78,9 +84,11 @@ public class PBServerListPreference extends ListPreference {
     }
 
 
+    /////////////
+    // private //
+    /////////////
     class ListPreferenceAdapter extends BaseAdapter {
-        public ListPreferenceAdapter() {
-        }
+        public ListPreferenceAdapter() {}
 
         public int getCount() {
             return servers.length;
@@ -116,6 +124,9 @@ public class PBServerListPreference extends ListPreference {
 
 
         private void clickedAtPosition(int position) {
+            // store the preference as the position
+            editor.putString(PBPreferenceFragment.PREF_SERVER, servers[position].toString()).apply();
+
             // build new preference fragment from server position in list
             Bundle fragmentArguments = new Bundle(1);
             fragmentArguments.putString(PBServerPreferenceFragment.PREF_SERVER_NAME,

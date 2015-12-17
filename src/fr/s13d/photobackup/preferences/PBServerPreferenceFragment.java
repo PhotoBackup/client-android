@@ -128,10 +128,13 @@ public class PBServerPreferenceFragment extends PreferenceFragment
     // Private methods //
     /////////////////////
     private void configurePreference() {
+        // title and back button of the action bar
         getActivity().setTitle(serverName + " server settings");
-        getActivity().getActionBar().setDisplayHomeAsUpEnabled(true); // Back button
+        if (getActivity().getActionBar() != null) {
+            getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
-        // save server name into the preferences
+            // save server name into the preferences
         preferencesEditor.putString(PREF_SERVER_NAME, serverName);
 
         // access configuration in servers_params.xml file

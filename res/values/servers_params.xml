@@ -20,6 +20,7 @@
 
     <string-array name="PhotoBackup">
         <item>PREF_SERVER_LOGIN</item>
+        <item>PREF_SERVER_BASICAUTH</item>
     </string-array>
 
     <string-array name="SSH">

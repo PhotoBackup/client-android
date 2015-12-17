@@ -13,11 +13,12 @@
         android:disableDependentsState="true" />
 
     <fr.s13d.photobackup.preferences.PBServerListPreference
+        android:key="PREF_SERVER"
         android:title="@string/server_pref_title"
         android:summary="@string/server_pref_summary"
+        android:dependency="PREF_SERVICE_RUNNING"
         android:entries="@array/pref_server_names"
-        android:entryValues="@array/pref_server_names"
-        android:defaultValue="@string/only_recent_upload">
+        android:entryValues="@array/pref_server_names">
     </fr.s13d.photobackup.preferences.PBServerListPreference>
 
     <ListPreference
@@ -35,29 +36,6 @@
         android:entries="@array/pref_upload_entries"
         android:entryValues="@array/pref_upload_values"
         android:defaultValue="@string/only_recent_upload" />
-
-    <!--<PreferenceCategory
-        android:title="@string/server_conf"
-        android:key="server_conf">
-
-        <EditTextPreference
-    		android:key="PREF_SERVER_URL"
-    		android:title="@string/server_url_title"
-    		android:summary="@string/server_url_summary"   
-    		android:inputType="textUri"
-    		android:defaultValue=""
-    		android:dependency="PREF_SERVICE_RUNNING" />
-
-    	<EditTextPreference
-    		android:key="PREF_SERVER_PASS"
-    		android:title="@string/server_password_title"
-    		android:summary="@string/server_password_summary"   
-    		android:inputType="textPassword"
-    		android:defaultValue=""
-    		android:dependency="PREF_SERVICE_RUNNING" />
-
-    </PreferenceCategory>-->
-
 
     <PreferenceCategory
         android:title="@string/info_conf"

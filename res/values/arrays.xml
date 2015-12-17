@@ -4,11 +4,11 @@
     <!-- Servers configuration -->
     <string-array name="pref_server_names">
         <item>PhotoBackup</item>
-        <item>SSH</item>
+        <!--<item>SSH</item>-->
     </string-array>
     <string-array name="pref_server_icons">
         <item>R.drawable.ic_launcher</item>
-        <item></item><!-- empty is for default icon -->
+        <!--<item>android.R.drawable.sym_def_app_icon</item>-->
     </string-array>
 
     <!-- Only wifi preference parameters -->
