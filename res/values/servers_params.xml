@@ -18,12 +18,11 @@
         There is not much robustness to validate if you do things right here, so do them right!
     -->
 
-    <string-array name="PhotoBackup">
+    <string-array translatable="false" name="PhotoBackup">
         <item>PREF_SERVER_LOGIN</item>
-        <item>PREF_SERVER_BASICAUTH</item>
     </string-array>
 
-    <string-array name="SSH">
+    <string-array translatable="false" name="SSH">
         <item>PREF_SERVER_BASICAUTH</item>
     </string-array>
 

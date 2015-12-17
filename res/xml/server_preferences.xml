@@ -22,30 +22,29 @@
         android:title="@string/server_password_title" />
 
     <PreferenceCategory
-        android:key="PREF_SERVER_BASICAUTH"
+        android:key="PREF_SERVER_HTTPAUTH"
         android:title="HTTP Basic Authentication">
 
         <SwitchPreference
-            android:key="PREF_SERVER_BASICAUTH_SWITCH"
+            android:key="PREF_SERVER_HTTPAUTH_SWITCH"
             android:defaultValue="false"
             android:title="Activate Basic Auth"
-            android:summaryOff="The server do not use Basic Auth"
-            android:summaryOn="The server uses Basic Auth"
-            android:shouldDisableView="true" />
+            android:summaryOff="The server do not use HTTP Basic Auth"
+            android:summaryOn="The server uses HTTP Basic Auth" />
 
         <EditTextPreference
-            android:key="PREF_SERVER_BASICAUTH_LOGIN"
+            android:key="PREF_SERVER_HTTPAUTH_LOGIN"
             android:defaultValue=""
             android:inputType="text"
             android:title="Login"
-            android:dependency="PREF_SERVER_BASICAUTH_SWITCH" />
+            android:dependency="PREF_SERVER_HTTPAUTH_SWITCH" />
 
         <EditTextPreference
-            android:key="PREF_SERVER_BASICAUTH_PASS"
+            android:key="PREF_SERVER_HTTPAUTH_PASS"
             android:defaultValue=""
             android:inputType="textPassword"
             android:title="Password"
-            android:dependency="PREF_SERVER_BASICAUTH_SWITCH" />
+            android:dependency="PREF_SERVER_HTTPAUTH_SWITCH" />
 
     </PreferenceCategory>
 

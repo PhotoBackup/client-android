@@ -1,8 +1,8 @@
 # Changelog
 
 # 0.8.0
-* [3c4f128](https://github.com/PhotoBackup/client-android/commit/3c4f128)  Czech translation
-*
+* [3c4f128](https://github.com/PhotoBackup/client-android/commit/3c4f128) Czech translation
+* [47a0c62](https://github.com/PhotoBackup/client-android/commit/47a0c62) Add multiple servers capability basic architecture
 
 ## 0.7.2
 * [dae700c](https://github.com/PhotoBackup/client-android/commit/dae700c) Fix 0.6 => 0.7 migration by setting it before addPreferencesFromResources

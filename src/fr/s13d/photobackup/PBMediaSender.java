@@ -98,6 +98,15 @@ public class PBMediaSender {
         serverUrl = removeFinalSlashes(prefs.getString(PBServerPreferenceFragment.PREF_SERVER_URL, ""));
         params.put(PASSWORD_PARAM, prefs.getString(PBServerPreferenceFragment.PREF_SERVER_PASS_HASH, ""));
 
+        // add HTTP Basic Auth to the client
+        if(prefs.getBoolean(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_SWITCH, false) &&
+                !prefs.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_LOGIN, "").isEmpty() &&
+                !prefs.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_PASS, "").isEmpty()) {
+            client.setBasicAuth(
+                prefs.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_LOGIN, ""),
+                prefs.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_PASS, "")
+            );
+        }
     }
 
 

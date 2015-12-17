@@ -76,6 +76,7 @@ public class PBServerListPreference extends ListPreference {
         }
 
         listPreferenceAdapter = new ListPreferenceAdapter();
+        builder.setPositiveButton(null, null);
         builder.setAdapter(listPreferenceAdapter, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 Log.i(LOG_TAG, "clicked");

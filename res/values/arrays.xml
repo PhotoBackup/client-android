@@ -2,11 +2,11 @@
 <resources>
 
     <!-- Servers configuration -->
-    <string-array name="pref_server_names">
+    <string-array name="pref_server_names" translatable="false">
         <item>PhotoBackup</item>
         <!--<item>SSH</item>-->
     </string-array>
-    <string-array name="pref_server_icons">
+    <string-array name="pref_server_icons" translatable="false">
         <item>R.drawable.ic_launcher</item>
         <!--<item>android.R.drawable.sym_def_app_icon</item>-->
     </string-array>

@@ -64,5 +64,4 @@
     <string name="manual_backup_title">Manual backup</string>
     <string name="manual_backup_message">Save this picture now!</string>
 
-    <string name="server_pb">PhotoBackup</string>
 </resources>

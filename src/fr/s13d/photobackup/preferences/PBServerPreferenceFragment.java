@@ -48,6 +48,9 @@ public class PBServerPreferenceFragment extends PreferenceFragment
     public static final String PREF_SERVER_URL = "PREF_SERVER_URL";
     private static final String PREF_SERVER_PASS = "PREF_SERVER_PASS";
     public static final String PREF_SERVER_PASS_HASH = "PREF_SERVER_PASS_HASH";
+    public static final String PREF_SERVER_HTTPAUTH_SWITCH = "PREF_SERVER_HTTPAUTH_SWITCH";
+    public static final String PREF_SERVER_HTTPAUTH_LOGIN = "PREF_SERVER_HTTPAUTH_LOGIN";
+    public static final String PREF_SERVER_HTTPAUTH_PASS = "PREF_SERVER_HTTPAUTH_PASS";
 
 
     //////////////////
@@ -76,8 +79,7 @@ public class PBServerPreferenceFragment extends PreferenceFragment
 
         preferences.registerOnSharedPreferenceChangeListener(this);
 
-        updateServerUrlPreference();
-        updateServerPasswordPreference();
+        setSummaries();
     }
 
 
@@ -107,8 +109,10 @@ public class PBServerPreferenceFragment extends PreferenceFragment
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 
         Log.i(LOG_TAG, "onSharedPreferenceChanged: " + key);
-        if (key.equals(PREF_SERVER_URL)) {
-            updateServerUrlPreference();
+        if (key.equals(PREF_SERVER_URL) ||
+                key.equals(PREF_SERVER_HTTPAUTH_LOGIN) ||
+                key.equals(PREF_SERVER_HTTPAUTH_PASS)) {
+            setSummaries();
 
         } else if (key.equals(PREF_SERVER_PASS)) {
             final String pass = sharedPreferences.getString(PREF_SERVER_PASS, "");
@@ -152,9 +156,18 @@ public class PBServerPreferenceFragment extends PreferenceFragment
     }
 
 
-    private void updateServerUrlPreference() {
-        final EditTextPreference textPreference = (EditTextPreference) findPreference(PREF_SERVER_URL);
-        textPreference.setSummary(preferences.getString(PREF_SERVER_URL, this.getResources().getString(R.string.server_url_summary)));
+    private void setSummaries() {
+        final EditTextPreference urlPreference = (EditTextPreference) findPreference(PREF_SERVER_URL);
+        urlPreference.setSummary(preferences.getString(PREF_SERVER_URL, this.getResources().getString(R.string.server_url_summary)));
+
+        final EditTextPreference httpLoginPreference = (EditTextPreference) findPreference(PREF_SERVER_HTTPAUTH_LOGIN);
+        httpLoginPreference.setSummary(preferences.getString(PREF_SERVER_HTTPAUTH_LOGIN, ""));
+
+        String httpPass = preferences.getString(PREF_SERVER_HTTPAUTH_PASS,"");
+        if (!httpPass.isEmpty()) {
+            final EditTextPreference httpPassPreference = (EditTextPreference) findPreference(PREF_SERVER_HTTPAUTH_PASS);
+            httpPassPreference.setSummary(getResources().getString(R.string.server_password_summary_set));
+        }
     }
 
 
