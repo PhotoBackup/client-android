@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package fr.s13d.photobackup;
+package fr.s13d.photobackup.preferences;
 
 import android.Manifest;
 import android.app.Activity;
@@ -33,7 +33,6 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -45,21 +44,24 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.webkit.URLUtil;
 import android.widget.Toast;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Map;
-import java.util.Objects;
 
+import fr.s13d.photobackup.Log;
+import fr.s13d.photobackup.PBActivity;
+import fr.s13d.photobackup.PBMediaSender;
+import fr.s13d.photobackup.PBService;
+import fr.s13d.photobackup.R;
 import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
 import fr.s13d.photobackup.interfaces.PBMediaStoreInterface;
 
 
-public class PBSettingsFragment extends PreferenceFragment
+public class PBPreferenceFragment extends PreferenceFragment
                                 implements SharedPreferences.OnSharedPreferenceChangeListener,
                                            PBMediaStoreInterface, PBMediaSenderInterface {
 
-    private static final String LOG_TAG = "PBSettingsFragment";
-    private static PBSettingsFragment self;
+    private static final String LOG_TAG = "PBPreferenceFragment";
+    private static PBPreferenceFragment self;
     private PBService currentService;
     private SharedPreferences preferences;
     private SharedPreferences.Editor preferencesEditor;
@@ -75,7 +77,7 @@ public class PBSettingsFragment extends PreferenceFragment
             PBService.Binder b = (PBService.Binder) binder;
             currentService = b.getService();
             currentService.getMediaStore().addInterface(self);
-            updateUploadJournalPreference(); // update journal entries number
+            updateUploadJournalPreference(); // update journal serverKeys number
             Log.i(LOG_TAG, "Connected to service");
         }
 
@@ -99,9 +101,7 @@ public class PBSettingsFragment extends PreferenceFragment
 
     // should correspond to what is in preferences.xml
     public static final String PREF_SERVICE_RUNNING = "PREF_SERVICE_RUNNING";
-    public static final String PREF_SERVER_URL = "PREF_SERVER_URL";
-    private static final String PREF_SERVER_PASS = "PREF_SERVER_PASS";
-    public static final String PREF_SERVER_PASS_HASH = "PREF_SERVER_PASS_HASH";
+    public static final String PREF_SERVER = "PREF_SERVER";
     public static final String PREF_WIFI_ONLY = "PREF_WIFI_ONLY";
     public static final String PREF_RECENT_UPLOAD_ONLY = "PREF_RECENT_UPLOAD_ONLY";
 
@@ -109,7 +109,7 @@ public class PBSettingsFragment extends PreferenceFragment
     //////////////////
     // Constructors //
     //////////////////
-    public PBSettingsFragment() {
+    public PBPreferenceFragment() {
         self = this;
     }
 
@@ -148,7 +148,6 @@ public class PBSettingsFragment extends PreferenceFragment
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(stopServiceBroadcastReceiver,
                 new IntentFilter(PBService.STOP_SERVICE));
 
-        updateServerPasswordPreference();
         updateUploadJournalPreference();
     }
 
@@ -173,16 +172,6 @@ public class PBSettingsFragment extends PreferenceFragment
         Log.i(LOG_TAG, "onSharedPreferenceChanged: " + key);
         if (key.equals(PREF_SERVICE_RUNNING)) {
             startOrStopService(sharedPreferences);
-
-        } else if (key.equals(PREF_SERVER_URL)) {
-            updateServerUrlPreference();
-
-        } else if (key.equals(PREF_SERVER_PASS)) {
-            final String pass = sharedPreferences.getString(PREF_SERVER_PASS, "");
-            if (!pass.isEmpty()) {
-                createAndSetServerPass(sharedPreferences);
-                updateServerPasswordPreference();
-            }
 
         } else if (key.equals(PREF_WIFI_ONLY)) {
             setSummaries();
@@ -219,13 +208,11 @@ public class PBSettingsFragment extends PreferenceFragment
     private void initPreferences() {
         // init
         uploadJournalPref = findPreference("uploadJournalPref");
+        ((PBActivity)getActivity()).setActionBar();
 
         // switch on if service is running
         final SwitchPreference switchPreference = (SwitchPreference) findPreference(PREF_SERVICE_RUNNING);
         switchPreference.setChecked(isPhotoBackupServiceRunning());
-
-        // show set server url
-        updateServerUrlPreference();
 
         // initiate preferences summaries
         setSummaries();
@@ -233,15 +220,38 @@ public class PBSettingsFragment extends PreferenceFragment
 
 
     private void setSummaries() {
-        String wifiOnly = preferences.getString(PREF_WIFI_ONLY,
+        final String wifiOnly = preferences.getString(PREF_WIFI_ONLY,
                 getResources().getString(R.string.only_wifi_default)); // default
         final ListPreference wifiPreference = (ListPreference) findPreference(PREF_WIFI_ONLY);
         wifiPreference.setSummary(wifiOnly);
 
-        String recentUploadOnly = preferences.getString(PREF_RECENT_UPLOAD_ONLY,
+        final String recentUploadOnly = preferences.getString(PREF_RECENT_UPLOAD_ONLY,
                 getResources().getString(R.string.only_recent_upload_default)); // default
         final ListPreference recentUploadPreference = (ListPreference) findPreference(PREF_RECENT_UPLOAD_ONLY);
         recentUploadPreference.setSummary(recentUploadOnly);
+
+        final String serverUrl = preferences.getString(PBServerPreferenceFragment.PREF_SERVER_URL, null);
+        if (serverUrl != null) {
+            final String serverName = preferences.getString(PREF_SERVER, null);
+            if (serverName != null) {
+                final PBServerListPreference serverPreference = (PBServerListPreference) findPreference(PREF_SERVER);
+                serverPreference.setSummary(serverName + " @ " + serverUrl);
+
+                // bonus: left icon of the server
+                final int serverNamesId = getResources().getIdentifier("pref_server_names", "array", getActivity().getPackageName());
+                final String[] serverNames = getResources().getStringArray(serverNamesId);
+                final int serverPosition = Arrays.asList(serverNames).indexOf(serverName);
+                final int serverIconsId = getResources().getIdentifier("pref_server_icons", "array", getActivity().getPackageName());
+                final String[] serverIcons = getResources().getStringArray(serverIconsId);
+                final String serverIcon = serverIcons[serverPosition];
+                final String[] parts = serverIcon.split("\\.");
+                final String drawableName = parts[parts.length - 1];
+                final int id = getResources().getIdentifier(drawableName, "drawable", getActivity().getPackageName());
+                if (id != 0) {
+                    serverPreference.setIcon(id);
+                }
+            }
+        }
     }
 
 
@@ -286,13 +296,13 @@ public class PBSettingsFragment extends PreferenceFragment
     }
 
     private boolean validatePreferences() {
-        String serverUrl = preferences.getString(PREF_SERVER_URL, "");
+        String serverUrl = preferences.getString(PBServerPreferenceFragment.PREF_SERVER_URL, "");
         if (!URLUtil.isValidUrl(serverUrl) || serverUrl.isEmpty()) {
             Toast.makeText(getActivity(), R.string.toast_urisyntaxexception, Toast.LENGTH_LONG).show();
             return false;
         }
 
-        String serverPassHash = preferences.getString(PREF_SERVER_PASS_HASH, "");
+        String serverPassHash = preferences.getString(PBServerPreferenceFragment.PREF_SERVER_PASS_HASH, "");
         if (serverPassHash.isEmpty()) {
             Toast.makeText(getActivity(), R.string.toast_serverpassempty, Toast.LENGTH_LONG).show();
             return false;
@@ -317,60 +327,6 @@ public class PBSettingsFragment extends PreferenceFragment
         }
         Log.i(LOG_TAG, "Service or activity is NOT running");
         return false;
-    }
-
-
-    private void createAndSetServerPass(final SharedPreferences sharedPreferences) {
-        // store only the hash of the password in the preferences
-        MessageDigest md;
-        try {
-            md = MessageDigest.getInstance("SHA-512");
-        } catch (NoSuchAlgorithmException e) {
-            Log.e(LOG_TAG, "ERROR: " + e.getMessage());
-            return;
-        }
-
-        final String pass = sharedPreferences.getString(PREF_SERVER_PASS, null);
-        if (pass == null) {
-            return;
-        }
-
-        // compute the hash
-        md.update(pass.getBytes());
-        byte[] mb = md.digest();
-        String hash = "";
-        for (byte temp : mb) {
-            String s = Integer.toHexString(temp);
-            while (s.length() < 2) {
-                s = "0" + s;
-            }
-            s = s.substring(s.length() - 2);
-            hash += s;
-        }
-
-        // set the hash in the preferences
-        preferencesEditor.putString(PREF_SERVER_PASS_HASH, hash);
-        preferencesEditor.apply();
-
-        // Remove the real password from the preferences, for security.
-        preferencesEditor.putString(PREF_SERVER_PASS, "").apply();
-    }
-
-
-    private void updateServerPasswordPreference() {
-        final String serverPassHash = preferences.getString(PREF_SERVER_PASS_HASH, "");
-        final EditTextPreference serverPassTextPreference = (EditTextPreference) findPreference(PREF_SERVER_PASS);
-        if (serverPassHash.isEmpty()) {
-            serverPassTextPreference.setSummary(getResources().getString(R.string.server_password_summary));
-        } else {
-            serverPassTextPreference.setSummary(getResources().getString(R.string.server_password_summary_set));
-        }
-    }
-
-
-    private void updateServerUrlPreference() {
-        final EditTextPreference textPreference = (EditTextPreference) findPreference(PREF_SERVER_URL);
-        textPreference.setSummary(preferences.getString(PREF_SERVER_URL, this.getResources().getString(R.string.server_url_summary)));
     }
 
 

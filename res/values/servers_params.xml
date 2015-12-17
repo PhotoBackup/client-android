@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        This is the static file describing what servers preferences are.
+        Each server implementation should have a string array with a name corresponding to
+        the server name selected by the user. The possibilities are in the pref_server_names array.
+        How they appear is defined in the server_preferences.xml file.
+        The items of each array are the keys of the Preferences you do NOT want in the Fragment.
+        I know it is not convenient to set those that are not in the Fragment, please make
+        a pull request if you have a better solution, I don't like it much either.
+
+        At the moment, possible items are:
+            - PREF_SERVER_URL for the URL of the server ;
+            - PREF_SERVER_LOGIN for the login ;
+            - PREF_SERVER_PASS for the password ;
+            - PREF_SERVER_BASICAUTH for the ability to handle Basic Auth, this is a preference category.
+
+        There is not much robustness to validate if you do things right here, so do them right!
+    -->
+
+    <string-array name="PhotoBackup">
+        <item>PREF_SERVER_LOGIN</item>
+        <item>PREF_SERVER_BASICAUTH</item>
+    </string-array>
+
+    <string-array name="SSH">
+        <item>PREF_SERVER_BASICAUTH</item>
+    </string-array>
+
+
+</resources>
