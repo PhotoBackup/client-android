@@ -68,7 +68,7 @@ public class PBJournalActivity extends ListActivity {
                             mediaSender.send(media, true);
                         }
                     });
-                    builder.setNegativeButton("Cancel", null);
+                    builder.setNegativeButton(self.getString(R.string.cancel), null);
                     builder.create().show();
                 } catch(NullPointerException e) {
                     e.printStackTrace();

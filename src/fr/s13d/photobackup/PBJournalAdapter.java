@@ -115,7 +115,7 @@ public class PBJournalAdapter extends BaseAdapter implements Filterable, Handler
             final File file = new File(media.getPath());
             textView.setText(file.getName());
         } else {
-            textView.setText("Error on picture data");
+            textView.setText(R.string.journal_error);
         }
 
 		// indicator

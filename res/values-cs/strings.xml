@@ -2,13 +2,15 @@
 <resources>
 
     <string name="app_name">PhotoBackup</string>
+    <string name="app_version">PhotoBackup version %1$s</string>
 
     <string name="service_title">Služba</string>
     <string name="service_state_running">PhotoBackup běží.</string>
     <string name="service_state_not_running">PhotoBackup neběží.</string>
     <string name="service_stopped">PhotoBackup byl zastaven.</string>
 
-    <string name="server_conf">Nastavení serveru</string>
+    <string name="server_pref_title">Nastavení serveru</string>
+    <string name="server_pref_summary">No server</string>
     <string name="server_url_title">Adresa serveru</string>
     <string name="server_url_summary">Adresa serveru.</string>
     <string name="server_password_title">Heslo serveru</string>
@@ -44,11 +46,13 @@
 
     <string name="notif_start_text">Vaše fotografie jsou zálohovány na váš server.</string>
     <plurals name="notif_success">
-        <item quantity="zero"> </item>
+        <item quantity="one"> </item>
+        <item quantity="few"> </item>
         <item quantity="other">%d na vašem serveru</item>
     </plurals>
     <plurals name="notif_failure">
         <item quantity="one">%d chyba</item>
+        <item quantity="few">%d chyba</item>
         <item quantity="other">%d chyby</item>
     </plurals>
 
@@ -58,8 +62,5 @@
     <string name="stop_service">Ukončit službu</string>
     <string name="manual_backup_title">Manuální záloha</string>
     <string name="manual_backup_message">Ihned uložit fotografii!</string>
-    <string name="server_pref_summary">No server</string>
-    <string name="server_pref_summary_set">Uploading on: %1$s</string>
-    <string name="server_pref_title">Configure a server</string>
 
 </resources>

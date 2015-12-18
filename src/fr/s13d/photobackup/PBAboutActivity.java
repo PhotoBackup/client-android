@@ -31,7 +31,7 @@ public class PBAboutActivity extends Activity {
         setContentView(R.layout.activity_about);
 
         final TextView tv = (TextView)findViewById(R.id.versionTextView);
-        tv.setText("PhotoBackup version " + BuildConfig.VERSION_NAME);
+        tv.setText(getString(R.string.app_version, BuildConfig.VERSION_NAME));
 
         final TextView textTv = (TextView)findViewById(R.id.aboutTextTextView);
         textTv.setText(getResources().getText(R.string.about_text));
