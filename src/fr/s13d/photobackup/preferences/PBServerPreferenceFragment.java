@@ -76,9 +76,7 @@ public class PBServerPreferenceFragment extends PreferenceFragment
     @Override
     public void onResume() {
         super.onResume();
-
         preferences.registerOnSharedPreferenceChangeListener(this);
-
         setSummaries();
     }
 
@@ -109,16 +107,12 @@ public class PBServerPreferenceFragment extends PreferenceFragment
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 
         Log.i(LOG_TAG, "onSharedPreferenceChanged: " + key);
-        if (key.equals(PREF_SERVER_URL) ||
-                key.equals(PREF_SERVER_HTTPAUTH_LOGIN) ||
-                key.equals(PREF_SERVER_HTTPAUTH_PASS)) {
-            setSummaries();
 
-        } else if (key.equals(PREF_SERVER_PASS)) {
+        setSummaries();
+        if (key.equals(PREF_SERVER_PASS)) {
             final String pass = sharedPreferences.getString(PREF_SERVER_PASS, "");
             if (!pass.isEmpty()) {
                 createAndSetServerPass(sharedPreferences);
-                updateServerPasswordPreference();
             }
 
         } else if (sharedPreferences == null) {
@@ -159,6 +153,14 @@ public class PBServerPreferenceFragment extends PreferenceFragment
     private void setSummaries() {
         final EditTextPreference urlPreference = (EditTextPreference) findPreference(PREF_SERVER_URL);
         urlPreference.setSummary(preferences.getString(PREF_SERVER_URL, this.getResources().getString(R.string.server_url_summary)));
+
+        final String serverPassHash = preferences.getString(PREF_SERVER_PASS_HASH, "");
+        final EditTextPreference serverPassTextPreference = (EditTextPreference) findPreference(PREF_SERVER_PASS);
+        if (serverPassHash.isEmpty()) {
+            serverPassTextPreference.setSummary(getResources().getString(R.string.server_password_summary));
+        } else {
+            serverPassTextPreference.setSummary(getResources().getString(R.string.server_password_summary_set));
+        }
 
         final EditTextPreference httpLoginPreference = (EditTextPreference) findPreference(PREF_SERVER_HTTPAUTH_LOGIN);
         httpLoginPreference.setSummary(preferences.getString(PREF_SERVER_HTTPAUTH_LOGIN, ""));
@@ -203,17 +205,6 @@ public class PBServerPreferenceFragment extends PreferenceFragment
         preferencesEditor.putString(PREF_SERVER_PASS_HASH, hash).apply();
         // remove the real password from the preferences, for security
         preferencesEditor.putString(PREF_SERVER_PASS, "").apply();
-    }
-
-
-    private void updateServerPasswordPreference() {
-        final String serverPassHash = preferences.getString(PREF_SERVER_PASS_HASH, "");
-        final EditTextPreference serverPassTextPreference = (EditTextPreference) findPreference(PREF_SERVER_PASS);
-        if (serverPassHash.isEmpty()) {
-            serverPassTextPreference.setSummary(getResources().getString(R.string.server_password_summary));
-        } else {
-            serverPassTextPreference.setSummary(getResources().getString(R.string.server_password_summary_set));
-        }
     }
 
 }
