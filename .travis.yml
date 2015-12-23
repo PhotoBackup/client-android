@@ -21,5 +21,6 @@ android:
     - sys-img-x86-android-23
 
 before_script:
+  - gradle wrapper --gradle-version 2.4
   - chmod +x gradlew
 
