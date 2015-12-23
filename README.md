@@ -6,7 +6,7 @@ of each photo in your device. It does not backup videos.
 
 It is available on the
 [Google Play](https://play.google.com/store/apps/details?id=fr.s13d.photobackup)
-and soon on F-Droid.
+and on [F-Droid](https://f-droid.org/app/fr.s13d.photobackup).
 
 It does not use services like Google Drive/Dropbox/SkyDrive/... **on purpose**,
 as you don't know what they do with your photos. With PhotoBackup, only you should do.
