@@ -21,5 +21,5 @@ android:
     - sys-img-x86-android-23
 
   before_script:
-    chmod +x gradlew
+    - chmod +x gradlew
 
