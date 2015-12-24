@@ -1,5 +1,3 @@
-[![Code Issues](https://www.quantifiedcode.com/api/v1/project/5c4770458f254cebb1081206ef54d1f9/badge.svg)](https://www.quantifiedcode.com/app/project/5c4770458f254cebb1081206ef54d1f9)
-
 # PhotoBackup Android client
 The PhotoBackup Android application is a simple service always running
 silently in background and sending photos to the associated server
