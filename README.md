@@ -12,3 +12,7 @@ It does not use services like Google Drive/Dropbox/SkyDrive/... **on purpose**,
 as you don't know what they do with your photos. With PhotoBackup, only you should do.
 
 <img src="https://github.com/PhotoBackup/PhotoBackup.github.io/blob/master/img/android-screen1.png" alt="Screenshot" width="540px" />
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/PhotoBackup/client-android/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
