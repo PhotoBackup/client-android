@@ -26,7 +26,7 @@
         android:title="@string/only_wifi_title"
         android:dialogTitle="@string/only_wifi_title"
         android:entries="@array/pref_wifi_entries"
-        android:entryValues="@array/pref_wifi_values"
+        android:entryValues="@array/pref_wifi_entries"
         android:defaultValue="@string/only_wifi" />
 
     <ListPreference

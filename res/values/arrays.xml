@@ -15,10 +15,7 @@
     <string-array name="pref_wifi_entries">
         <item>@string/only_wifi</item>
         <item>@string/not_only_wifi</item>
-    </string-array>
-    <string-array name="pref_wifi_values">
-        <item>@string/only_wifi</item>
-        <item>@string/not_only_wifi</item>
+        <item>Over a nearby Wi-Fi only</item>
     </string-array>
 
     <!-- Only recent upload preference parameters -->

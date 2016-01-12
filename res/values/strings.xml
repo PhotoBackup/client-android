@@ -20,6 +20,7 @@
     <string name="only_wifi_title">Backup</string>
     <string name="only_wifi">Over Wi-Fi only</string>
     <string name="not_only_wifi">Over Wi-Fi or mobile network</string>
+    <string name="only_wifi_ssid">Over a nearby Wi-Fi only</string>
     <string name="only_wifi_default">@string/only_wifi</string>
 
     <string name="only_recent_upload_title">Pictures to upload</string>

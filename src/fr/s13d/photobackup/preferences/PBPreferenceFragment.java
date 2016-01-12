@@ -22,14 +22,18 @@ package fr.s13d.photobackup.preferences;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -42,9 +46,14 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.webkit.URLUtil;
+import android.widget.ArrayAdapter;
+import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import fr.s13d.photobackup.Log;
@@ -66,6 +75,8 @@ public class PBPreferenceFragment extends PreferenceFragment
     private SharedPreferences preferences;
     private SharedPreferences.Editor preferencesEditor;
     private Preference uploadJournalPref;
+    private WifiManager wifiManager;
+    private List<ScanResult> wifiScanResults;
     public static final int PERMISSION_READ_EXTERNAL_STORAGE = 0;
 
 
@@ -86,7 +97,7 @@ public class PBPreferenceFragment extends PreferenceFragment
         }
     };
 
-    // receiver
+    // receivers
     private final BroadcastReceiver stopServiceBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -97,6 +108,33 @@ public class PBPreferenceFragment extends PreferenceFragment
             }
         }
     };
+
+    private final BroadcastReceiver scanWifiBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context c, Intent intent) {
+            if (intent.getAction() != null && intent.getAction().equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
+                wifiScanResults = wifiManager.getScanResults();
+
+                final List<String> wifiList = new ArrayList<>();
+                for (ScanResult result : wifiScanResults) {
+                    wifiList.add(result.SSID + " " + result.level);
+                }
+
+                final CharSequence[] wifis = wifiList.toArray(new CharSequence[wifiList.size()]);
+                Log.i(LOG_TAG, "scanWifiBroadcastReceiver: " + wifis.toString());
+                final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Pick a Wi-Fi");
+                    builder.setIcon(android.R.drawable.ic_menu_help);
+                    builder.setItems(wifis, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int item) {
+                            Toast.makeText(getActivity(), wifis[item], Toast.LENGTH_SHORT).show();
+                    }
+                });
+                builder.show();
+            }
+        }
+    };
+
 
 
     // should correspond to what is in preferences.xml
@@ -128,6 +166,9 @@ public class PBPreferenceFragment extends PreferenceFragment
         migratePreferences();
 
         addPreferencesFromResource(R.xml.preferences);
+
+        wifiManager = (WifiManager) getActivity().getSystemService(Context.WIFI_SERVICE);
+        ArrayList<HashMap<String, String>> arrayList = new ArrayList<>();
     }
 
 
@@ -148,6 +189,10 @@ public class PBPreferenceFragment extends PreferenceFragment
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(stopServiceBroadcastReceiver,
                 new IntentFilter(PBService.STOP_SERVICE));
 
+        // Register a receiver for the wifi scan
+        getActivity().registerReceiver(scanWifiBroadcastReceiver,
+                new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+
         updateUploadJournalPreference();
     }
 
@@ -156,6 +201,7 @@ public class PBPreferenceFragment extends PreferenceFragment
     public void onPause() {
         super.onPause();
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(stopServiceBroadcastReceiver);
+        getActivity().unregisterReceiver(scanWifiBroadcastReceiver);
         if (preferences != null) {
             preferences.unregisterOnSharedPreferenceChangeListener(this);
         }
@@ -174,6 +220,9 @@ public class PBPreferenceFragment extends PreferenceFragment
             startOrStopService(sharedPreferences);
 
         } else if (key.equals(PREF_WIFI_ONLY)) {
+            if (sharedPreferences.getString(PREF_WIFI_ONLY, "").equals(getString(R.string.only_wifi_ssid))) {
+                showNearbyWifiList();
+            }
             setSummaries();
 
         } else if (key.equals(PREF_RECENT_UPLOAD_ONLY)) {
@@ -344,6 +393,16 @@ public class PBPreferenceFragment extends PreferenceFragment
             e.printStackTrace();
         }
     }
+
+
+    private void showNearbyWifiList() {
+        startActivity(new Intent(WifiManager.ACTION_PICK_WIFI_NETWORK));
+        /*if (!wifiManager.isWifiEnabled()) {
+            Toast.makeText(getActivity(), "Wifi is disabled, enabling it for you...", Toast.LENGTH_LONG).show();
+            wifiManager.setWifiEnabled(true);
+        }
+        wifiManager.startScan();
+    */}
 
 
     ////////////////////
