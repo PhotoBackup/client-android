@@ -11,6 +11,8 @@ and on [F-Droid](https://f-droid.org/app/fr.s13d.photobackup).
 It does not use services like Google Drive/Dropbox/SkyDrive/... **on purpose**,
 as you don't know what they do with your photos. With PhotoBackup, only you should do.
 
+Join our online chat at [![Gitter](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/PhotoBackup).
+
 <img src="https://github.com/PhotoBackup/PhotoBackup.github.io/blob/master/img/android-screen1.png" alt="Screenshot" width="540px" />
 
 
