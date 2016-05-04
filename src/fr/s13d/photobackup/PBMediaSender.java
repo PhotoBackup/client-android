@@ -26,6 +26,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Looper;
 import android.preference.PreferenceManager;
@@ -74,16 +76,16 @@ public class PBMediaSender {
                 .setContentTitle(context.getResources().getString(R.string.app_name));
 
         // add content intent to reopen the activity
-        Intent intent = new Intent(context, PBActivity.class);
+        final Intent intent = new Intent(context, PBActivity.class);
         intent.setAction(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
         this.builder.setContentIntent(resultPendingIntent);
 
         // add button action to stop the service
-        Intent stopIntent = new Intent(context, PBService.class);
+        final Intent stopIntent = new Intent(context, PBService.class);
         stopIntent.setAction(PBService.STOP_SERVICE);
-        PendingIntent stopPendingIntent = PendingIntent.getService(context, 0, stopIntent, 0);
+        final PendingIntent stopPendingIntent = PendingIntent.getService(context, 0, stopIntent, 0);
 
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             this.builder.addAction(android.R.drawable.ic_delete,
@@ -120,21 +122,35 @@ public class PBMediaSender {
     ////////////////
     public void send(final PBMedia media, boolean manual) {
         // network
-        String wifiOnlyString = prefs.getString(PBPreferenceFragment.PREF_WIFI_ONLY,
+        final String wifiOnlyString = prefs.getString(PBPreferenceFragment.PREF_WIFI_ONLY,
                 context.getResources().getString(R.string.only_wifi_default));
-        Boolean wifiOnly = wifiOnlyString.equals(context.getResources().getString(R.string.only_wifi));
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info = cm.getActiveNetworkInfo();
-        Boolean onWifi = info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI;
+        final Boolean wifiOnly = wifiOnlyString.equals(context.getResources().getString(R.string.only_wifi)) ||
+                wifiOnlyString.equals(context.getResources().getString(R.string.only_nearby_wifi));
+        final ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        final NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        final Boolean onWifi = networkInfo != null
+                && networkInfo.isConnected()
+                && networkInfo.getType() == ConnectivityManager.TYPE_WIFI;
+
+        final Boolean nearbyWifiOnly = wifiOnlyString.equals(context.getResources().getString(R.string.only_nearby_wifi));
+        final WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        final WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        final String preferredSSID = prefs.getString(PBPreferenceFragment.PREF_WIFI_SSID, "");
+        final Boolean onNearbyWifi = wifiInfo != null
+                && preferredSSID.equals(wifiInfo.getBSSID());
 
         // recently taken picture
-        String uploadRecentOnlyString = prefs.getString(PBPreferenceFragment.PREF_RECENT_UPLOAD_ONLY,
+        final String uploadRecentOnlyString = prefs.getString(PBPreferenceFragment.PREF_RECENT_UPLOAD_ONLY,
                 context.getResources().getString(R.string.only_recent_upload_default));
-        Boolean uploadRecentOnly = uploadRecentOnlyString.equals(context.getResources().getString(R.string.only_recent_upload));
-        Boolean recentPicture = (System.currentTimeMillis() / 1000 - media.getDateAdded()) < 600;
+        final Boolean uploadRecentOnly = uploadRecentOnlyString.equals(context.getResources().getString(R.string.only_recent_upload));
+        final Boolean recentPicture = (System.currentTimeMillis() / 1000 - media.getDateAdded()) < 600;
 
-        // test to send or not
-        if (manual || (!wifiOnly || onWifi) && (!uploadRecentOnly || recentPicture)) {
+        // determine if we send or not depending on user preferences
+        if (manual                                          // send if manually asked
+                || (!wifiOnly || onWifi)                    // send if on preferred network type
+                || (nearbyWifiOnly && onNearbyWifi)         // send if currently on picked wifi SSID
+                && (!uploadRecentOnly || recentPicture))    // send if picture date is ok
+        {
             sendMedia(media);
         }
     }

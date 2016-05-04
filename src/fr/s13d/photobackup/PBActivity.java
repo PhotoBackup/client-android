@@ -55,8 +55,17 @@ public class PBActivity extends Activity {
                 preferenceFragment.testMediaSender(); // continue to next step
             } else {
                 Log.i("PBPreferenceFragment", "READ_EXTERNAL_STORAGE was NOT granted.");
-                Toast.makeText(this, R.string.toast_permission_not_granted, Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.toast_read_pictures_not_granted, Toast.LENGTH_LONG).show();
             }
+        } else if (requestCode == PBPreferenceFragment.PERMISSION_ACCESS_COARSE_LOCATION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.i("PBPreferenceFragment", "ACCESS_COARSE_LOCATION permission granted.");
+                preferenceFragment.processLocationPermission(); // continue to next step
+            } else {
+                Log.i("PBPreferenceFragment", "ACCESS_COARSE_LOCATION was NOT granted.");
+                Toast.makeText(this, R.string.toast_access_location_not_granted, Toast.LENGTH_LONG).show();
+            }
+
         }
     }
 
@@ -93,5 +102,9 @@ public class PBActivity extends Activity {
         catch (Exception e) {
             return null;
         }
+    }
+
+    public PBPreferenceFragment getPreferenceFragment() {
+        return preferenceFragment;
     }
 }

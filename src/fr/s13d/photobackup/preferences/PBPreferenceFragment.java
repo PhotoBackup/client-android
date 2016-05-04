@@ -47,12 +47,9 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.webkit.URLUtil;
 import android.widget.ArrayAdapter;
-import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -75,9 +72,11 @@ public class PBPreferenceFragment extends PreferenceFragment
     private SharedPreferences preferences;
     private SharedPreferences.Editor preferencesEditor;
     private Preference uploadJournalPref;
-    private WifiManager wifiManager;
-    private List<ScanResult> wifiScanResults;
+    private AlertDialog.Builder wifiScanDialogBuilder;
+    private ArrayAdapter<String> adapter;
+    private static WifiManager wifiManager;
     public static final int PERMISSION_READ_EXTERNAL_STORAGE = 0;
+    public static final int PERMISSION_ACCESS_COARSE_LOCATION = 1;
 
 
     // binding
@@ -85,7 +84,7 @@ public class PBPreferenceFragment extends PreferenceFragment
     private final ServiceConnection serviceConnection = new ServiceConnection() {
 
         public void onServiceConnected(ComponentName className, IBinder binder) {
-            PBService.Binder b = (PBService.Binder) binder;
+            final PBService.Binder b = (PBService.Binder) binder;
             currentService = b.getService();
             currentService.getMediaStore().addInterface(self);
             updateUploadJournalPreference(); // update journal serverKeys number
@@ -112,29 +111,13 @@ public class PBPreferenceFragment extends PreferenceFragment
     private final BroadcastReceiver scanWifiBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context c, Intent intent) {
-            if (intent.getAction() != null && intent.getAction().equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
-                wifiScanResults = wifiManager.getScanResults();
-
-                final List<String> wifiList = new ArrayList<>();
-                for (ScanResult result : wifiScanResults) {
-                    wifiList.add(result.SSID + " " + result.level);
-                }
-
-                final CharSequence[] wifis = wifiList.toArray(new CharSequence[wifiList.size()]);
-                Log.i(LOG_TAG, "scanWifiBroadcastReceiver: " + wifis.toString());
-                final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle("Pick a Wi-Fi");
-                    builder.setIcon(android.R.drawable.ic_menu_help);
-                    builder.setItems(wifis, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int item) {
-                            Toast.makeText(getActivity(), wifis[item], Toast.LENGTH_SHORT).show();
-                    }
-                });
-                builder.show();
+            if (wifiManager != null && intent.getAction() != null &&
+                    intent.getAction().equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
+                final PBPreferenceFragment caller = ((PBActivity)c).getPreferenceFragment();
+                caller.didReceiveScanWifiResults();
             }
         }
     };
-
 
 
     // should correspond to what is in preferences.xml
@@ -142,6 +125,7 @@ public class PBPreferenceFragment extends PreferenceFragment
     public static final String PREF_SERVER = "PREF_SERVER";
     public static final String PREF_WIFI_ONLY = "PREF_WIFI_ONLY";
     public static final String PREF_RECENT_UPLOAD_ONLY = "PREF_RECENT_UPLOAD_ONLY";
+    public static final String PREF_WIFI_SSID = "PREF_WIFI_SSID";
 
 
     //////////////////
@@ -158,29 +142,25 @@ public class PBPreferenceFragment extends PreferenceFragment
     @Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+        // build preferences
         if (preferences == null) {
             preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
             preferencesEditor = preferences.edit();
             preferencesEditor.apply();
         }
         migratePreferences();
-
         addPreferencesFromResource(R.xml.preferences);
-
-        wifiManager = (WifiManager) getActivity().getSystemService(Context.WIFI_SERVICE);
-        ArrayList<HashMap<String, String>> arrayList = new ArrayList<>();
     }
 
 
     @Override
     public void onResume() {
-        super.onResume();
-
         initPreferences();
         preferences.registerOnSharedPreferenceChangeListener(this);
 
         if (isPhotoBackupServiceRunning()) {
-            Intent intent = new Intent(this.getActivity(), PBService.class);
+            final Intent intent = new Intent(this.getActivity(), PBService.class);
             getActivity().bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
             isBoundToService = true;
         }
@@ -189,19 +169,19 @@ public class PBPreferenceFragment extends PreferenceFragment
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(stopServiceBroadcastReceiver,
                 new IntentFilter(PBService.STOP_SERVICE));
 
-        // Register a receiver for the wifi scan
-        getActivity().registerReceiver(scanWifiBroadcastReceiver,
-                new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-
-        updateUploadJournalPreference();
+        super.onResume();
     }
 
 
     @Override
     public void onPause() {
         super.onPause();
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(stopServiceBroadcastReceiver);
-        getActivity().unregisterReceiver(scanWifiBroadcastReceiver);
+        try {
+            LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(stopServiceBroadcastReceiver);
+        } catch(IllegalArgumentException e) {
+            Log.w(LOG_TAG, "Failed to unregister stopServiceBroadcastReceiver");
+        }
+
         if (preferences != null) {
             preferences.unregisterOnSharedPreferenceChangeListener(this);
         }
@@ -220,8 +200,8 @@ public class PBPreferenceFragment extends PreferenceFragment
             startOrStopService(sharedPreferences);
 
         } else if (key.equals(PREF_WIFI_ONLY)) {
-            if (sharedPreferences.getString(PREF_WIFI_ONLY, "").equals(getString(R.string.only_wifi_ssid))) {
-                showNearbyWifiList();
+            if (sharedPreferences.getString(PREF_WIFI_ONLY, "").equals(getString(R.string.only_nearby_wifi))) {
+                checkLocationPermissions();
             }
             setSummaries();
 
@@ -231,7 +211,6 @@ public class PBPreferenceFragment extends PreferenceFragment
         } else if (sharedPreferences == null) {
             Log.e(LOG_TAG, "Error: preferences == null");
         }
-
     }
 
 
@@ -239,13 +218,13 @@ public class PBPreferenceFragment extends PreferenceFragment
     // private methods //
     /////////////////////
     private void migratePreferences() {
-        Map<String, ?> allPrefs = preferences.getAll();
+        final Map<String, ?> allPrefs = preferences.getAll();
         if (allPrefs.containsKey(PREF_WIFI_ONLY)) {
-            Object obj = allPrefs.get(PREF_WIFI_ONLY);
+            final Object obj = allPrefs.get(PREF_WIFI_ONLY);
             if (obj instanceof Boolean) {
                 Log.i(LOG_TAG, "Migrating PREF_WIFI_ONLY for v0.7.0");
-                Boolean bool = preferences.getBoolean(PREF_WIFI_ONLY, false);
-                String wifiOnlyString = bool ? getString(R.string.only_wifi) : getString(R.string.not_only_wifi);
+                final Boolean bool = preferences.getBoolean(PREF_WIFI_ONLY, false);
+                final String wifiOnlyString = bool ? getString(R.string.only_wifi) : getString(R.string.not_only_wifi);
                 preferencesEditor.putString(PREF_WIFI_ONLY, wifiOnlyString).apply();
                 Log.i(LOG_TAG, "Migration done!");
             }
@@ -269,16 +248,23 @@ public class PBPreferenceFragment extends PreferenceFragment
 
 
     private void setSummaries() {
-        final String wifiOnly = preferences.getString(PREF_WIFI_ONLY,
+        // 'Backup' preference
+        String wifiOnly = preferences.getString(PREF_WIFI_ONLY,
                 getResources().getString(R.string.only_wifi_default)); // default
         final ListPreference wifiPreference = (ListPreference) findPreference(PREF_WIFI_ONLY);
+        if (wifiOnly.equals(getResources().getString(R.string.only_nearby_wifi))) {
+            final String ssid = preferences.getString(PREF_WIFI_SSID, "");
+            wifiOnly = getResources().getString(R.string.only_wifi_ssid, ssid);
+        }
         wifiPreference.setSummary(wifiOnly);
 
+        // 'Pictures to upload' preference
         final String recentUploadOnly = preferences.getString(PREF_RECENT_UPLOAD_ONLY,
                 getResources().getString(R.string.only_recent_upload_default)); // default
         final ListPreference recentUploadPreference = (ListPreference) findPreference(PREF_RECENT_UPLOAD_ONLY);
         recentUploadPreference.setSummary(recentUploadOnly);
 
+        // 'Server' preference
         final String serverUrl = preferences.getString(PBServerPreferenceFragment.PREF_SERVER_URL, null);
         if (serverUrl != null) {
             final String serverName = preferences.getString(PREF_SERVER, null);
@@ -305,13 +291,13 @@ public class PBPreferenceFragment extends PreferenceFragment
 
 
     private void startOrStopService(final SharedPreferences preferences) {
-        boolean userDidStart = preferences.getBoolean(PREF_SERVICE_RUNNING, false);
+        final boolean userDidStart = preferences.getBoolean(PREF_SERVICE_RUNNING, false);
         Log.i(LOG_TAG, "PREF_SERVICE_RUNNING = " + userDidStart);
 
         if (userDidStart) {
             if (validatePreferences()) {
                 Log.i(LOG_TAG, "start PhotoBackup service");
-                checkPermissions();
+                checkReadPicturesPermissions();
             } else {
                 final SwitchPreference switchPreference = (SwitchPreference) findPreference(PREF_SERVICE_RUNNING);
                 switchPreference.setChecked(false);
@@ -327,9 +313,9 @@ public class PBPreferenceFragment extends PreferenceFragment
     }
 
 
-    private void checkPermissions() {
+    private void checkReadPicturesPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            int permissionCheck = ContextCompat.checkSelfPermission(getContext(),
+            final int permissionCheck = ContextCompat.checkSelfPermission(getContext(),
                     Manifest.permission.READ_EXTERNAL_STORAGE);
             if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(getActivity(),
@@ -344,14 +330,39 @@ public class PBPreferenceFragment extends PreferenceFragment
         }
     }
 
+
+    private void checkLocationPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            final int permissionCheck = ContextCompat.checkSelfPermission(getContext(),
+                    Manifest.permission.ACCESS_COARSE_LOCATION);
+            if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                        PERMISSION_ACCESS_COARSE_LOCATION);
+            } else {
+                Log.i(LOG_TAG, "Permission ACCESS_COARSE_LOCATION already given, cool!");
+                processLocationPermission();
+            }
+        } else { // for older Android versions, continue without asking permission
+            processLocationPermission();
+        }
+    }
+
+
+    public void processLocationPermission() {
+        startWifiScan();
+        updateUploadJournalPreference();
+    }
+
+
     private boolean validatePreferences() {
-        String serverUrl = preferences.getString(PBServerPreferenceFragment.PREF_SERVER_URL, "");
+        final String serverUrl = preferences.getString(PBServerPreferenceFragment.PREF_SERVER_URL, "");
         if (!URLUtil.isValidUrl(serverUrl) || serverUrl.isEmpty()) {
             Toast.makeText(getActivity(), R.string.toast_urisyntaxexception, Toast.LENGTH_LONG).show();
             return false;
         }
 
-        String serverPassHash = preferences.getString(PBServerPreferenceFragment.PREF_SERVER_PASS_HASH, "");
+        final String serverPassHash = preferences.getString(PBServerPreferenceFragment.PREF_SERVER_PASS_HASH, "");
         if (serverPassHash.isEmpty()) {
             Toast.makeText(getActivity(), R.string.toast_serverpassempty, Toast.LENGTH_LONG).show();
             return false;
@@ -395,21 +406,69 @@ public class PBPreferenceFragment extends PreferenceFragment
     }
 
 
-    private void showNearbyWifiList() {
-        startActivity(new Intent(WifiManager.ACTION_PICK_WIFI_NETWORK));
-        /*if (!wifiManager.isWifiEnabled()) {
+    private void startWifiScan() {
+        wifiManager = (WifiManager) getActivity().getSystemService(Context.WIFI_SERVICE);
+        getActivity().registerReceiver(scanWifiBroadcastReceiver,
+                new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+        if (!wifiManager.isWifiEnabled()) {
             Toast.makeText(getActivity(), "Wifi is disabled, enabling it for you...", Toast.LENGTH_LONG).show();
             wifiManager.setWifiEnabled(true);
         }
         wifiManager.startScan();
-    */}
+    }
+
+
+
+    private void stopWifiScan() {
+        wifiManager = null;
+        wifiScanDialogBuilder = null;
+        adapter = null;
+        try {
+            getActivity().unregisterReceiver(scanWifiBroadcastReceiver);
+            Log.w(LOG_TAG, "scanWifiBroadcastReceiver has been unregistered...");
+        } catch(IllegalArgumentException e) {
+            Log.w(LOG_TAG, "scanWifiBroadcastReceiver was not registered...");
+        }
+    }
+
+
+    private void buildWifiChoiceDialog() {
+        if (wifiScanDialogBuilder == null) {
+            wifiScanDialogBuilder = new AlertDialog.Builder(getActivity());
+            wifiScanDialogBuilder.setTitle("Pick a Wi-Fi");
+            wifiScanDialogBuilder.setIcon(R.drawable.ic_network_wifi_24dp);
+
+            adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1);
+            wifiScanDialogBuilder.setAdapter(adapter, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int item) {
+                    preferencesEditor.putString(PREF_WIFI_SSID, adapter.getItem(item)).apply();
+                    stopWifiScan();
+                    setSummaries();
+                }
+            });
+            wifiScanDialogBuilder.create().show();
+        }
+    }
+
+
+    private void didReceiveScanWifiResults() {
+        buildWifiChoiceDialog();
+
+        adapter.clear();
+        final List<ScanResult> wifiScanResults = wifiManager.getScanResults();
+        for (ScanResult result : wifiScanResults) {
+            Log.i(LOG_TAG, "wifi found: " + result.toString());
+            adapter.add(result.SSID);
+        }
+        adapter.notifyDataSetChanged();
+    }
 
 
     ////////////////////
     // public methods //
     ////////////////////
     public void testMediaSender() {
-        PBMediaSender mediaSender = new PBMediaSender(getActivity());
+        final PBMediaSender mediaSender = new PBMediaSender(getActivity());
         mediaSender.addInterface(this);
         mediaSender.test();
     }

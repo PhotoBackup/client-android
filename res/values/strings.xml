@@ -20,7 +20,8 @@
     <string name="only_wifi_title">Backup</string>
     <string name="only_wifi">Over Wi-Fi only</string>
     <string name="not_only_wifi">Over Wi-Fi or mobile network</string>
-    <string name="only_wifi_ssid">Over a nearby Wi-Fi only</string>
+    <string name="only_nearby_wifi">Over a nearby Wi-Fi only</string>
+    <string name="only_wifi_ssid">Over %1$s Wi-Fi only</string>
     <string name="only_wifi_default">@string/only_wifi</string>
 
     <string name="only_recent_upload_title">Pictures to upload</string>
@@ -33,7 +34,8 @@
     <string name="toast_test_configuration">Testing server</string>
     <string name="toast_configuration_ok">Server configuration is valid, great!</string>
     <string name="toast_configuration_ko">Server test failed, please verify your configuration.</string>
-    <string name="toast_permission_not_granted">PhotoBackup cannot work properly without the permission to read your pictures.</string>
+    <string name="toast_read_pictures_not_granted">PhotoBackup cannot work properly without the permission to read your pictures.</string>
+    <string name="toast_access_location_not_granted">PhotoBackup cannot scan wifi networks without location permission.</string>
 
     <string name="info_conf">Informations</string>
     <string name="journal_title">Upload journal</string>
