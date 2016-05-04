@@ -1,45 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="fr.s13d.photobackup" >
+<manifest package="fr.s13d.photobackup"
+          xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
- 	<uses-permission android:name="android.permission.INTERNET" />
- 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <application
         android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
             android:name=".PBActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
             <intent-filter>
-       			<action android:name="android.intent.action.MANAGE_NETWORK_USAGE" />
-       			<category android:name="android.intent.category.DEFAULT" />
-    		</intent-filter>
+                <action android:name="android.intent.action.MANAGE_NETWORK_USAGE"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
         </activity>
-        <activity android:name=".PBJournalActivity" android:label="@string/journal_title" />
-        <activity android:name=".PBAboutActivity" android:label="@string/about_title" />
+        <activity
+            android:name=".PBJournalActivity"
+            android:label="@string/journal_title"/>
+        <activity
+            android:name=".PBAboutActivity"
+            android:label="@string/about_title"/>
 
-		<service android:name=".PBService" android:exported="false" />
+        <service
+            android:name=".PBService"
+            android:exported="false"/>
 
-		<!-- Declaring broadcast receiver for BOOT_COMPLETED event -->
-    	<receiver android:name=".PBBootBroadcastReceiver">
-	    	<intent-filter>
-        		<action android:name="android.intent.action.BOOT_COMPLETED" />
-    		</intent-filter>
-		</receiver>
+        <!-- Broadcast receiver for BOOT_COMPLETED event -->
+        <receiver android:name=".PBBootBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
 
+        <!-- Broadcast receiver for BOOT_COMPLETED event -->
+        <receiver android:name=".PBNetworkStateChangedBroadcastReceiver">
+        </receiver>
     </application>
-
 
 </manifest>
