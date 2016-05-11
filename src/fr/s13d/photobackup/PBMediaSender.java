@@ -27,22 +27,25 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
-import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.widget.Toast;
 
-
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Credentials;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import cz.msebera.android.httpclient.Header;
 import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
 import fr.s13d.photobackup.preferences.PBPreferenceFragment;
 import fr.s13d.photobackup.preferences.PBServerPreferenceFragment;
@@ -59,8 +62,8 @@ public class PBMediaSender {
     private final SharedPreferences prefs;
     private final NotificationManager notificationManager;
     private final Notification.Builder builder;
-    private static AsyncHttpClient client = new AsyncHttpClient();
-    private final RequestParams params = new RequestParams();
+    private final OkHttpClient okClient = new OkHttpClient();
+    private final String credentials;
     private static List<PBMediaSenderInterface> interfaces = new ArrayList<>();
     private static int successCount = 0;
     private static int failureCount = 0;
@@ -96,16 +99,16 @@ public class PBMediaSender {
 
         this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
         serverUrl = removeFinalSlashes(prefs.getString(PBServerPreferenceFragment.PREF_SERVER_URL, ""));
-        params.put(PASSWORD_PARAM, prefs.getString(PBServerPreferenceFragment.PREF_SERVER_PASS_HASH, ""));
 
         // add HTTP Basic Auth to the client
+        final String login = prefs.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_LOGIN, "");
+        final String pass = prefs.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_PASS, "");
         if(prefs.getBoolean(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_SWITCH, false) &&
                 !prefs.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_LOGIN, "").isEmpty() &&
                 !prefs.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_PASS, "").isEmpty()) {
-            client.setBasicAuth(
-                prefs.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_LOGIN, ""),
-                prefs.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_PASS, "")
-            );
+            credentials = Credentials.basic(login, pass);
+        } else {
+            credentials = null;
         }
     }
 
@@ -135,48 +138,45 @@ public class PBMediaSender {
 
         // test to send or not
         if (manual || (!wifiOnly || onWifi) && (!uploadRecentOnly || recentPicture)) {
-            sendMedia(media);
+            sendMediaWithOk(media);
         }
     }
 
 
-    private void sendMedia(final PBMedia media) {
+    private void sendMediaWithOk(final PBMedia media) {
         builder.setContentText(context.getResources().getString(R.string.notif_start_text))
                 .setLargeIcon(MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(),
                         media.getId(), MediaStore.Images.Thumbnails.MINI_KIND, null));
         notificationManager.notify(0, builder.build());
 
-        try { // Add media file as request parameter
-            File upfile = new File(media.getPath());
-            params.put(UPFILE_PARAM, upfile);
-            params.put(FILESIZE_PARAM, upfile.length());
-        }
-        catch(FileNotFoundException e) {
-            sendDidFail(media, e);
-        }
+        final MediaType MEDIA_TYPE_JPG = MediaType.parse("image/jpg");
+        final File upfile = new File(media.getPath());
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart(PASSWORD_PARAM, prefs.getString(PBServerPreferenceFragment.PREF_SERVER_PASS_HASH, ""))
+                .addFormDataPart(FILESIZE_PARAM, String.valueOf(upfile.length()))
+                .addFormDataPart(UPFILE_PARAM, upfile.getName(), RequestBody.create(MEDIA_TYPE_JPG, upfile))
+                .build();
 
-        // Send media
-        Log.i("PBMediaSender", "send " + media.getPath());
-        client.post(serverUrl, params, new AsyncHttpResponseHandler(Looper.getMainLooper()) {
+        final Request.Builder requestBuilder = new Request.Builder()
+                .url(serverUrl)
+                .header("User-Agent", PBApplication.PB_USER_AGENT)
+                .post(requestBody);
+        if (credentials != null) {
+            requestBuilder.header("Authorization", credentials);
+        }
+        final Request request = requestBuilder.build();
 
-            @Override // called when response HTTP status is "200 OK"
-            public void onSuccess(int statusCode, Header[] headers, byte[] response) {
+        okClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
                 sendDidSucceed(media);
             }
 
-            @Override // called when response HTTP status is "4XX" (eg. 401, 403, 404)
-            public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
+            @Override
+            public void onFailure(Call call, IOException e) {
                 sendDidFail(media, e);
             }
-
-            @Override // called before request is started
-            public void onStart() {
-            }
-
-            @Override
-            public void onProgress(long bytesWritten, long totalSize) {
-            }
-
         });
     }
 
@@ -190,26 +190,32 @@ public class PBMediaSender {
                 Toast.LENGTH_SHORT);
         toast.show();
 
-        client.post(serverUrl + TEST_PATH, params, new AsyncHttpResponseHandler() {
+        final Request.Builder requestBuilder = new Request.Builder()
+                .url(serverUrl + TEST_PATH)
+                .header("User-Agent", PBApplication.PB_USER_AGENT)
+                .addHeader(PASSWORD_PARAM, prefs.getString(PBServerPreferenceFragment.PREF_SERVER_PASS_HASH, ""))
+                .post(RequestBody.create(MediaType.parse("application/x-www-form-urlencoded"), ""));
+        if (credentials != null) {
+            requestBuilder.header("Authorization", credentials);
+        }
+        final Request request = requestBuilder.build();
 
+        okClient.newCall(request).enqueue(new Callback() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] response) {
-                toast.setText(context.getResources().getString(R.string.toast_configuration_ok));
-                toast.show();
+            public void onResponse(Call call, Response response) throws IOException {
+                showToast(toast, context.getResources().getString(R.string.toast_configuration_ok));
                 for (PBMediaSenderInterface senderInterface : interfaces) {
                     senderInterface.onTestSuccess();
                 }
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
-                toast.setText(context.getResources().getString(R.string.toast_configuration_ko));
-                toast.show();
+            public void onFailure(Call call, IOException e) {
+                showToast(toast, context.getResources().getString(R.string.toast_configuration_ko));
                 for (PBMediaSenderInterface senderInterface : interfaces) {
                     senderInterface.onTestFailure();
                 }
             }
-
         });
     }
 
@@ -257,6 +263,18 @@ public class PBMediaSender {
 
         notificationManager.notify(0, builder.build());
     }
+
+
+    // show a text in a given toast on the UI thread
+    private void showToast(final Toast toast, final String text) {
+        ((PBActivity)context).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                toast.setText(text);
+                toast.show();
+            }
+        });
+   }
 
 
     ///////////
