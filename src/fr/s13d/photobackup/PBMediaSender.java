@@ -170,7 +170,11 @@ public class PBMediaSender {
         okClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                sendDidSucceed(media);
+                if (response.code() == 200) {
+                    sendDidSucceed(media);
+                } else {
+                    sendDidFail(media, new Throwable(response.message()));
+                }
             }
 
             @Override
