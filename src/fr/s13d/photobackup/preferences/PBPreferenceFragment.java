@@ -376,8 +376,13 @@ public class PBPreferenceFragment extends PreferenceFragment
 
 
     public void onTestFailure() {
-        final SwitchPreference switchPreference = (SwitchPreference) findPreference(PREF_SERVICE_RUNNING);
-        switchPreference.setChecked(false);
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final SwitchPreference switchPreference = (SwitchPreference) findPreference(PREF_SERVICE_RUNNING);
+                switchPreference.setChecked(false);
+            }
+        });
     }
 
 

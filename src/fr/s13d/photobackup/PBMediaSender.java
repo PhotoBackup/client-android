@@ -203,18 +203,16 @@ public class PBMediaSender {
         okClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                showToast(toast, context.getResources().getString(R.string.toast_configuration_ok));
-                for (PBMediaSenderInterface senderInterface : interfaces) {
-                    senderInterface.onTestSuccess();
+                if (response.code() == 200) {
+                    testDidSucceed(toast);
+                } else {
+                    testDidFail(toast, response.message());
                 }
             }
 
             @Override
             public void onFailure(Call call, IOException e) {
-                showToast(toast, context.getResources().getString(R.string.toast_configuration_ko));
-                for (PBMediaSenderInterface senderInterface : interfaces) {
-                    senderInterface.onTestFailure();
-                }
+                testDidFail(toast, null);
             }
         });
     }
@@ -243,6 +241,23 @@ public class PBMediaSender {
         e.printStackTrace();
         failureCount++;
         updateNotificationText();
+    }
+
+
+    private void testDidSucceed(final Toast toast) {
+        showToast(toast, context.getResources().getString(R.string.toast_configuration_ok));
+        for (PBMediaSenderInterface senderInterface : interfaces) {
+            senderInterface.onTestSuccess();
+        }
+    }
+
+
+    private void testDidFail(final Toast toast, final String message) {
+        final String toastMessage = context.getResources().getString(R.string.toast_configuration_ko) + " - (" + message + ")";
+        showToast(toast, toastMessage);
+        for (PBMediaSenderInterface senderInterface : interfaces) {
+            senderInterface.onTestFailure();
+        }
     }
 
 
