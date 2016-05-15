@@ -10,7 +10,7 @@ android:
     - android-21
 
 before_script:
-  - gradle wrapper --gradle-version 2.4
+  - gradle wrapper --gradle-version 2.1
   - chmod +x gradlew
   # Create and start emulator
   - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI

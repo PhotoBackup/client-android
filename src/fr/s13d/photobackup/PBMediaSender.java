@@ -207,7 +207,7 @@ public class PBMediaSender {
         okClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                if (response.code() == 200) {
+                if (response.isSuccessful() || response.code() == 409) {
                     testDidSucceed(toast);
                 } else {
                     testDidFail(toast, response.message());
