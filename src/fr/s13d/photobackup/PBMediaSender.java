@@ -24,6 +24,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.LinearGradient;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
@@ -194,7 +195,6 @@ public class PBMediaSender {
                 .build();
         final Request request = makePostRequest(requestBody, TEST_PATH);
         Log.i(LOG_TAG, "Initiating test call to " + request.url());
-        Log.i(LOG_TAG, prefs.getString(PBServerPreferenceFragment.PREF_SERVER_PASS_HASH, ""));
         okClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
