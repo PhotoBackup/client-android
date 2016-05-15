@@ -52,7 +52,7 @@ import fr.s13d.photobackup.preferences.PBServerPreferenceFragment;
 
 
 public class PBMediaSender {
-
+    private static final String LOG_TAG = "PBMediaSender";
     private final static String PASSWORD_PARAM = "password";
     private final static String UPFILE_PARAM = "upfile";
     private final static String FILESIZE_PARAM = "filesize";
@@ -142,7 +142,6 @@ public class PBMediaSender {
         }
     }
 
-
     private void sendMediaWithOk(final PBMedia media) {
         builder.setContentText(context.getResources().getString(R.string.notif_start_text))
                 .setLargeIcon(MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(),
@@ -158,18 +157,12 @@ public class PBMediaSender {
                 .addFormDataPart(UPFILE_PARAM, upfile.getName(), RequestBody.create(MEDIA_TYPE_JPG, upfile))
                 .build();
 
-        final Request.Builder requestBuilder = new Request.Builder()
-                .url(serverUrl)
-                .header("User-Agent", PBApplication.PB_USER_AGENT)
-                .post(requestBody);
-        if (credentials != null) {
-            requestBuilder.header("Authorization", credentials);
-        }
-        final Request request = requestBuilder.build();
+        final Request request = makePostRequest(requestBody);
 
         okClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
+                Log.i(LOG_TAG, "Get response with code " + response.code());
                 if (response.code() == 200) {
                     sendDidSucceed(media);
                 } else {
@@ -179,6 +172,7 @@ public class PBMediaSender {
 
             @Override
             public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
                 sendDidFail(media, e);
             }
         });
@@ -194,16 +188,13 @@ public class PBMediaSender {
                 Toast.LENGTH_SHORT);
         toast.show();
 
-        final Request.Builder requestBuilder = new Request.Builder()
-                .url(serverUrl + TEST_PATH)
-                .header("User-Agent", PBApplication.PB_USER_AGENT)
-                .addHeader(PASSWORD_PARAM, prefs.getString(PBServerPreferenceFragment.PREF_SERVER_PASS_HASH, ""))
-                .post(RequestBody.create(MediaType.parse("application/x-www-form-urlencoded"), ""));
-        if (credentials != null) {
-            requestBuilder.header("Authorization", credentials);
-        }
-        final Request request = requestBuilder.build();
-
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart(PASSWORD_PARAM, prefs.getString(PBServerPreferenceFragment.PREF_SERVER_PASS_HASH, ""))
+                .build();
+        final Request request = makePostRequest(requestBody, TEST_PATH);
+        Log.i(LOG_TAG, "Initiating test call to " + request.url());
+        Log.i(LOG_TAG, prefs.getString(PBServerPreferenceFragment.PREF_SERVER_PASS_HASH, ""));
         okClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
@@ -212,13 +203,38 @@ public class PBMediaSender {
                 } else {
                     testDidFail(toast, response.message());
                 }
+
+
             }
 
             @Override
             public void onFailure(Call call, IOException e) {
-                testDidFail(toast, null);
+                testDidFail(toast, e.getLocalizedMessage());
             }
         });
+    }
+
+
+    private Request makePostRequest(RequestBody requestBody) {
+        return makePostRequest(requestBody, "");
+    }
+
+    private Request makePostRequest(RequestBody requestBody, String pathFragment) {
+        final Request.Builder requestBuilder = new Request.Builder()
+                .url(serverUrl + pathFragment)
+                .header("User-Agent", PBApplication.PB_USER_AGENT)
+                .post(requestBody);
+        if (credentials != null) {
+            requestBuilder.header("Authorization", credentials);
+        }
+        return requestBuilder.build();
+    }
+
+    private void testFailure(Toast toast, String errorMessage) {
+        showToast(toast, errorMessage);
+        for (PBMediaSenderInterface senderInterface : interfaces) {
+            senderInterface.onTestFailure();
+        }
     }
 
 
@@ -242,7 +258,10 @@ public class PBMediaSender {
         for (PBMediaSenderInterface senderInterface : interfaces) {
             senderInterface.onSendFailure();
         }
-        e.printStackTrace();
+        if (e != null) {
+            e.printStackTrace();
+
+        }
         failureCount++;
         updateNotificationText();
     }
