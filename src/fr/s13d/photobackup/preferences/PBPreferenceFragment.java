@@ -34,6 +34,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.ListPreference;
+import android.preference.MultiSelectListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
@@ -41,16 +42,23 @@ import android.preference.SwitchPreference;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
+import android.util.ArraySet;
 import android.webkit.URLUtil;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.zip.CheckedInputStream;
 
 import fr.s13d.photobackup.Log;
 import fr.s13d.photobackup.PBActivity;
 import fr.s13d.photobackup.PBApplication;
 import fr.s13d.photobackup.PBMediaSender;
+import fr.s13d.photobackup.PBMediaStoreQueries;
 import fr.s13d.photobackup.PBService;
 import fr.s13d.photobackup.R;
 import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
@@ -80,6 +88,7 @@ public class PBPreferenceFragment extends PreferenceFragment
             currentService.getMediaStore().addInterface(self);
             updateUploadJournalPreference(); // update journal serverKeys number
             Log.i(LOG_TAG, "Connected to service");
+            fillBuckets();
         }
 
         public void onServiceDisconnected(ComponentName className) {
@@ -105,7 +114,8 @@ public class PBPreferenceFragment extends PreferenceFragment
     public static final String PREF_SERVER = "PREF_SERVER";
     public static final String PREF_WIFI_ONLY = "PREF_WIFI_ONLY";
     public static final String PREF_RECENT_UPLOAD_ONLY = "PREF_RECENT_UPLOAD_ONLY";
-
+    public static final String PREF_BUCKETS = "PREF_BUCKETS";
+    private HashMap<String, String> bucketNames;
 
     //////////////////
     // Constructors //
@@ -127,8 +137,23 @@ public class PBPreferenceFragment extends PreferenceFragment
             preferencesEditor.apply();
         }
         migratePreferences();
-
         addPreferencesFromResource(R.xml.preferences);
+
+    }
+
+    private void fillBuckets() {
+        HashMap<String, String> buckets = currentService.getMediaStore().getQueries().getAllBucketNames();
+        this.bucketNames = buckets;
+
+        CharSequence[] entries = buckets.values().toArray(new CharSequence[buckets.size()]);
+        CharSequence[] entryValues = buckets.keySet().toArray(new CharSequence[buckets.size()]);
+
+        MultiSelectListPreference lp = (MultiSelectListPreference)findPreference("PREF_BUCKETS");
+        lp.setEntries(entries);
+        lp.setEnabled(true);
+        lp.setEntryValues(entryValues);
+
+        setSummaries();
     }
 
 
@@ -173,13 +198,8 @@ public class PBPreferenceFragment extends PreferenceFragment
         Log.i(LOG_TAG, "onSharedPreferenceChanged: " + key);
         if (key.equals(PREF_SERVICE_RUNNING)) {
             startOrStopService(sharedPreferences);
-
-        } else if (key.equals(PREF_WIFI_ONLY)) {
+        } else if (key.equals(PREF_WIFI_ONLY) || key.equals(PREF_RECENT_UPLOAD_ONLY) || key.equals(PREF_BUCKETS)) {
             setSummaries();
-
-        } else if (key.equals(PREF_RECENT_UPLOAD_ONLY)) {
-            setSummaries();
-
         } else if (sharedPreferences == null) {
             Log.e(LOG_TAG, "Error: preferences == null");
         }
@@ -221,6 +241,23 @@ public class PBPreferenceFragment extends PreferenceFragment
 
 
     private void setSummaries() {
+
+        String buckets = "";
+        Set<String> selectedBuckets = preferences.getStringSet(PREF_BUCKETS, null);
+        if (selectedBuckets != null && bucketNames != null) {
+            ArrayList<String> selectedBucketNames = new ArrayList<String>();
+            for(String entry: selectedBuckets) {
+                String oneName = bucketNames.get(entry);
+                if (oneName != null) {
+                    selectedBucketNames.add(oneName);
+                }
+            }
+            buckets = TextUtils.join(", ", selectedBucketNames);
+        }
+        MultiSelectListPreference bucketPreference = (MultiSelectListPreference)findPreference(PREF_BUCKETS);
+        bucketPreference.setSummary(buckets);
+
+
         final String wifiOnly = preferences.getString(PREF_WIFI_ONLY,
                 getResources().getString(R.string.only_wifi_default)); // default
         final ListPreference wifiPreference = (ListPreference) findPreference(PREF_WIFI_ONLY);

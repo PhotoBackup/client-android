@@ -62,5 +62,7 @@
     <string name="stop_service">Stop the service</string>
     <string name="manual_backup_title">Manual backup</string>
     <string name="manual_backup_message">Save this picture now!</string>
+    <string name="select_folder">Select photo folder to backup</string>
+
 
 </resources>
