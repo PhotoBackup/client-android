@@ -203,7 +203,6 @@ public class PBMediaSender {
         return requestBuilder.build();
     }
 
-
     /////////////////////
     // Private methods //
     /////////////////////

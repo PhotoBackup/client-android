@@ -28,7 +28,6 @@ import android.provider.MediaStore;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Set;
-import java.util.SortedMap;
 
 import fr.s13d.photobackup.preferences.PBPreferenceFragment;
 
@@ -36,7 +35,6 @@ import fr.s13d.photobackup.preferences.PBPreferenceFragment;
 public class PBMediaStoreQueries {
 
     private static final String LOG_TAG = "PBMediaStoreQueries";
-    private static String where;
     private static Context context;
     private static final Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
     private final SharedPreferences prefs;
@@ -44,7 +42,6 @@ public class PBMediaStoreQueries {
 
     public PBMediaStoreQueries(Context theContext) {
         context = theContext;
-        HashMap<String, String> bucketNames = getAllBucketNames();
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
@@ -62,7 +59,7 @@ public class PBMediaStoreQueries {
                 Log.d(LOG_TAG, "Is selected bucket! Continuing");
                 return true;
             }
-        };
+        }
         Log.i(LOG_TAG, "Is not in selected buckets - Ignoring");
         return false;
     }
@@ -71,7 +68,7 @@ public class PBMediaStoreQueries {
         Cursor cursor = null;
         final String[] projection = new String[] { "_id", "_data", "date_added" };
         try {
-            cursor = context.getContentResolver().query(uri, projection, where, null, "date_added DESC");
+            cursor = context.getContentResolver().query(uri, projection, null, null, "date_added DESC");
         } catch(SecurityException e) {
             e.printStackTrace();
         }
@@ -141,15 +138,12 @@ public class PBMediaStoreQueries {
             int bucketCountColumn = cur.getColumnIndex("photo_count");
 
             do {
-                // Get the field values
                 bucket = cur.getString(bucketColumn);
                 id = cur.getString(bucketIdColumn);
                 bucketCount = cur.getString(bucketCountColumn);
 
                 Log.d(LOG_TAG, "Bucket=" + bucket + ", count=" + bucketCount);
                 imageBuckets.put(id, bucket + " (" + bucketCount + ")");
-                // Do something with the values.
-                //Log.i("Bucket", " bucket=" + bucket);
             } while (cur.moveToNext());
         }
         closeCursor(cur);
