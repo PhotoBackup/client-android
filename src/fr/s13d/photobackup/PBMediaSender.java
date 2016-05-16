@@ -127,11 +127,15 @@ public class PBMediaSender {
         getOkClient().newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                Log.i(LOG_TAG, "Get response with code " + response.code());
-                if (response.code() == 200) {
-                    sendDidSucceed(media);
-                } else {
-                    sendDidFail(media, new Throwable(response.message()));
+                try {
+                    Log.i(LOG_TAG, "Get response with code " + response.code());
+                    if (response.code() == 200) {
+                        sendDidSucceed(media);
+                    } else {
+                        sendDidFail(media, new Throwable(response.message()));
+                    }
+                } finally {
+                    response.body().close();
                 }
                 response.body().close();
             }
@@ -163,10 +167,14 @@ public class PBMediaSender {
         getOkClient().newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful() || response.code() == 409) {
-                    testDidSucceed(toast);
-                } else {
-                    testDidFail(toast, response.message());
+                try {
+                    if (response.isSuccessful() || response.code() == 409) {
+                        testDidSucceed(toast);
+                    } else {
+                        testDidFail(toast, response.message());
+                    }
+                } finally {
+                    response.body().close();
                 }
                 response.body().close();
             }
