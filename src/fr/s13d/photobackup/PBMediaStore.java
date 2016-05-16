@@ -18,7 +18,6 @@
  */
 package fr.s13d.photobackup;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
