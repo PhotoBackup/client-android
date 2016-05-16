@@ -118,7 +118,6 @@ public class PBServerPreferenceFragment extends PreferenceFragment
         } else if (sharedPreferences == null) {
             Log.e(LOG_TAG, "Error: preferences == null");
         }
-
     }
 
 
@@ -146,7 +145,6 @@ public class PBServerPreferenceFragment extends PreferenceFragment
             Preference pref = findPreference(param);
             screen.removePreference(pref);
         }
-
     }
 
 

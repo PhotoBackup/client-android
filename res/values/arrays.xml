@@ -31,4 +31,6 @@
         <item>@string/not_only_recent_upload</item>
     </string-array>
 
+    <string-array name="empty_array"/>
+
 </resources>

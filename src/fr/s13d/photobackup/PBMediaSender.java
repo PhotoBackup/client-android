@@ -129,7 +129,7 @@ public class PBMediaSender {
             public void onResponse(Call call, Response response) throws IOException {
                 try {
                     Log.i(LOG_TAG, "Get response with code " + response.code());
-                    if (response.code() == 200) {
+                    if (response.isSuccessful() || response.code() == 409) {
                         sendDidSucceed(media);
                     } else {
                         sendDidFail(media, new Throwable(response.message()));
@@ -168,7 +168,7 @@ public class PBMediaSender {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 try {
-                    if (response.isSuccessful() || response.code() == 409) {
+                    if (response.isSuccessful()) {
                         testDidSucceed(toast);
                     } else {
                         testDidFail(toast, response.message());

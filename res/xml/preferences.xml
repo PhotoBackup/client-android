@@ -37,6 +37,16 @@
         android:entryValues="@array/pref_upload_values"
         android:defaultValue="@string/only_recent_upload" />
 
+    <MultiSelectListPreference
+        android:key="PREF_BUCKETS"
+        android:title="@string/select_folder"
+        android:summary=""
+        android:entries="@array/empty_array"
+        android:defaultValue="@array/empty_array"
+        android:enabled="false"
+        android:entryValues="@array/empty_array"
+        />
+
     <PreferenceCategory
         android:title="@string/info_conf"
         android:key="info_conf">
