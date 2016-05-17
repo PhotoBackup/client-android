@@ -35,6 +35,7 @@ import android.widget.Toast;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Credentials;
+import okhttp3.FormBody;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -139,11 +140,12 @@ public class PBMediaSender {
 
         // test to send or not
         if (manual || (!wifiOnly || onWifi) && (!uploadRecentOnly || recentPicture)) {
-            sendMediaWithOk(media);
+            sendMedia(media);
         }
     }
 
-    private void sendMediaWithOk(final PBMedia media) {
+
+    private void sendMedia(final PBMedia media) {
         builder.setContentText(context.getResources().getString(R.string.notif_start_text))
                 .setLargeIcon(MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(),
                         media.getId(), MediaStore.Images.Thumbnails.MINI_KIND, null));
@@ -151,13 +153,12 @@ public class PBMediaSender {
 
         final MediaType MEDIA_TYPE_JPG = MediaType.parse("image/jpg");
         final File upfile = new File(media.getPath());
-        RequestBody requestBody = new MultipartBody.Builder()
+        final RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart(PASSWORD_PARAM, prefs.getString(PBServerPreferenceFragment.PREF_SERVER_PASS_HASH, ""))
                 .addFormDataPart(FILESIZE_PARAM, String.valueOf(upfile.length()))
                 .addFormDataPart(UPFILE_PARAM, upfile.getName(), RequestBody.create(MEDIA_TYPE_JPG, upfile))
                 .build();
-
         final Request request = makePostRequest(requestBody);
 
         okClient.newCall(request).enqueue(new Callback() {
@@ -169,6 +170,7 @@ public class PBMediaSender {
                 } else {
                     sendDidFail(media, new Throwable(response.message()));
                 }
+                response.body().close();
             }
 
             @Override
@@ -189,12 +191,12 @@ public class PBMediaSender {
                 Toast.LENGTH_SHORT);
         toast.show();
 
-        RequestBody requestBody = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart(PASSWORD_PARAM, prefs.getString(PBServerPreferenceFragment.PREF_SERVER_PASS_HASH, ""))
+        final RequestBody requestBody = new FormBody.Builder()
+                .add(PASSWORD_PARAM, prefs.getString(PBServerPreferenceFragment.PREF_SERVER_PASS_HASH, ""))
                 .build();
         final Request request = makePostRequest(requestBody, TEST_PATH);
         Log.i(LOG_TAG, "Initiating test call to " + request.url());
+
         okClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
@@ -203,8 +205,7 @@ public class PBMediaSender {
                 } else {
                     testDidFail(toast, response.message());
                 }
-
-
+                response.body().close();
             }
 
             @Override
@@ -219,22 +220,16 @@ public class PBMediaSender {
         return makePostRequest(requestBody, "");
     }
 
-    private Request makePostRequest(RequestBody requestBody, String pathFragment) {
+
+    private Request makePostRequest(RequestBody requestBody, String pathSuffix) {
         final Request.Builder requestBuilder = new Request.Builder()
-                .url(serverUrl + pathFragment)
+                .url(serverUrl + pathSuffix)
                 .header("User-Agent", PBApplication.PB_USER_AGENT)
                 .post(requestBody);
         if (credentials != null) {
             requestBuilder.header("Authorization", credentials);
         }
         return requestBuilder.build();
-    }
-
-    private void testFailure(Toast toast, String errorMessage) {
-        showToast(toast, errorMessage);
-        for (PBMediaSenderInterface senderInterface : interfaces) {
-            senderInterface.onTestFailure();
-        }
     }
 
 
