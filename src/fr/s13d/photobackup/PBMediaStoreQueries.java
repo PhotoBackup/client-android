@@ -93,7 +93,6 @@ public class PBMediaStoreQueries {
             id = cursor.getInt(idColumn);
             int bucketColumn = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID);
             bucketId = cursor.getString(bucketColumn);
-            Log.i(LOG_TAG, "BucketId: " + cursor.getString(bucketColumn) );
         }
         closeCursor(cursor);
         isSelectedBucket(bucketId);
@@ -149,8 +148,6 @@ public class PBMediaStoreQueries {
                 bucket = cur.getString(bucketColumn);
                 id = cur.getString(bucketIdColumn);
                 bucketCount = cur.getString(bucketCountColumn);
-
-                Log.d(LOG_TAG, "Bucket=" + bucket + ", count=" + bucketCount);
                 imageBuckets.put(id, bucket + " (" + bucketCount + ")");
             } while (cur.moveToNext());
         }
