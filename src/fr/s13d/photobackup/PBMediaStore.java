@@ -36,12 +36,12 @@ import fr.s13d.photobackup.interfaces.PBMediaStoreInterface;
 public class PBMediaStore {
 
     private static final String LOG_TAG = "PBMediaStore";
+    private static final Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
     private static Context context;
     private static List<PBMedia> mediaList;
     private static SyncMediaStoreTask syncTask;
     private static SharedPreferences picturesPreferences;
     private static SharedPreferences.Editor picturesPreferencesEditor;
-    private static final Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
     private List<PBMediaStoreInterface> interfaces = new ArrayList<>();
 
 
@@ -54,6 +54,7 @@ public class PBMediaStore {
         syncTask=new SyncMediaStoreTask();
     }
 
+
     private static void setMediaListToNull(){
         mediaList = null;
     }
@@ -63,9 +64,12 @@ public class PBMediaStore {
     private static void setPicturesPreferencesEditorToNull(){
         picturesPreferencesEditor = null;
     }
+
+
     public void addInterface(PBMediaStoreInterface storeInterface) {
         interfaces.add(storeInterface);
     }
+
 
     public void close() {
         if (syncTask != null) {
@@ -133,13 +137,18 @@ public class PBMediaStore {
         Log.i(LOG_TAG, "Start SyncMediaStoreTask");
     }
 
+
     private static  SyncMediaStoreTask getSyncMediaStoreTask(){
         return syncTask;
     }
+
+
     private static void setSyncTask(){
         syncTask=getSyncMediaStoreTask();
         syncTask.execute();
     }
+
+
     private class SyncMediaStoreTask extends AsyncTask<Void, Void, Void> {
 
         /////////////////////////////////

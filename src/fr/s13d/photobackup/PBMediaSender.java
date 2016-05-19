@@ -348,10 +348,14 @@ public class PBMediaSender {
 
         return s.substring(0, s.length() - count);
     }
-    private static void  incrementSuccessCount(){
+
+
+    private static void incrementSuccessCount() {
         successCount++;
     }
-    private static void  incrementFailureCount(){
+
+
+    private static void incrementFailureCount() {
         failureCount++;
     }
 }

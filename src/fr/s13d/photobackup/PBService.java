@@ -72,9 +72,7 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
 
         Log.i(LOG_TAG, "PhotoBackup service has stopped");
     }
-    private static void setNewMediaContentObserverToNull(){
-        newMediaContentObserver = null;
-    }
+
 
     @Override
     public int onStartCommand(final Intent intent, final int flags, final int startId) {
@@ -196,6 +194,11 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
 
     public int getMediaSize() {
         return mediaStore.getMedias().size();
+    }
+
+
+    private static void setNewMediaContentObserverToNull(){
+        newMediaContentObserver = null;
     }
 
 }
