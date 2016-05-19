@@ -29,15 +29,12 @@ import android.provider.MediaStore;
 import android.support.v4.content.LocalBroadcastManager;
 import android.widget.Toast;
 
-import java.util.logging.Logger;
-
 import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
 import fr.s13d.photobackup.interfaces.PBMediaStoreInterface;
 
 
 public class PBService extends Service implements PBMediaStoreInterface, PBMediaSenderInterface {
 
-    private static final Logger LOGGER = Logger.getLogger(PBService.class.getName());
 	private static final String LOG_TAG = "PBService";
     private static MediaContentObserver newMediaContentObserver;
     private PBMediaStore mediaStore;
@@ -184,7 +181,7 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
                 }
                 catch (Exception e) {
                     Log.e(LOG_TAG, "Upload failed :-(");
-                    LOGGER.warning(e.toString());
+                    Log.w(LOG_TAG, e.toString());
                 }
             }
         }

@@ -24,7 +24,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.LinearGradient;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
@@ -47,7 +46,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
 import fr.s13d.photobackup.preferences.PBPreferenceFragment;
@@ -55,7 +53,6 @@ import fr.s13d.photobackup.preferences.PBServerPreferenceFragment;
 
 
 public class PBMediaSender {
-    private static final Logger LOGGER = Logger.getLogger(PBMediaSender.class.getName());
     private static final String LOG_TAG = "PBMediaSender";
     private final static String PASSWORD_PARAM = "password";
     private final static String UPFILE_PARAM = "upfile";
@@ -177,7 +174,7 @@ public class PBMediaSender {
 
             @Override
             public void onFailure(Call call, IOException e) {
-               LOGGER.warning(e.toString());
+                Log.w(LOG_TAG, e.toString());
                 sendDidFail(media, e);
             }
         });
@@ -256,7 +253,7 @@ public class PBMediaSender {
             senderInterface.onSendFailure();
         }
         if (e != null) {
-            LOGGER.warning(e.toString());
+            Log.w(LOG_TAG, e.toString());
 
         }
         incrementFailureCount();
