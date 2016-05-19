@@ -49,6 +49,7 @@ import java.util.Map;
 
 import fr.s13d.photobackup.Log;
 import fr.s13d.photobackup.PBActivity;
+import fr.s13d.photobackup.PBApplication;
 import fr.s13d.photobackup.PBMediaSender;
 import fr.s13d.photobackup.PBService;
 import fr.s13d.photobackup.R;
@@ -90,7 +91,7 @@ public class PBPreferenceFragment extends PreferenceFragment
     private final BroadcastReceiver stopServiceBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction() != null && intent.getAction().equals(PBService.STOP_SERVICE)) {
+            if (intent.getAction() != null && intent.getAction().equals(PBApplication.PB_STOP_SERVICE)) {
                 // stop the service
                 final SwitchPreference switchPreference = (SwitchPreference) findPreference(PREF_SERVICE_RUNNING);
                 switchPreference.setChecked(false);
@@ -146,7 +147,7 @@ public class PBPreferenceFragment extends PreferenceFragment
 
         // Register a receiver for stop service message
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(stopServiceBroadcastReceiver,
-                new IntentFilter(PBService.STOP_SERVICE));
+                new IntentFilter(PBApplication.PB_STOP_SERVICE));
 
         updateUploadJournalPreference();
     }

@@ -43,7 +43,7 @@ public class PBMedia implements Serializable {
         this.dateAdded = mediaCursor.getLong(mediaCursor.getColumnIndexOrThrow("date_added"));
 
         // Find state from the shared preferences
-        SharedPreferences preferences = context.getSharedPreferences(PBMediaStore.PhotoBackupPicturesSharedPreferences, Context.MODE_PRIVATE);
+        SharedPreferences preferences = context.getSharedPreferences(PBApplication.PB_PICTURES_SHARED_PREFS, Context.MODE_PRIVATE);
         String stateString = preferences.getString(String.valueOf(this.id), PBMedia.PBMediaState.WAITING.name());
         this.state = PBMedia.PBMediaState.valueOf(stateString);
         this.context = context;
@@ -83,7 +83,7 @@ public class PBMedia implements Serializable {
     public void setState(PBMediaState mediaState) {
         if (this.state != mediaState) {
             this.state = mediaState;
-            SharedPreferences preferences = context.getSharedPreferences(PBMediaStore.PhotoBackupPicturesSharedPreferences, Context.MODE_PRIVATE);
+            SharedPreferences preferences = context.getSharedPreferences(PBApplication.PB_PICTURES_SHARED_PREFS, Context.MODE_PRIVATE);
             preferences.edit().putString(String.valueOf(this.getId()), mediaState.name()).apply();
             Log.i("PBMedia", "Set state " + mediaState.toString() + " to " + this.getPath());
         }
