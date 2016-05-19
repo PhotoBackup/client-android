@@ -46,6 +46,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
 import fr.s13d.photobackup.preferences.PBPreferenceFragment;
@@ -63,7 +64,7 @@ public class PBMediaSender {
     private final SharedPreferences prefs;
     private final NotificationManager notificationManager;
     private final Notification.Builder builder;
-    private final OkHttpClient okClient = new OkHttpClient();
+    private final OkHttpClient okClient;
     private final String credentials;
     private static List<PBMediaSenderInterface> interfaces = new ArrayList<>();
     private static int successCount = 0;
@@ -71,6 +72,12 @@ public class PBMediaSender {
 
 
     public PBMediaSender(final Context context) {
+        okClient = new OkHttpClient.Builder()
+            .readTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
+            .build();
+
         this.context = context;
         this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         this.builder = new Notification.Builder(context);
@@ -159,7 +166,6 @@ public class PBMediaSender {
                 .addFormDataPart(UPFILE_PARAM, upfile.getName(), RequestBody.create(MEDIA_TYPE_JPG, upfile))
                 .build();
         final Request request = makePostRequest(requestBody);
-
         okClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
