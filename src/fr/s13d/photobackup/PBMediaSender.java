@@ -242,7 +242,7 @@ public class PBMediaSender {
         for (PBMediaSenderInterface senderInterface : interfaces) {
             senderInterface.onSendSuccess();
         }
-        successCount++;
+        incrementSuccessCount();
         updateNotificationText();
     }
 
@@ -257,7 +257,7 @@ public class PBMediaSender {
             e.printStackTrace();
 
         }
-        failureCount++;
+        incrementFailureCount();
         updateNotificationText();
     }
 
@@ -325,5 +325,10 @@ public class PBMediaSender {
 
         return s.substring(0, s.length() - count);
     }
-
+    private static void  incrementSuccessCount(){
+        successCount++;
+    }
+    private static void  incrementFailureCount(){
+        failureCount++;
+    }
 }

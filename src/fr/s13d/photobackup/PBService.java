@@ -68,13 +68,15 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
     public void onDestroy() {
         super.onDestroy();
         this.getApplicationContext().getContentResolver().unregisterContentObserver(newMediaContentObserver);
-        newMediaContentObserver = null;
+        setNewMediaContentObserverToNull();
         mediaStore.close();
         mediaStore = null;
 
         Log.i(LOG_TAG, "PhotoBackup service has stopped");
     }
-
+    private static void setNewMediaContentObserverToNull(){
+        newMediaContentObserver = null;
+    }
 
     @Override
     public int onStartCommand(final Intent intent, final int flags, final int startId) {
