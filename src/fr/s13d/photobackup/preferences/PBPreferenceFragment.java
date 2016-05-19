@@ -178,7 +178,12 @@ public class PBPreferenceFragment extends PreferenceFragment
         Log.i(LOG_TAG, "onSharedPreferenceChanged: " + key);
         if (key.equals(PREF_SERVICE_RUNNING)) {
             startOrStopService(sharedPreferences);
-        } else if (key.equals(PREF_WIFI_ONLY) || key.equals(PREF_RECENT_UPLOAD_ONLY) || key.equals(PREF_BUCKETS)) {
+        } else if (key.equals(PREF_WIFI_ONLY) || key.equals(PREF_RECENT_UPLOAD_ONLY)) {
+            setSummaries();
+        } else if (key.equals(PREF_BUCKETS)) {
+            if (currentService != null) {
+                currentService.getMediaStore().sync();
+            }
             setSummaries();
         } else if (sharedPreferences == null) {
             Log.e(LOG_TAG, "Error: preferences == null");
