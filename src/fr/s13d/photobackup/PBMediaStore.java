@@ -52,22 +52,30 @@ public class PBMediaStore {
         picturesPreferences = context.getSharedPreferences(PhotoBackupPicturesSharedPreferences, Context.MODE_PRIVATE);
         picturesPreferencesEditor = picturesPreferences.edit();
         picturesPreferencesEditor.apply();
+        syncTask=new SyncMediaStoreTask();
     }
 
-
+    private static void setMediaListToNull(){
+        mediaList = null;
+    }
+    private static void setPicturesPreferencesToNull(){
+        picturesPreferences = null;
+    }
+    private static void setPicturesPreferencesEditorToNull(){
+        picturesPreferencesEditor = null;
+    }
     public void addInterface(PBMediaStoreInterface storeInterface) {
         interfaces.add(storeInterface);
     }
-
 
     public void close() {
         if (syncTask != null) {
             syncTask.cancel(true);
         }
 
-        mediaList = null;
-        picturesPreferences = null;
-        picturesPreferencesEditor = null;
+        setMediaListToNull();
+        setPicturesPreferencesToNull();
+        setPicturesPreferencesEditorToNull();
     }
 
 
@@ -122,12 +130,17 @@ public class PBMediaStore {
         if (syncTask != null) {
             syncTask.cancel(true);
         }
-        syncTask = new SyncMediaStoreTask();
-        syncTask.execute();
+        setSyncTask();
         Log.i(LOG_TAG, "Start SyncMediaStoreTask");
     }
 
-
+    private static  SyncMediaStoreTask getSyncMediaStoreTask(){
+        return syncTask;
+    }
+    private static void setSyncTask(){
+        syncTask=getSyncMediaStoreTask();
+        syncTask.execute();
+    }
     private class SyncMediaStoreTask extends AsyncTask<Void, Void, Void> {
 
         /////////////////////////////////
