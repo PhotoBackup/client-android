@@ -42,14 +42,13 @@ public class PBMediaStore {
     private static SharedPreferences picturesPreferences;
     private static SharedPreferences.Editor picturesPreferencesEditor;
     private static final Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-    public static final String PhotoBackupPicturesSharedPreferences = "PhotoBackupPicturesSharedPreferences";
     private List<PBMediaStoreInterface> interfaces = new ArrayList<>();
 
 
     public PBMediaStore(Context theContext) {
         context = theContext;
         mediaList = new ArrayList<>();
-        picturesPreferences = context.getSharedPreferences(PhotoBackupPicturesSharedPreferences, Context.MODE_PRIVATE);
+        picturesPreferences = context.getSharedPreferences(PBApplication.PB_PICTURES_SHARED_PREFS, Context.MODE_PRIVATE);
         picturesPreferencesEditor = picturesPreferences.edit();
         picturesPreferencesEditor.apply();
         syncTask=new SyncMediaStoreTask();
@@ -149,7 +148,7 @@ public class PBMediaStore {
         protected Void doInBackground(Void... voids) {
 
             // Get all known pictures in PB
-            Map<String, ?> mediasMap = context.getSharedPreferences(PBMediaStore.PhotoBackupPicturesSharedPreferences,
+            Map<String, ?> mediasMap = context.getSharedPreferences(PBApplication.PB_PICTURES_SHARED_PREFS,
                     Context.MODE_PRIVATE).getAll();
             Set<String> inCursor = new HashSet<>();
 

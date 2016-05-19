@@ -41,8 +41,6 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
     private PBMediaSender mediaSender;
     private Binder binder;
 
-    public static final String STOP_SERVICE = "PBService.STOP_SERVICE";
-
 
     //////////////
     // Override //
@@ -85,7 +83,7 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
         if (intent != null) { // explicitly launch by the user
 
             // stopped by the notification
-            if (intent.getAction() != null && intent.getAction().equals(PBService.STOP_SERVICE)) {
+            if (intent.getAction() != null && intent.getAction().equals(PBApplication.PB_STOP_SERVICE)) {
                 if (mediaSender != null) {
                     LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
                     Toast.makeText(this, R.string.service_stopped, Toast.LENGTH_LONG).show();

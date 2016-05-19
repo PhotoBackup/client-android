@@ -23,17 +23,20 @@ import android.app.Application;
 
 public class PBApplication extends Application {
 
-    String TAG="PhotoBackup";
+    private final static String LOG_TAG = "PBApplication";
 
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.e(TAG, "Initializing app");
+        Log.e(LOG_TAG, "Initializing app");
     }
+
 
     ///////////////
     // Constants //
     ///////////////
     public final static String PB_USER_AGENT = "PhotoBackup Android Client v" + BuildConfig.VERSION_NAME;
+    public static final String PB_PICTURES_SHARED_PREFS = "PB_PICTURES_SHARED_PREFS";
+    public static final String PB_STOP_SERVICE = "PB_STOP_SERVICE";
 
 }

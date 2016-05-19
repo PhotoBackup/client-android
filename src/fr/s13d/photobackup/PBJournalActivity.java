@@ -34,10 +34,10 @@ import android.widget.ToggleButton;
 public class PBJournalActivity extends ListActivity {
 
     private static final String LOG_TAG = "PBJournalActivity";
+    private PBJournalAdapter adapter;
     private PBMediaSender mediaSender;
     private SharedPreferences preferences;
     private SharedPreferences.Editor preferencesEditor;
-    private PBJournalAdapter adapter;
 
 
     @Override
@@ -52,7 +52,6 @@ public class PBJournalActivity extends ListActivity {
 
         // on click listener
         final Activity self = this;
-        mediaSender = new PBMediaSender(this);
         final ListView listView = (ListView)findViewById(android.R.id.list);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -65,7 +64,7 @@ public class PBJournalActivity extends ListActivity {
                             .setTitle(self.getResources().getString(R.string.manual_backup_title));
                     builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            mediaSender.send(media, true);
+                            getMediaSender().send(media, true);
                         }
                     });
                     builder.setNegativeButton(self.getString(R.string.cancel), null);
@@ -106,6 +105,14 @@ public class PBJournalActivity extends ListActivity {
         waitingButton.setChecked(preferences.getBoolean(PBMedia.PBMediaState.WAITING.name(), true));
         ToggleButton errorButton = (ToggleButton)this.findViewById(R.id.errorToggleButton);
         errorButton.setChecked(preferences.getBoolean(PBMedia.PBMediaState.ERROR.name(), true));
+    }
+
+
+    private PBMediaSender getMediaSender() {
+        if (mediaSender == null) {
+            mediaSender = new PBMediaSender(this);
+        }
+        return mediaSender;
     }
 
 

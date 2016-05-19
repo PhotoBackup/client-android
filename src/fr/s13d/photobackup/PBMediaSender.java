@@ -63,61 +63,19 @@ public class PBMediaSender {
     private final String serverUrl;
     private final SharedPreferences prefs;
     private final NotificationManager notificationManager;
-    private final Notification.Builder builder;
-    private final OkHttpClient okClient;
-    private final String credentials;
+    private String credentials;
+    private Notification.Builder builder;
+    private OkHttpClient okClient;
     private static List<PBMediaSenderInterface> interfaces = new ArrayList<>();
     private static int successCount = 0;
     private static int failureCount = 0;
 
 
     public PBMediaSender(final Context context) {
-        okClient = new OkHttpClient.Builder()
-            .readTimeout(30, TimeUnit.SECONDS)
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
-            .build();
-
         this.context = context;
         this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        this.builder = new Notification.Builder(context);
-        this.builder.setSmallIcon(R.drawable.ic_backup_white_48dp)
-                .setContentTitle(context.getResources().getString(R.string.app_name));
-
-        // add content intent to reopen the activity
-        Intent intent = new Intent(context, PBActivity.class);
-        intent.setAction(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
-        this.builder.setContentIntent(resultPendingIntent);
-
-        // add button action to stop the service
-        Intent stopIntent = new Intent(context, PBService.class);
-        stopIntent.setAction(PBService.STOP_SERVICE);
-        PendingIntent stopPendingIntent = PendingIntent.getService(context, 0, stopIntent, 0);
-
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            this.builder.addAction(android.R.drawable.ic_delete,
-                    context.getResources().getString(R.string.stop_service), stopPendingIntent);
-        } else {
-            Notification.Action.Builder actionBuilder = new Notification.Action.Builder(android.R.drawable.ic_delete,
-                    context.getResources().getString(R.string.stop_service), stopPendingIntent);
-            this.builder.addAction(actionBuilder.build());
-        }
-
         this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        serverUrl = removeFinalSlashes(prefs.getString(PBServerPreferenceFragment.PREF_SERVER_URL, ""));
-
-        // add HTTP Basic Auth to the client
-        final String login = prefs.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_LOGIN, "");
-        final String pass = prefs.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_PASS, "");
-        if(prefs.getBoolean(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_SWITCH, false) &&
-                !prefs.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_LOGIN, "").isEmpty() &&
-                !prefs.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_PASS, "").isEmpty()) {
-            credentials = Credentials.basic(login, pass);
-        } else {
-            credentials = null;
-        }
+        this.serverUrl = removeFinalSlashes(prefs.getString(PBServerPreferenceFragment.PREF_SERVER_URL, ""));
     }
 
 
@@ -166,7 +124,7 @@ public class PBMediaSender {
                 .addFormDataPart(UPFILE_PARAM, upfile.getName(), RequestBody.create(MEDIA_TYPE_JPG, upfile))
                 .build();
         final Request request = makePostRequest(requestBody);
-        okClient.newCall(request).enqueue(new Callback() {
+        getOkClient().newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 Log.i(LOG_TAG, "Get response with code " + response.code());
@@ -202,7 +160,7 @@ public class PBMediaSender {
         final Request request = makePostRequest(requestBody, TEST_PATH);
         Log.i(LOG_TAG, "Initiating test call to " + request.url());
 
-        okClient.newCall(request).enqueue(new Callback() {
+        getOkClient().newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful() || response.code() == 409) {
@@ -241,6 +199,48 @@ public class PBMediaSender {
     /////////////////////
     // Private methods //
     /////////////////////
+    private void createAuthCredentials() {
+        // add HTTP Basic Auth to the client
+        final String login = prefs.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_LOGIN, "");
+        final String pass = prefs.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_PASS, "");
+        if(prefs.getBoolean(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_SWITCH, false) &&
+                !prefs.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_LOGIN, "").isEmpty() &&
+                !prefs.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_PASS, "").isEmpty()) {
+            this.credentials = Credentials.basic(login, pass);
+        } else {
+            this.credentials = null;
+        }
+    }
+
+
+    private void buildNotificationBuilder() {
+        this.builder = new Notification.Builder(context);
+        this.builder.setSmallIcon(R.drawable.ic_backup_white_48dp)
+                .setContentTitle(context.getResources().getString(R.string.app_name));
+
+        // add content intent to reopen the activity
+        Intent intent = new Intent(context, PBActivity.class);
+        intent.setAction(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+        this.builder.setContentIntent(resultPendingIntent);
+
+        // add button action to stop the service
+        Intent stopIntent = new Intent(context, PBService.class);
+        stopIntent.setAction(PBApplication.PB_STOP_SERVICE);
+        PendingIntent stopPendingIntent = PendingIntent.getService(context, 0, stopIntent, 0);
+
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            this.builder.addAction(android.R.drawable.ic_delete,
+                    context.getResources().getString(R.string.stop_service), stopPendingIntent);
+        } else {
+            Notification.Action.Builder actionBuilder = new Notification.Action.Builder(android.R.drawable.ic_delete,
+                    context.getResources().getString(R.string.stop_service), stopPendingIntent);
+            this.builder.addAction(actionBuilder.build());
+        }
+    }
+
+
     private void sendDidSucceed(final PBMedia media) {
         builder.setSmallIcon(R.drawable.ic_done_white_48dp);
         media.setState(PBMedia.PBMediaState.SYNCED);
@@ -268,7 +268,7 @@ public class PBMediaSender {
 
 
     private void testDidSucceed(final Toast toast) {
-        showToast(toast, context.getResources().getString(R.string.toast_configuration_ok));
+        showToast(toast, context.getResources().getString(R.string.toast_configuration_ok), Toast.LENGTH_SHORT);
         for (PBMediaSenderInterface senderInterface : interfaces) {
             senderInterface.onTestSuccess();
         }
@@ -277,7 +277,7 @@ public class PBMediaSender {
 
     private void testDidFail(final Toast toast, final String message) {
         final String toastMessage = context.getResources().getString(R.string.toast_configuration_ko) + " - (" + message + ")";
-        showToast(toast, toastMessage);
+        showToast(toast, toastMessage, Toast.LENGTH_LONG);
         for (PBMediaSenderInterface senderInterface : interfaces) {
             senderInterface.onTestFailure();
         }
@@ -304,15 +304,33 @@ public class PBMediaSender {
 
 
     // show a text in a given toast on the UI thread
-    private void showToast(final Toast toast, final String text) {
+    private void showToast(final Toast toast, final String text, final int duration) {
         ((PBActivity)context).runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 toast.setText(text);
+                toast.setDuration(duration);
                 toast.show();
             }
         });
    }
+
+
+    //////////////////
+    // Lazy loaders //
+    //////////////////
+    private OkHttpClient getOkClient() {
+        if (okClient == null) {
+            okClient = new OkHttpClient.Builder()
+                    .readTimeout(30, TimeUnit.SECONDS)
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .writeTimeout(30, TimeUnit.SECONDS)
+                    .build();
+            createAuthCredentials();
+            buildNotificationBuilder();
+        }
+        return okClient;
+    }
 
 
     ///////////
