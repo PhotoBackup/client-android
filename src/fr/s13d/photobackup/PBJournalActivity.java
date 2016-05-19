@@ -30,8 +30,10 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ToggleButton;
 
+import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
 
-public class PBJournalActivity extends ListActivity {
+
+public class PBJournalActivity extends ListActivity implements PBMediaSenderInterface {
 
     private static final String LOG_TAG = "PBJournalActivity";
     private PBJournalAdapter adapter;
@@ -111,6 +113,7 @@ public class PBJournalActivity extends ListActivity {
     private PBMediaSender getMediaSender() {
         if (mediaSender == null) {
             mediaSender = new PBMediaSender(this);
+            mediaSender.addInterface(this);
         }
         return mediaSender;
     }
@@ -140,4 +143,27 @@ public class PBJournalActivity extends ListActivity {
         adapter.getFilter().filter(null);
     }
 
+    @Override
+    public void onSendSuccess() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.i("PBJournalActivity", "Trying to refresh view");
+                adapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    @Override
+    public void onSendFailure() {
+        onSendSuccess();
+    }
+
+    @Override
+    public void onTestSuccess() {
+    }
+
+    @Override
+    public void onTestFailure() {
+    }
 }
