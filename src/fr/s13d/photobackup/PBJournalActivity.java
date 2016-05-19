@@ -31,9 +31,12 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ToggleButton;
 
+import java.util.logging.Logger;
+
 
 public class PBJournalActivity extends ListActivity {
 
+    private static final Logger LOGGER = Logger.getLogger(PBJournalActivity.class.getName());
     private PBMediaSender mediaSender;
     private SharedPreferences preferences;
     private SharedPreferences.Editor preferencesEditor;
@@ -71,7 +74,7 @@ public class PBJournalActivity extends ListActivity {
                     builder.setNegativeButton(self.getString(R.string.cancel), null);
                     builder.create().show();
                 } catch(NullPointerException e) {
-                    e.printStackTrace();
+                   LOGGER.warning(e.toString());
                 }
             }
         });

@@ -46,6 +46,7 @@ import android.widget.Toast;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import fr.s13d.photobackup.Log;
 import fr.s13d.photobackup.PBActivity;
@@ -60,6 +61,7 @@ public class PBPreferenceFragment extends PreferenceFragment
                                 implements SharedPreferences.OnSharedPreferenceChangeListener,
                                            PBMediaStoreInterface, PBMediaSenderInterface {
 
+    private static final Logger LOGGER = Logger.getLogger(PBPreferenceFragment.class.getName());
     private static final String LOG_TAG = "PBPreferenceFragment";
     private static PBPreferenceFragment self;
     private PBService currentService;
@@ -341,7 +343,7 @@ public class PBPreferenceFragment extends PreferenceFragment
                 uploadJournalPref.setEnabled(false);
             }
         } catch (IllegalStateException e) {
-            e.printStackTrace();
+            LOGGER.warning(e.toString());
         }
     }
 
