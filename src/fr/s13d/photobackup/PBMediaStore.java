@@ -100,7 +100,7 @@ public class PBMediaStore {
         }
         Cursor cursor = queries.getMediaById(id);
         if (cursor == null) {
-            Log.i(LOG_TAG, "Photo not returned. Probably filtered by Bucket or deleted");
+            Log.e(LOG_TAG, "Photo not returned. Probably filtered by Bucket or deleted");
             return null;
         }
         Integer idCol = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID);

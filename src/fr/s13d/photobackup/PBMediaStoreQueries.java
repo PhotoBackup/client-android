@@ -24,6 +24,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -54,7 +55,6 @@ public class PBMediaStoreQueries {
         Log.d(LOG_TAG, "Checking if " + bucketId + " is selected by user..");
 
         for (String bucket: buckets) {
-            Log.d(LOG_TAG, "Selected bucket: " + bucket);
             if(bucket.equals(bucketId)) {
                 Log.d(LOG_TAG, "Is selected bucket! Continuing");
                 return true;
@@ -65,10 +65,18 @@ public class PBMediaStoreQueries {
     }
 
     public Cursor getAllMedia() {
+        String where;
         Cursor cursor = null;
         final String[] projection = new String[] { "_id", "_data", "date_added" };
+        Set<String> buckets = prefs.getStringSet(PBPreferenceFragment.PREF_BUCKETS, null);
+        if (buckets != null && buckets.size() > 0) {
+            String args = TextUtils.join(", ", buckets);
+            where = "bucket_id in (" + args + ")";
+        } else {
+            where = null;
+        }
         try {
-            cursor = context.getContentResolver().query(uri, projection, null, null, "date_added DESC");
+            cursor = context.getContentResolver().query(uri, projection, where, null, "date_added DESC");
         } catch(SecurityException e) {
             e.printStackTrace();
         }
