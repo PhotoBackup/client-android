@@ -19,8 +19,11 @@
 package fr.s13d.photobackup;
 
 
-final public class Log {
+public final  class Log {
 
+    private Log() throws InstantiationException{
+        throw new InstantiationException("This class is not meant to be instantiated!");
+    }
 	public static void d(String tag, String message) {
         if (BuildConfig.DEBUG) {
         	android.util.Log.d(tag, message);
