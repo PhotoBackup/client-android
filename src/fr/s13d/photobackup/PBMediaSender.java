@@ -47,6 +47,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
 import fr.s13d.photobackup.preferences.PBPreferenceFragment;
@@ -54,6 +55,7 @@ import fr.s13d.photobackup.preferences.PBServerPreferenceFragment;
 
 
 public class PBMediaSender {
+    private static final Logger LOGGER = Logger.getLogger(PBMediaSender.class.getName());
     private static final String LOG_TAG = "PBMediaSender";
     private final static String PASSWORD_PARAM = "password";
     private final static String UPFILE_PARAM = "upfile";
@@ -175,7 +177,7 @@ public class PBMediaSender {
 
             @Override
             public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
+               LOGGER.warning(e.toString());
                 sendDidFail(media, e);
             }
         });
@@ -254,7 +256,7 @@ public class PBMediaSender {
             senderInterface.onSendFailure();
         }
         if (e != null) {
-            e.printStackTrace();
+            LOGGER.warning(e.toString());
 
         }
         incrementFailureCount();

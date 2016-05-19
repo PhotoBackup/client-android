@@ -30,11 +30,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import fr.s13d.photobackup.interfaces.PBMediaStoreInterface;
 
 public class PBMediaStore {
 
+    private static final Logger LOGGER = Logger.getLogger(PBMediaStore.class.getName());
     private static final String LOG_TAG = "PBMediaStore";
     private static Context context;
     private static List<PBMedia> mediaList;
@@ -159,7 +161,7 @@ public class PBMediaStore {
             try {
                 cursor = context.getContentResolver().query(uri, projection, null, null, "date_added DESC");
             } catch(SecurityException e) {
-                e.printStackTrace();
+               LOGGER.warning(e.toString());
             }
 
             // loop through them to sync
