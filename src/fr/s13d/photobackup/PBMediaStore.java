@@ -51,7 +51,7 @@ public class PBMediaStore {
         picturesPreferences = context.getSharedPreferences(PBApplication.PB_PICTURES_SHARED_PREFS, Context.MODE_PRIVATE);
         picturesPreferencesEditor = picturesPreferences.edit();
         picturesPreferencesEditor.apply();
-        syncTask=new SyncMediaStoreTask();
+
     }
 
 
@@ -133,7 +133,9 @@ public class PBMediaStore {
         if (syncTask != null) {
             syncTask.cancel(true);
         }
-        setSyncTask();
+
+        syncTask=new SyncMediaStoreTask();
+        syncTask.execute();
         Log.i(LOG_TAG, "Start SyncMediaStoreTask");
     }
 
@@ -141,13 +143,6 @@ public class PBMediaStore {
     private static  SyncMediaStoreTask getSyncMediaStoreTask(){
         return syncTask;
     }
-
-
-    private static void setSyncTask(){
-        syncTask=getSyncMediaStoreTask();
-        syncTask.execute();
-    }
-
 
     private class SyncMediaStoreTask extends AsyncTask<Void, Void, Void> {
 
