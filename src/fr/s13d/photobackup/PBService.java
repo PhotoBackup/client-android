@@ -20,6 +20,7 @@ package fr.s13d.photobackup;
 
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
@@ -54,7 +55,9 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
         mediaStore.addInterface(this);
         mediaSender = new PBMediaSender(this);
         mediaSender.addInterface(this);
-        this.getApplicationContext().getContentResolver().registerContentObserver(
+        ContentResolver contentResolver = this.getApplicationContext().getContentResolver();
+
+        contentResolver.registerContentObserver(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI, false, newMediaContentObserver);
 
         Log.i(LOG_TAG, "PhotoBackup service is created");
@@ -166,11 +169,15 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
         public void onChange(boolean selfChange, Uri uri) {
             super.onChange(selfChange);
             Log.i(LOG_TAG, "MediaContentObserver:onChange()");
+            Log.i(LOG_TAG, "Content-URI: " + uri);
 
             if (uri.toString().equals("content://media/external/images/media")) {
 
                 try {
                     final PBMedia media = mediaStore.getLastMediaInStore();
+                    if (media == null) {
+                        return;
+                    }
                     media.setState(PBMedia.PBMediaState.WAITING);
                     mediaSender.send(media, false);
                     //mediaStore.sync();
