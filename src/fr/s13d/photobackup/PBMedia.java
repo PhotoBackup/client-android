@@ -29,6 +29,7 @@ public class PBMedia implements Serializable {
     final private int id;
     final private String path;
     final private long dateAdded;
+    private String errorMessage;
     private PBMediaState state;
     Context context;
     public enum PBMediaState { WAITING, SYNCED, ERROR }
@@ -47,6 +48,7 @@ public class PBMedia implements Serializable {
         String stateString = preferences.getString(String.valueOf(this.id), PBMedia.PBMediaState.WAITING.name());
         this.state = PBMedia.PBMediaState.valueOf(stateString);
         this.context = context;
+        this.errorMessage = "";
     }
 
 
@@ -75,6 +77,10 @@ public class PBMedia implements Serializable {
     public long getDateAdded() {
         return this.dateAdded;
     }
+
+    public String getErrorMessage() { return this.errorMessage; }
+
+    public void setErrorMessage(String newMessage) { this.errorMessage = newMessage; }
 
     public PBMediaState getState() {
         return this.state;

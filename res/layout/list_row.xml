@@ -2,8 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/list_image"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:padding="5dip" >
+    android:layout_height="wrap_content"
+    android:padding="5dip">
 
     <!-- Thumbnail image on the left -->
     <ImageView
@@ -38,5 +38,15 @@
         android:layout_toStartOf="@id/state"
         android:textAppearance="@android:style/TextAppearance.Small"
         android:text="@string/name" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@android:style/TextAppearance.Small"
+        android:text="Foobar"
+        android:id="@+id/hint"
+        android:layout_below="@+id/state"
+        android:layout_alignLeft="@+id/filename"
+        android:layout_alignStart="@+id/filename" />
 
 </RelativeLayout>

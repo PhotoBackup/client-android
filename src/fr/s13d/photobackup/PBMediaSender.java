@@ -76,6 +76,7 @@ public class PBMediaSender {
         this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
         this.serverUrl = removeFinalSlashes(prefs.getString(PBServerPreferenceFragment.PREF_SERVER_URL, ""));
+        buildNotificationBuilder();
     }
 
 
@@ -244,6 +245,7 @@ public class PBMediaSender {
     private void sendDidSucceed(final PBMedia media) {
         builder.setSmallIcon(R.drawable.ic_done_white_48dp);
         media.setState(PBMedia.PBMediaState.SYNCED);
+        media.setErrorMessage("");
         for (PBMediaSenderInterface senderInterface : interfaces) {
             senderInterface.onSendSuccess();
         }
@@ -255,6 +257,7 @@ public class PBMediaSender {
     private void sendDidFail(final PBMedia media, final Throwable e) {
         builder.setSmallIcon(R.drawable.ic_error_outline_white_48dp);
         media.setState(PBMedia.PBMediaState.ERROR);
+        media.setErrorMessage(e.getLocalizedMessage());
         for (PBMediaSenderInterface senderInterface : interfaces) {
             senderInterface.onSendFailure();
         }
