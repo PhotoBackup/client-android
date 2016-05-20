@@ -137,7 +137,6 @@ public class PBMediaSender {
                 } finally {
                     response.body().close();
                 }
-                response.body().close();
             }
 
             @Override
@@ -176,7 +175,6 @@ public class PBMediaSender {
                 } finally {
                     response.body().close();
                 }
-                response.body().close();
             }
 
             @Override
