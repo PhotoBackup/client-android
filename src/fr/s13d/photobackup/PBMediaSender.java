@@ -76,6 +76,7 @@ public class PBMediaSender {
         this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
         this.serverUrl = removeFinalSlashes(prefs.getString(PBServerPreferenceFragment.PREF_SERVER_URL, ""));
+        buildNotificationBuilder();
     }
 
 
