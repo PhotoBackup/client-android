@@ -61,10 +61,28 @@
         android:layout_height="1px"
         android:background="?android:attr/listDivider" />
 
-    <ListView
-        android:id="@android:id/list"
+    <FrameLayout
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:text="@string/journal_title" />
+        android:layout_height="match_parent">
+
+        <ListView
+            android:id="@android:id/list"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:text="@string/journal_title" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/retry_all_button_text"
+            android:id="@+id/button"
+            android:drawableLeft="@android:drawable/ic_menu_rotate"
+            android:drawableStart="@android:drawable/presence_online"
+            android:drawablePadding="0dip"
+            android:layout_gravity="right|bottom"
+            android:onClick="retryAll" />
+
+    </FrameLayout>
 
 </LinearLayout>

@@ -30,6 +30,8 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ToggleButton;
 
+import java.util.List;
+
 import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
 
 
@@ -134,6 +136,35 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
         adapter.getFilter().filter(null);
     }
 
+    public void retryAll(View v){
+        Log.i("PBJournalActivity", "retryAll");
+
+        final Activity self = this;
+        final AlertDialog.Builder builder = new AlertDialog.Builder(self);
+        builder.setMessage(self.getResources().getString(R.string.retry_all_title))
+                .setTitle(self.getResources().getString(R.string.retry_all_text));
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+
+                int count = 100;
+                List<PBMedia> allMedia = PBActivity.getMediaStore().getMedias();
+                for (PBMedia media: allMedia){
+                     if(media.getState() == PBMedia.PBMediaState.ERROR || media.getState() == PBMedia.PBMediaState.WAITING) {
+                         getMediaSender().send(media, true);
+                         if( (count -= 1) == 0) {
+                             break;
+                         }
+                     }
+                }
+            }
+        });
+        builder.setNegativeButton(self.getString(R.string.cancel), null);
+        builder.create().show();
+
+
+        //getMediaSender().send(media, true);
+    }
 
     public void clickOnWaiting(View v) {
         Log.i("PBJournalActivity", "clickOnWaiting");
