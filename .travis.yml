@@ -2,13 +2,15 @@ language: android
 jdk: oraclejdk7
 env:
   matrix:
-    - ANDROID_TARGET=android-22 ANDROID_ABI=armeabi-v7a
+    - ANDROID_TARGET=android-23 ANDROID_ABI=armeabi-v7a
 
 android:
   components:
-    - tools
+    - android-23
+    - build-tools-23.0.2
     - platform-tools
     - sys-img-armeabi-v7a-android-19
+    - tools
 
 sudo: false
 cache:
@@ -26,6 +28,6 @@ cache:
 script:
   - chmod +x gradlew
   - ./gradlew check -PdisablePreDex --continue --stacktrace
-  - ./gradlew assembleDebug -PdisablePreDex
-  - ./gradlew assembleAndroidTest -PdisablePreDex
-  - ./gradlew connectedAndroidTest
+#  - ./gradlew assembleDebug -PdisablePreDex
+#  - ./gradlew assembleAndroidTest -PdisablePreDex
+#  - ./gradlew connectedAndroidTest
