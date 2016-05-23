@@ -6,8 +6,8 @@ env:
 
 android:
   components:
-    - build-tools-23.0.3
-    - android-23
+    - tools
+    - platform-tools
     - sys-img-armeabi-v7a-android-19
 
 sudo: false
