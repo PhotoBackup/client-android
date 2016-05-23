@@ -122,17 +122,17 @@ public class PBJournalAdapter extends BaseAdapter implements Filterable, Handler
             textView.setText(R.string.journal_error);
         }
 
-        final TextView errorView = (TextView)view.findViewById(R.id.hint);
-        errorView.setText("");
-
         // indicator
+        final TextView errorTextView = (TextView)view.findViewById(R.id.errorHint);
         final ImageView imageView = (ImageView)view.findViewById(R.id.state);
         if (media.getState() == PBMedia.PBMediaState.WAITING) {
+            errorTextView.setVisibility(View.GONE);
             imageView.setImageResource(android.R.drawable.presence_away);
         } else if (media.getState() == PBMedia.PBMediaState.SYNCED) {
+            errorTextView.setVisibility(View.GONE);
             imageView.setImageResource(android.R.drawable.presence_online);
         } else if (media.getState() == PBMedia.PBMediaState.ERROR) {
-            errorView.setText(media.getErrorMessage());
+            errorTextView.setText(media.getErrorMessage());
             imageView.setImageResource(android.R.drawable.presence_busy);
         }
 
