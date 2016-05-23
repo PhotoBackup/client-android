@@ -70,7 +70,6 @@ public class PBMediaStore {
         interfaces.add(storeInterface);
     }
 
-
     public void close() {
         if (syncTask != null) {
             syncTask.cancel(true);
