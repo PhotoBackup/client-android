@@ -91,6 +91,9 @@ public class PBJournalAdapter extends BaseAdapter implements Filterable, Handler
     }
 
 
+    /////////////
+    // Adapter //
+    /////////////
     @Override
 	public View getView(int position, View view, ViewGroup parent) {
         // create the view if not available
@@ -157,6 +160,39 @@ public class PBJournalAdapter extends BaseAdapter implements Filterable, Handler
             }
         };
     }
+
+
+    @Override
+    public int getCount() {
+        int count = 0;
+        try {
+            count = items.size();
+        } catch (java.lang.NullPointerException e) {
+            Log.e(LOG_TAG, "count = " + count);
+        }
+        return count;
+    }
+
+
+    @Override
+    public Object getItem(final int position) {
+        try {
+            return items.get(position);
+        } catch (java.lang.NullPointerException e) {
+            return null;
+        }
+    }
+
+
+    @Override
+    public long getItemId(final int position) {
+        return position;
+    }
+
+
+    /////////////////////
+    // Private methods //
+    /////////////////////
     private List<PBMedia> getMediaList(){
 
         List<PBMedia> mediaList = new ArrayList<>();
@@ -171,31 +207,6 @@ public class PBJournalAdapter extends BaseAdapter implements Filterable, Handler
             }
         }
         return mediaList;
-    }
-
-    @Override
-    public int getCount() {
-        int count = 0;
-        try {
-            count = items.size();
-        } catch (java.lang.NullPointerException e) {
-            Log.e(LOG_TAG, "count = " + count);
-        }
-        return count;
-    }
-
-    @Override
-    public Object getItem(final int position) {
-        try {
-            return items.get(position);
-        } catch (java.lang.NullPointerException e) {
-            return null;
-        }
-    }
-
-    @Override
-    public long getItemId(final int position) {
-        return position;
     }
 
 }
