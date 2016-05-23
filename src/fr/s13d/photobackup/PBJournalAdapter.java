@@ -38,6 +38,7 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -148,25 +149,28 @@ public class PBJournalAdapter extends BaseAdapter implements Filterable, Handler
             protected FilterResults performFiltering(CharSequence constraint) {
 
                 FilterResults results = new FilterResults();
-                ArrayList<PBMedia> mediaList = new ArrayList<>();
-
-                // perform search
-                Boolean synced = preferences.getBoolean(PBMedia.PBMediaState.SYNCED.name(), true);
-                Boolean waiting = preferences.getBoolean(PBMedia.PBMediaState.WAITING.name(), true);
-                Boolean error = preferences.getBoolean(PBMedia.PBMediaState.ERROR.name(), true);
-                for (PBMedia media : PBActivity.getMediaStore().getMedias()) {
-                    if (media.getState() == PBMedia.PBMediaState.SYNCED && synced ||
-                            media.getState() == PBMedia.PBMediaState.WAITING && waiting ||
-                            media.getState() == PBMedia.PBMediaState.ERROR && error) {
-                        mediaList.add(media);
-                    }
-                }
-
+                List<PBMedia> mediaList = new ArrayList<>();
+                mediaList = getMediaList();
                 results.values = mediaList;
                 results.count = mediaList.size();
                 return results;
             }
         };
+    }
+    private List<PBMedia> getMediaList(){
+
+        List<PBMedia> mediaList = new ArrayList<>();
+        Boolean synced = preferences.getBoolean(PBMedia.PBMediaState.SYNCED.name(), true);
+        Boolean waiting = preferences.getBoolean(PBMedia.PBMediaState.WAITING.name(), true);
+        Boolean error = preferences.getBoolean(PBMedia.PBMediaState.ERROR.name(), true);
+        for (PBMedia media : PBActivity.getMediaStore().getMedias()) {
+            if (media.getState() == PBMedia.PBMediaState.SYNCED && synced ||
+                    media.getState() == PBMedia.PBMediaState.WAITING && waiting ||
+                    media.getState() == PBMedia.PBMediaState.ERROR && error) {
+                mediaList.add(media);
+            }
+        }
+        return mediaList;
     }
 
     @Override

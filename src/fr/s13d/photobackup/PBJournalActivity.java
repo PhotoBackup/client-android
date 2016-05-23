@@ -56,25 +56,10 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
         final Activity self = this;
         final ListView listView = (ListView)findViewById(android.R.id.list);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                try {
-                    final PBMedia media = PBActivity.getMediaStore().getMedias().get(position);
-
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(self);
-                    builder.setMessage(self.getResources().getString(R.string.manual_backup_message))
-                            .setTitle(self.getResources().getString(R.string.manual_backup_title));
-                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            getMediaSender().send(media, true);
-                        }
-                    });
-                    builder.setNegativeButton(self.getString(R.string.cancel), null);
-                    builder.create().show();
-                } catch(NullPointerException e) {
-                    Log.w(LOG_TAG, e.toString());
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    setOnItemClick(parent,view,position,id,self);
                 }
-            }
         });
 
         // adapter
@@ -82,7 +67,24 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
         setListAdapter(adapter);
         adapter.getFilter().filter(null); // to init the view
     }
+    private void setOnItemClick(AdapterView<?> parent, View view, int position, long id,final Activity self){
+        try {
+            final PBMedia media = PBActivity.getMediaStore().getMedias().get(position);
 
+            final AlertDialog.Builder builder = new AlertDialog.Builder(self);
+            builder.setMessage(self.getResources().getString(R.string.manual_backup_message))
+                    .setTitle(self.getResources().getString(R.string.manual_backup_title));
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    mediaSender.send(media, true);
+                }
+            });
+            builder.setNegativeButton(self.getString(R.string.cancel), null);
+            builder.create().show();
+        } catch(NullPointerException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     protected void onDestroy() {
