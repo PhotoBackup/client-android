@@ -111,10 +111,10 @@ public class PBMediaSender {
 
 
     private void sendMedia(final PBMedia media) {
-        builder.setContentText(context.getResources().getString(R.string.notif_start_text))
+        this.builder.setContentText(context.getResources().getString(R.string.notif_start_text))
                 .setLargeIcon(MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(),
                         media.getId(), MediaStore.Images.Thumbnails.MINI_KIND, null));
-        notificationManager.notify(0, builder.build());
+        notificationManager.notify(0, this.builder.build());
 
         final MediaType MEDIA_TYPE_JPG = MediaType.parse("image/jpg");
         final File upfile = new File(media.getPath());
@@ -243,7 +243,7 @@ public class PBMediaSender {
 
 
     private void sendDidSucceed(final PBMedia media) {
-        builder.setSmallIcon(R.drawable.ic_done_white_48dp);
+        this.builder.setSmallIcon(R.drawable.ic_done_white_48dp);
         media.setState(PBMedia.PBMediaState.SYNCED);
         for (PBMediaSenderInterface senderInterface : interfaces) {
             senderInterface.onSendSuccess();
@@ -254,7 +254,7 @@ public class PBMediaSender {
 
 
     private void sendDidFail(final PBMedia media, final Throwable e) {
-        builder.setSmallIcon(R.drawable.ic_error_outline_white_48dp);
+        this.builder.setSmallIcon(R.drawable.ic_error_outline_white_48dp);
         media.setState(PBMedia.PBMediaState.ERROR);
         for (PBMediaSenderInterface senderInterface : interfaces) {
             senderInterface.onSendFailure();
@@ -290,17 +290,17 @@ public class PBMediaSender {
         String failureContent = context.getResources().getQuantityString(R.plurals.notif_failure, failureCount, failureCount);
 
         if (successCount != 0 && failureCount != 0) {
-            builder.setContentText(successContent + " ; " + failureContent);
+            this.builder.setContentText(successContent + " ; " + failureContent);
         } else {
             if (successCount != 0) {
-                builder.setContentText(successContent);
+                this.builder.setContentText(successContent);
             }
             if (failureCount != 0) {
-                builder.setContentText(failureContent);
+                this.builder.setContentText(failureContent);
             }
         }
 
-        notificationManager.notify(0, builder.build());
+        notificationManager.notify(0, this.builder.build());
     }
 
 
