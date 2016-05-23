@@ -27,7 +27,6 @@ proguard/
 
 # Gradle files
 .gradle/
-gradle/
 build/
 /*/build/
 
