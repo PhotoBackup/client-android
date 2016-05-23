@@ -245,6 +245,7 @@ public class PBMediaSender {
     private void sendDidSucceed(final PBMedia media) {
         this.builder.setSmallIcon(R.drawable.ic_done_white_48dp);
         media.setState(PBMedia.PBMediaState.SYNCED);
+        media.setErrorMessage("");
         for (PBMediaSenderInterface senderInterface : interfaces) {
             senderInterface.onSendSuccess();
         }
@@ -256,6 +257,7 @@ public class PBMediaSender {
     private void sendDidFail(final PBMedia media, final Throwable e) {
         this.builder.setSmallIcon(R.drawable.ic_error_outline_white_48dp);
         media.setState(PBMedia.PBMediaState.ERROR);
+        media.setErrorMessage(e.getLocalizedMessage());
         for (PBMediaSenderInterface senderInterface : interfaces) {
             senderInterface.onSendFailure();
         }
