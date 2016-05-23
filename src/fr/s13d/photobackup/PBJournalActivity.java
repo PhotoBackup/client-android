@@ -58,7 +58,7 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    setOnItemClick(parent,view,position,id,self);
+                    setOnItemClick(position, self);
                 }
         });
 
@@ -67,30 +67,14 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
         setListAdapter(adapter);
         adapter.getFilter().filter(null); // to init the view
     }
-    private void setOnItemClick(AdapterView<?> parent, View view, int position, long id,final Activity self){
-        try {
-            final PBMedia media = PBActivity.getMediaStore().getMedias().get(position);
 
-            final AlertDialog.Builder builder = new AlertDialog.Builder(self);
-            builder.setMessage(self.getResources().getString(R.string.manual_backup_message))
-                    .setTitle(self.getResources().getString(R.string.manual_backup_title));
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    mediaSender.send(media, true);
-                }
-            });
-            builder.setNegativeButton(self.getString(R.string.cancel), null);
-            builder.create().show();
-        } catch(NullPointerException e) {
-            e.printStackTrace();
-        }
-    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         adapter.close();
     }
+
 
     /////////////////////
     // private methods //
@@ -121,6 +105,25 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
     }
 
 
+    private void setOnItemClick(int position, final Activity self) {
+        try {
+            final PBMedia media = PBActivity.getMediaStore().getMedias().get(position);
+            final AlertDialog.Builder builder = new AlertDialog.Builder(self);
+            builder.setMessage(self.getResources().getString(R.string.manual_backup_message))
+                    .setTitle(self.getResources().getString(R.string.manual_backup_title));
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    getMediaSender().send(media, true);
+                }
+            });
+            builder.setNegativeButton(self.getString(R.string.cancel), null);
+            builder.create().show();
+        } catch(NullPointerException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     //////////////////
     // buttons call //
     //////////////////
@@ -131,12 +134,14 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
         adapter.getFilter().filter(null);
     }
 
+
     public void clickOnWaiting(View v) {
         Log.i("PBJournalActivity", "clickOnWaiting");
         ToggleButton btn = (ToggleButton)v;
         preferencesEditor.putBoolean(PBMedia.PBMediaState.WAITING.name(), btn.isChecked()).apply();
         adapter.getFilter().filter(null);
     }
+
 
     public void clickOnError(View v) {
         Log.i("PBJournalActivity", "clickOnError");
@@ -145,6 +150,10 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
         adapter.getFilter().filter(null);
     }
 
+
+    ////////////////////////////
+    // PBMediaSenderInterface //
+    ////////////////////////////
     @Override
     public void onSendSuccess() {
         runOnUiThread(new Runnable() {
@@ -156,16 +165,17 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
         });
     }
 
+
     @Override
     public void onSendFailure() {
         onSendSuccess();
     }
 
-    @Override
-    public void onTestSuccess() {
-    }
 
     @Override
-    public void onTestFailure() {
-    }
+    public void onTestSuccess() {}
+
+
+    @Override
+    public void onTestFailure() {}
 }
