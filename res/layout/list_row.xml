@@ -49,8 +49,7 @@
             android:id="@+id/errorHint"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="@android:style/TextAppearance.Small"
-            android:text="Erreur des fois longue sur ce qui sest passé dans leur vie" />
+            android:textAppearance="@android:style/TextAppearance.Small" />
     </LinearLayout>
 
 </RelativeLayout>
