@@ -34,9 +34,7 @@ Um deinen eigenen Server zu installieren und konfigurieren, schaue bitte hier:</
     <string name="server_url_title">Adresse</string>
     <string name="service_state_not_running">PhotoBackup wurde nicht gestartet.</string>
     <string name="service_state_running">PhotoBackup läuft.</string>
-    <string name="service_stopped">PhotoBackup wurde gestoppt.</string>
     <string name="service_title">Dienst</string>
-    <string name="stop_service">Dienst stoppen</string>
     <string name="thumbnail_description">Vorschau des Fotos</string>
     <string name="toast_configuration_ko">Server Test fehlgeschlagen. Bitte überprüfe die Konfiguration.</string>
     <string name="toast_configuration_ok">Server Test erfolgreich!</string>
