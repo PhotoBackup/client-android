@@ -6,4 +6,6 @@ android:
    - android-23
    - extra-android-m2repository
 
-script: ./gradlew build -x lint
+script:
+  - chmod +x gradlew
+  - ./gradlew build -x lint
