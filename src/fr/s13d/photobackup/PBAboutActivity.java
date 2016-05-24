@@ -32,9 +32,6 @@ public class PBAboutActivity extends Activity {
 
         final TextView tv = (TextView)findViewById(R.id.versionTextView);
         tv.setText(getString(R.string.app_version, BuildConfig.VERSION_NAME));
-
-        final TextView textTv = (TextView)findViewById(R.id.aboutTextTextView);
-        textTv.setText(getResources().getText(R.string.about_text));
     }
 
 }

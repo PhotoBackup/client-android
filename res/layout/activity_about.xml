@@ -28,6 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_margin="20dp"
+        android:text="@string/about_text"
         android:textAppearance="?android:attr/textAppearanceMedium"
         />
 
