@@ -22,11 +22,9 @@ package fr.s13d.photobackup.preferences;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -40,7 +38,6 @@ import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.webkit.URLUtil;
 import android.widget.Toast;
 
@@ -49,7 +46,6 @@ import java.util.Map;
 
 import fr.s13d.photobackup.Log;
 import fr.s13d.photobackup.PBActivity;
-import fr.s13d.photobackup.PBApplication;
 import fr.s13d.photobackup.PBMediaSender;
 import fr.s13d.photobackup.PBService;
 import fr.s13d.photobackup.R;
@@ -84,18 +80,6 @@ public class PBPreferenceFragment extends PreferenceFragment
 
         public void onServiceDisconnected(ComponentName className) {
             Log.i(LOG_TAG, "Disconnected to service");
-        }
-    };
-
-    // receiver
-    private final BroadcastReceiver stopServiceBroadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent.getAction() != null && intent.getAction().equals(PBApplication.PB_STOP_SERVICE)) {
-                // stop the service
-                final SwitchPreference switchPreference = (SwitchPreference) findPreference(PREF_SERVICE_RUNNING);
-                switchPreference.setChecked(false);
-            }
         }
     };
 
@@ -145,10 +129,6 @@ public class PBPreferenceFragment extends PreferenceFragment
             isBoundToService = true;
         }
 
-        // Register a receiver for stop service message
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(stopServiceBroadcastReceiver,
-                new IntentFilter(PBApplication.PB_STOP_SERVICE));
-
         updateUploadJournalPreference();
     }
 
@@ -156,7 +136,6 @@ public class PBPreferenceFragment extends PreferenceFragment
     @Override
     public void onPause() {
         super.onPause();
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(stopServiceBroadcastReceiver);
         if (preferences != null) {
             preferences.unregisterOnSharedPreferenceChangeListener(this);
         }

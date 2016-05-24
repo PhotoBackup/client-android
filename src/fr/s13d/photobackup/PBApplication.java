@@ -37,6 +37,5 @@ public class PBApplication extends Application {
     ///////////////
     public final static String PB_USER_AGENT = "PhotoBackup Android Client v" + BuildConfig.VERSION_NAME;
     public static final String PB_PICTURES_SHARED_PREFS = "PB_PICTURES_SHARED_PREFS";
-    public static final String PB_STOP_SERVICE = "PB_STOP_SERVICE";
 
 }

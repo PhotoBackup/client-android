@@ -18,16 +18,12 @@
  */
 package fr.s13d.photobackup;
 
-import android.app.NotificationManager;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.IBinder;
 import android.provider.MediaStore;
-import android.support.v4.content.LocalBroadcastManager;
-import android.widget.Toast;
 
 import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
 import fr.s13d.photobackup.interfaces.PBMediaStoreInterface;
@@ -77,26 +73,7 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
     @Override
     public int onStartCommand(final Intent intent, final int flags, final int startId) {
         super.onStartCommand(intent, flags, startId);
-
-        if (intent != null) { // explicitly launch by the user
-
-            // stopped by the notification
-            if (intent.getAction() != null && intent.getAction().equals(PBApplication.PB_STOP_SERVICE)) {
-                if (mediaSender != null) {
-                    LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-                    Toast.makeText(this, R.string.service_stopped, Toast.LENGTH_LONG).show();
-
-                    // remove the notification
-                    NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                    notificationManager.cancelAll();
-                }
-                stopSelf();
-                return START_NOT_STICKY;
-            }
-
-            Log.i(LOG_TAG, "PhotoBackup service has started");
-        }
-
+        Log.i(LOG_TAG, "PhotoBackup service has started");
         return START_STICKY;
     }
 

@@ -26,7 +26,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.widget.Toast;
@@ -225,20 +224,6 @@ public class PBMediaSender {
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
         this.builder.setContentIntent(resultPendingIntent);
-
-        // add button action to stop the service
-        Intent stopIntent = new Intent(context, PBService.class);
-        stopIntent.setAction(PBApplication.PB_STOP_SERVICE);
-        PendingIntent stopPendingIntent = PendingIntent.getService(context, 0, stopIntent, 0);
-
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            this.builder.addAction(android.R.drawable.ic_delete,
-                    context.getResources().getString(R.string.stop_service), stopPendingIntent);
-        } else {
-            Notification.Action.Builder actionBuilder = new Notification.Action.Builder(android.R.drawable.ic_delete,
-                    context.getResources().getString(R.string.stop_service), stopPendingIntent);
-            this.builder.addAction(actionBuilder.build());
-        }
     }
 
 
@@ -261,10 +246,7 @@ public class PBMediaSender {
         for (PBMediaSenderInterface senderInterface : interfaces) {
             senderInterface.onSendFailure();
         }
-        if (e != null) {
-            Log.w(LOG_TAG, e.toString());
-
-        }
+        Log.w(LOG_TAG, e.toString());
         incrementFailureCount();
         updateNotificationText();
     }
