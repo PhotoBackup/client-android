@@ -1,33 +1,9 @@
 language: android
-jdk: oraclejdk7
-env:
-  matrix:
-    - ANDROID_TARGET=android-23 ANDROID_ABI=armeabi-v7a
-
 android:
   components:
-    - sys-img-armeabi-v7a-android-23
-    - tools
-    - build-tools-23.0.2
-    - android-23
-    - extra-android-support
+   - tools
+   - build-tools-23.0.3
+   - android-23
+   - extra-android-m2repository
 
-sudo: false
-cache:
-  directories:
-    - $HOME/.gradle/2.10
-
-#before_script:
-  # - gradle wrapper --gradle-version 2.4
-  # Create and start emulator
-  # - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
-  # - emulator -avd test -no-skin -no-audio -no-window &
-  # - adb wait-for-device
-  # - adb shell input keyevent 82 &
-
-script:
-  - chmod +x gradlew
-  - ./gradlew check -PdisablePreDex --continue --stacktrace
-#  - ./gradlew assembleDebug -PdisablePreDex
-#  - ./gradlew assembleAndroidTest -PdisablePreDex
-#  - ./gradlew connectedAndroidTest
+script: ./gradlew build -x lint
