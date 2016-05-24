@@ -10,4 +10,7 @@ android:
 
 script:
   - chmod +x gradlew
-  - ./gradlew build -x lint
+  - ./gradlew check -PdisablePreDex --continue --stacktrace
+  - ./gradlew assembleDebug -PdisablePreDex
+  - ./gradlew assembleAndroidTest -PdisablePreDex
+  - ./gradlew connectedAndroidTest
