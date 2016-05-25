@@ -23,18 +23,24 @@ android:
    - sys-img-armeabi-v7a-android-$ANDROID_API_LEVEL
 
 before_script:
-  # Create and start emulator
+  # Create emulator
   - echo no | android create avd --force -n test -t android-$ANDROID_API_LEVEL --abi $ANDROID_ABI
+  # Start emulator
   - emulator -avd test -no-skin -no-audio -no-window &
   - adb wait-for-device
-  - adb shell input keyevent 82 &
+  # inject Falcon dependency (to take screenshots)
+  - sed -i "s/dependencies {/dependencies { compile \'com.jraska:falcon:1.0.1\'/g" build.gradle
 
 script:
+  # Build the app
   - chmod +x gradlew
   - ./gradlew check -PdisablePreDex --continue --stacktrace
   - ./gradlew assembleDebug -PdisablePreDex
   - ./gradlew assembleAndroidTest -PdisablePreDex
   - ./gradlew connectedAndroidTest
+  # Go to About activity
+  - adb shell input tap 500 1300
+
 
 # gitter integration
 notifications:
