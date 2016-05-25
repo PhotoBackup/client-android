@@ -1,12 +1,19 @@
+env:
+  global:
+    - ANDROID_API_LEVEL=23
+    - ANDROID_BUILD_TOOLS_VERSION=23.0.3
+    - ANDROID_ABI=google_apis/armeabi-v7a
+
 language: android
 jdk: oraclejdk7
 android:
   components:
-   - sys-img-armeabi-v7a-android-23
+   - sys-img-armeabi-v7a-addon-google_apis-google-$ANDROID_API_LEVEL
    - tools
-   - build-tools-23.0.3
-   - android-23
+   - build-tools-$ANDROID_BUILD_TOOLS_VERSION
+   - android-$ANDROID_API_LEVEL
    - extra-android-m2repository
+   # Support library
    - extra-android-support
 
 before_script:
