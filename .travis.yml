@@ -37,7 +37,7 @@ script:
   - chmod +x gradlew
   - ./gradlew build
   # Go to About activity
-  - adb shell input tap 500 1300
+  # - adb shell input tap 500 1300
 
 
 # gitter integration
