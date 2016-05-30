@@ -134,15 +134,11 @@ public class PBMediaStore {
             syncTask.cancel(true);
         }
 
-        syncTask=new SyncMediaStoreTask();
+        syncTask = new SyncMediaStoreTask();
         syncTask.execute();
         Log.i(LOG_TAG, "Start SyncMediaStoreTask");
     }
 
-
-    private static  SyncMediaStoreTask getSyncMediaStoreTask(){
-        return syncTask;
-    }
 
     private class SyncMediaStoreTask extends AsyncTask<Void, Void, Void> {
 

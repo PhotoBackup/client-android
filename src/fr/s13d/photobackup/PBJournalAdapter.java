@@ -156,8 +156,7 @@ public class PBJournalAdapter extends BaseAdapter implements Filterable, Handler
             protected FilterResults performFiltering(CharSequence constraint) {
 
                 FilterResults results = new FilterResults();
-                List<PBMedia> mediaList = new ArrayList<>();
-                mediaList = getMediaList();
+                List<PBMedia> mediaList = getMediaList();
                 results.values = mediaList;
                 results.count = mediaList.size();
                 return results;

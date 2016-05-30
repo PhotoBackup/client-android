@@ -21,7 +21,6 @@ package fr.s13d.photobackup;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.provider.MediaStore;
 
 import java.io.Serializable;
 
