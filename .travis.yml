@@ -22,12 +22,12 @@ android:
    # Specify at least one system image
    - sys-img-armeabi-v7a-android-$ANDROID_API_LEVEL
 
-# before_script:
+before_script:
   # Create emulator
-  # - echo no | android create avd --force -n test -t android-$ANDROID_API_LEVEL --abi $ANDROID_ABI
+  - echo no | android create avd --force -n test -t android-$ANDROID_API_LEVEL --abi $ANDROID_ABI
   # Start emulator
-  # - emulator -avd test -no-skin -no-audio -no-window &
-  # - adb wait-for-device
+  - emulator -avd test -no-skin -no-audio -no-window &
+  - adb wait-for-device
   # inject Falcon dependency (to take screenshots)
   # - sed -i "s/^dependencies {/dependencies { compile 'com.jraska:falcon:1.0.1'/g" build.gradle
   # - sed -i "s/^repositories {/repositories { jcenter()/g" build.gradle
@@ -35,9 +35,12 @@ android:
 script:
   # Build the app
   - chmod +x gradlew
-  - ./gradlew build
+  - ./gradlew build -PdisablePreDex
   # Go to About activity
   # - adb shell input tap 500 1300
+
+after_script:
+  - adb install  build/outputs/apk/client-android-debug.apk
 
 
 # gitter integration
