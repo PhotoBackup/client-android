@@ -36,11 +36,12 @@ script:
   # Build the app
   - chmod +x gradlew
   - ./gradlew build -PdisablePreDex
-  # Go to About activity
-  # - adb shell input tap 500 1300
 
 after_script:
-  - adb install  build/outputs/apk/client-android-debug.apk
+  - adb install build/outputs/apk/client-android-debug.apk
+  - adb shell am start -n fr.s13d.photobackup/.PBActivity
+  # Go to About activity
+  # - adb shell input tap 500 1300
 
 
 # gitter integration
