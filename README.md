@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/PhotoBackup/client-android.svg?branch=master)](https://travis-ci.org/PhotoBackup/client-android)
 # PhotoBackup Android client
 
 The PhotoBackup Android application is a simple service always running
