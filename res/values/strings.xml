@@ -64,6 +64,6 @@
 
     <string name="retry_all_button_text">Retry unsaved</string>
     <string name="retry_all_title">Retry all unsaved</string>
-    <string name="retry_all_text">Retry all media files that are currently not marked as "Saved" (Max. 100 at once).</string>
+    <string name="retry_all_text">Retry all media files that are currently not marked as "Saved" (Max. %d at once, not older than 6 months).</string>
 
 </resources>

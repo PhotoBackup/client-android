@@ -130,29 +130,32 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
     // buttons call //
     //////////////////
     public void clickOnSaved(View v) {
-        Log.i("PBJournalActivity", "clickOnSaved");
+        Log.i(LOG_TAG, "clickOnSaved");
         ToggleButton btn = (ToggleButton)v;
         preferencesEditor.putBoolean(PBMedia.PBMediaState.SYNCED.name(), btn.isChecked()).apply();
         adapter.getFilter().filter(null);
     }
 
     public void retryAll(View v){
-        Log.i("PBJournalActivity", "retryAll");
+        Log.i(LOG_TAG, "retryAll");
+
+        final int maxPics = 100;
 
         final Activity self = this;
         final AlertDialog.Builder builder = new AlertDialog.Builder(self);
-        builder.setMessage(self.getResources().getString(R.string.retry_all_title))
-                .setTitle(self.getResources().getString(R.string.retry_all_text));
+        builder.setTitle(self.getResources().getString(R.string.retry_all_title))
+                .setMessage(self.getResources().getString(R.string.retry_all_text, maxPics));
 
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
 
-                int count = 100;
+                int count = maxPics;
                 List<PBMedia> allMedia = PBActivity.getMediaStore().getMedias();
                 for (PBMedia media: allMedia){
-                     if(media.getState() == PBMedia.PBMediaState.ERROR || media.getState() == PBMedia.PBMediaState.WAITING) {
+                     // only save images younger than 6 months + not green yet
+                     if (media.isUnsaved() && media.getAge() < 60 * 60 * 24 * 30 * 6) {
                          getMediaSender().send(media, true);
-                         if( (count -= 1) == 0) {
+                         if ((count -= 1) == 0) {
                              break;
                          }
                      }

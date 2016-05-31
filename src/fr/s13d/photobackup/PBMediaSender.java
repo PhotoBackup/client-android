@@ -100,7 +100,7 @@ public class PBMediaSender {
         String uploadRecentOnlyString = prefs.getString(PBPreferenceFragment.PREF_RECENT_UPLOAD_ONLY,
                 context.getResources().getString(R.string.only_recent_upload_default));
         Boolean uploadRecentOnly = uploadRecentOnlyString.equals(context.getResources().getString(R.string.only_recent_upload));
-        Boolean recentPicture = (System.currentTimeMillis() / 1000 - media.getDateAdded()) < 600;
+        Boolean recentPicture = media.getAge() < 600;
 
         // test to send or not
         if (manual || (!wifiOnly || onWifi) && (!uploadRecentOnly || recentPicture)) {

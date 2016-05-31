@@ -43,7 +43,7 @@ Um deinen eigenen Server zu installieren und konfigurieren, schaue bitte hier:</
     <string name="toast_test_configuration">Server testen</string>
     <string name="toast_urisyntaxexception">Die Serveradresse ist ungültig.</string>
     <string name="select_folder">Ordner zur Sicherung auswählen</string>
-    <string name="retry_all_text">Alle Dateien erneut hochladen, die noch nicht als Gespeichert markiert sind. (Maximal 100 pro Vorgang)</string>
+    <string name="retry_all_text">Alle Dateien erneut hochladen, die noch nicht als Gespeichert markiert sind. (Maximal %d pro Vorgang, keine älteren als 6 Monate)</string>
     <string name="retry_all_title">Ungespeicherte erneut hochladen</string>
     <string name="retry_all_button_text">Erneut versuchen</string>
 </resources>
