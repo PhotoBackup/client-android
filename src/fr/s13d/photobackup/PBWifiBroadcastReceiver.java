@@ -39,13 +39,16 @@ import fr.s13d.photobackup.preferences.PBServerListPreference;
 
 public class PBWifiBroadcastReceiver extends BroadcastReceiver {
     private static final String LOG_TAG = "PBWifiBroadcastReceiver";
-    private static boolean alreadyFired = false;
+    private static long lastFiredOn = 0;
 
     // binding
  
     @Override
 	public void onReceive(final Context context, final Intent intent) {
-        if (alreadyFired) {
+        final long now = System.currentTimeMillis() / 1000;
+        // Receiver should only live a short time, but the onReceive is called multiple times
+        // Only call that once every 10 minutes
+        if (now - lastFiredOn < 600) {
             return;
         }
 		WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
@@ -67,7 +70,7 @@ public class PBWifiBroadcastReceiver extends BroadcastReceiver {
             if(service == null) {
                 return;
             }
-            alreadyFired = true;
+            lastFiredOn = now;
             Log.i(LOG_TAG, "Media Store: " + service.getMediaStore());
 
             PBMediaStore mediaStore = service.getMediaStore();
@@ -78,6 +81,7 @@ public class PBWifiBroadcastReceiver extends BroadcastReceiver {
             Log.i(LOG_TAG, "media_count=" + medias.size());
 
             for (PBMedia media : mediaStore.getMedias()) {
+                // TODO replace with media.isUnsaved after PR merge and getAge
                 if (media.age() < 3600 * 24 * 7 && media.getState() != PBMedia.PBMediaState.SYNCED) {
                     Log.i(LOG_TAG, "Notify to send " + media.getPath());
                     service.sendMedia(media, true);
