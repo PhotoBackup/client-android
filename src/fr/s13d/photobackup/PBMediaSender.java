@@ -100,7 +100,7 @@ public class PBMediaSender {
         String uploadRecentOnlyString = prefs.getString(PBPreferenceFragment.PREF_RECENT_UPLOAD_ONLY,
                 context.getResources().getString(R.string.only_recent_upload_default));
         Boolean uploadRecentOnly = uploadRecentOnlyString.equals(context.getResources().getString(R.string.only_recent_upload));
-        Boolean recentPicture = (System.currentTimeMillis() / 1000 - media.getDateAdded()) < 600;
+        Boolean recentPicture = media.getAge() < 600;
 
         // test to send or not
         if (manual || (!wifiOnly || onWifi) && (!uploadRecentOnly || recentPicture)) {
@@ -127,13 +127,16 @@ public class PBMediaSender {
         getOkClient().newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                Log.i(LOG_TAG, "Get response with code " + response.code());
-                if (response.code() == 200) {
-                    sendDidSucceed(media);
-                } else {
-                    sendDidFail(media, new Throwable(response.message()));
+                try {
+                    Log.i(LOG_TAG, "Get response with code " + response.code());
+                    if (response.isSuccessful() || response.code() == 409) {
+                        sendDidSucceed(media);
+                    } else {
+                        sendDidFail(media, new Throwable(response.message()));
+                    }
+                } finally {
+                    response.body().close();
                 }
-                response.body().close();
             }
 
             @Override
@@ -163,12 +166,15 @@ public class PBMediaSender {
         getOkClient().newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful() || response.code() == 409) {
-                    testDidSucceed(toast);
-                } else {
-                    testDidFail(toast, response.message());
+                try {
+                    if (response.isSuccessful()) {
+                        testDidSucceed(toast);
+                    } else {
+                        testDidFail(toast, response.message());
+                    }
+                } finally {
+                    response.body().close();
                 }
-                response.body().close();
             }
 
             @Override
@@ -194,7 +200,6 @@ public class PBMediaSender {
         }
         return requestBuilder.build();
     }
-
 
     /////////////////////
     // Private methods //

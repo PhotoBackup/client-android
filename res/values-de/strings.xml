@@ -8,7 +8,7 @@ Um deinen eigenen Server zu installieren und konfigurieren, schaue bitte hier:</
     <string name="app_version">PhotoBackup Version %1$s</string>
     <string name="cancel">Abbrechen</string>
     <string name="info_conf">Informationen</string>
-    <string name="journal_backedup">Gespeichert</string>
+    <string name="journal_backedup">Fertig</string>
     <string name="journal_error">Fehler</string>
     <string name="journal_noaccess">Starte erst den Dienst um das Protokoll zu sehen</string>
     <string name="journal_title">Upload Protokoll</string>
@@ -42,4 +42,8 @@ Um deinen eigenen Server zu installieren und konfigurieren, schaue bitte hier:</
     <string name="toast_serverpassempty">Passwort darf nicht leer sein!</string>
     <string name="toast_test_configuration">Server testen</string>
     <string name="toast_urisyntaxexception">Die Serveradresse ist ungültig.</string>
+    <string name="select_folder">Ordner zur Sicherung auswählen</string>
+    <string name="retry_all_text">Alle Dateien erneut hochladen, die noch nicht als Gespeichert markiert sind. (Maximal %d pro Vorgang, keine älteren als 6 Monate)</string>
+    <string name="retry_all_title">Ungespeicherte erneut hochladen</string>
+    <string name="retry_all_button_text">Erneut versuchen</string>
 </resources>

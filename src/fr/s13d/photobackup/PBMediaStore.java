@@ -42,6 +42,8 @@ public class PBMediaStore {
     private static SyncMediaStoreTask syncTask;
     private static SharedPreferences picturesPreferences;
     private static SharedPreferences.Editor picturesPreferencesEditor;
+    public static final String PhotoBackupPicturesSharedPreferences = "PhotoBackupPicturesSharedPreferences";
+    private static PBMediaStoreQueries queries;
     private List<PBMediaStoreInterface> interfaces = new ArrayList<>();
 
 
@@ -51,7 +53,7 @@ public class PBMediaStore {
         picturesPreferences = context.getSharedPreferences(PBApplication.PB_PICTURES_SHARED_PREFS, Context.MODE_PRIVATE);
         picturesPreferencesEditor = picturesPreferences.edit();
         picturesPreferencesEditor.apply();
-
+        queries = new PBMediaStoreQueries(context);
     }
 
 
@@ -65,6 +67,14 @@ public class PBMediaStore {
         picturesPreferencesEditor = null;
     }
 
+    public PBMedia getLastMediaInStore() {
+        int id = queries.getLastMediaIdInStore();
+        return getMedia(id);
+    }
+
+    public PBMediaStoreQueries getQueries() {
+        return queries;
+    }
 
     public void addInterface(PBMediaStoreInterface storeInterface) {
         interfaces.add(storeInterface);
@@ -83,27 +93,30 @@ public class PBMediaStore {
 
 
     public PBMedia getMedia(int id) {
-
         PBMedia media = null;
-        if (id != 0) {
-            final Cursor cursor = context.getContentResolver().query(uri, null, "_id = " + id, null, null);
-            if (cursor != null && cursor.moveToFirst()) {
-                media = new PBMedia(context, cursor);
+        if (id == 0) {
+            return null;
+        }
+        Cursor cursor = queries.getMediaById(id);
+        if (cursor == null) {
+            Log.e(LOG_TAG, "Photo not returned. Probably filtered by Bucket or deleted");
+            return null;
+        }
+        Integer idCol = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID);
+        queries.isSelectedBucket(cursor.getString(idCol));
 
-                try {
-                    String stateString = picturesPreferences.getString(String.valueOf(media.getId()), PBMedia.PBMediaState.WAITING.name());
-                    media.setState(PBMedia.PBMediaState.valueOf(stateString));
-                }
-                catch (Exception e) {
-                    Log.e(LOG_TAG, "Explosion!!");
-                }
-            }
 
-            if (cursor != null && !cursor.isClosed()) {
-                cursor.close();
-            }
+        media = new PBMedia(context, cursor);
+        try {
+            String stateString = picturesPreferences.getString(String.valueOf(media.getId()), PBMedia.PBMediaState.WAITING.name());
+            media.setState(PBMedia.PBMediaState.valueOf(stateString));
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Explosion!!");
         }
 
+        if (!cursor.isClosed()) {
+            cursor.close();
+        }
         return media;
     }
 
@@ -113,17 +126,6 @@ public class PBMediaStore {
     }
 
 
-    public PBMedia getLastMediaInStore() {
-        int id = 0;
-        final String[] projection = new String[] { "_id" };
-        final Cursor cursor = context.getContentResolver().query(uri, projection, null, null, "date_added DESC");
-        if (cursor != null && cursor.moveToFirst()) {
-            int idColumn = cursor.getColumnIndexOrThrow("_id");
-            id = cursor.getInt(idColumn);
-            cursor.close();
-        }
-        return getMedia(id);
-    }
 
 
     /////////////////////////////////
@@ -153,13 +155,7 @@ public class PBMediaStore {
             Set<String> inCursor = new HashSet<>();
 
             // Get all pictures on device
-            final String[] projection = new String[] { "_id", "_data", "date_added" };
-            Cursor cursor = null;
-            try {
-                cursor = context.getContentResolver().query(uri, projection, null, null, "date_added DESC");
-            } catch(SecurityException e) {
-               Log.w(LOG_TAG, e.toString());
-            }
+            Cursor cursor = queries.getAllMedia();
 
             // loop through them to sync
             PBMedia media;

@@ -60,13 +60,23 @@ public class PBMedia implements Serializable {
     public String toString() {
         return "PBMedia: " + this.path;
     }
-
-
     /////////////////////////////////////////
     // Getters/Setters are the Java fun... //
     /////////////////////////////////////////
     public int getId() {
         return this.id;
+    }
+
+    public boolean isUnsaved() {
+        return state == PBMedia.PBMediaState.ERROR || state == PBMedia.PBMediaState.WAITING;
+    }
+
+    /**
+     * Age of media
+     * @return age in seconds
+     */
+    public long getAge() {
+        return System.currentTimeMillis() / 1000 - dateAdded;
     }
 
     public String getPath() {

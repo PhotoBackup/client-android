@@ -33,7 +33,7 @@
     <string name="toast_configuration_ko">Server test failed, please verify your configuration.</string>
     <string name="toast_permission_not_granted">PhotoBackup cannot work properly without the permission to read your pictures.</string>
 
-    <string name="info_conf">Informations</string>
+    <string name="info_conf">Information</string>
     <string name="journal_title">Upload journal</string>
     <string name="journal_noaccess">Launch the service to access the journal.</string>
     <string name="journal_backedup">Saved</string>
@@ -60,5 +60,10 @@
     <string name="thumbnail_description">Thumbnail of the photo</string>
     <string name="manual_backup_title">Manual backup</string>
     <string name="manual_backup_message">Save this picture now!</string>
+    <string name="select_folder">Select photo folder to backup</string>
+
+    <string name="retry_all_button_text">Retry unsaved</string>
+    <string name="retry_all_title">Retry all unsaved</string>
+    <string name="retry_all_text">Retry all media files that are currently not marked as "Saved" (Max. %d at once, not older than 6 months).</string>
 
 </resources>

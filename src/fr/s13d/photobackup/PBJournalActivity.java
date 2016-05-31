@@ -30,6 +30,8 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ToggleButton;
 
+import java.util.List;
+
 import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
 
 
@@ -128,12 +130,44 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
     // buttons call //
     //////////////////
     public void clickOnSaved(View v) {
-        Log.i("PBJournalActivity", "clickOnSaved");
+        Log.i(LOG_TAG, "clickOnSaved");
         ToggleButton btn = (ToggleButton)v;
         preferencesEditor.putBoolean(PBMedia.PBMediaState.SYNCED.name(), btn.isChecked()).apply();
         adapter.getFilter().filter(null);
     }
 
+    public void retryAll(View v){
+        Log.i(LOG_TAG, "retryAll");
+
+        final int maxPics = 100;
+
+        final Activity self = this;
+        final AlertDialog.Builder builder = new AlertDialog.Builder(self);
+        builder.setTitle(self.getResources().getString(R.string.retry_all_title))
+                .setMessage(self.getResources().getString(R.string.retry_all_text, maxPics));
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+
+                int count = maxPics;
+                List<PBMedia> allMedia = PBActivity.getMediaStore().getMedias();
+                for (PBMedia media: allMedia){
+                     // only save images younger than 6 months + not green yet
+                     if (media.isUnsaved() && media.getAge() < 60 * 60 * 24 * 30 * 6) {
+                         getMediaSender().send(media, true);
+                         if ((count -= 1) == 0) {
+                             break;
+                         }
+                     }
+                }
+            }
+        });
+        builder.setNegativeButton(self.getString(R.string.cancel), null);
+        builder.create().show();
+
+
+        //getMediaSender().send(media, true);
+    }
 
     public void clickOnWaiting(View v) {
         Log.i("PBJournalActivity", "clickOnWaiting");
