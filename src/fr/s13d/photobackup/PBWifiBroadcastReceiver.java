@@ -42,24 +42,24 @@ public class PBWifiBroadcastReceiver extends BroadcastReceiver {
     private static long lastFiredOn = 0;
 
     // binding
- 
+
     @Override
-	public void onReceive(final Context context, final Intent intent) {
+    public void onReceive(final Context context, final Intent intent) {
         final long now = System.currentTimeMillis() / 1000;
         // Receiver should only live a short time, but the onReceive is called multiple times
         // Only call that once every 10 minutes
         if (now - lastFiredOn < 600) {
             return;
         }
-		WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 
 
-		final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-		String wifiOnlyString = preferences.getString(PBPreferenceFragment.PREF_WIFI_ONLY,
-				context.getResources().getString(R.string.only_wifi_default));
-		Boolean wifiOnly = wifiOnlyString.equals(context.getResources().getString(R.string.only_wifi));
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        String wifiOnlyString = preferences.getString(PBPreferenceFragment.PREF_WIFI_ONLY,
+                context.getResources().getString(R.string.only_wifi_default));
+        Boolean wifiOnly = wifiOnlyString.equals(context.getResources().getString(R.string.only_wifi));
         Log.i(LOG_TAG, "New Intent: action=" + intent.getAction() + ", type=" + intent.getType());
-		if (wifiManager.isWifiEnabled() && wifiOnly) {
+        if (wifiManager.isWifiEnabled() && wifiOnly) {
 
             Log.i(LOG_TAG, "Wifi comes back, checking Service");
             IBinder binder = peekService(context, new Intent(context, PBService.class));
@@ -87,6 +87,6 @@ public class PBWifiBroadcastReceiver extends BroadcastReceiver {
                     service.sendMedia(media, true);
                 }
             }
-		}
-	}
+        }
+    }
 }
