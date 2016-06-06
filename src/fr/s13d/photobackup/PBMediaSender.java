@@ -102,6 +102,7 @@ public class PBMediaSender {
         Boolean uploadRecentOnly = uploadRecentOnlyString.equals(context.getResources().getString(R.string.only_recent_upload));
         Boolean recentPicture = (System.currentTimeMillis() / 1000 - media.getDateAdded()) < 600;
 
+        Log.i(LOG_TAG, "Connectivity: onWifi=" + onWifi.toString() + ", wifiOnly=" + wifiOnly.toString() + ", recentPicture=" + recentPicture.toString());
         // test to send or not
         if (manual || (!wifiOnly || onWifi) && (!uploadRecentOnly || recentPicture)) {
             sendMedia(media);

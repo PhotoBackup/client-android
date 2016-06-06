@@ -98,11 +98,15 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
         if (mediaStore != null) {
             for (PBMedia media : mediaStore.getMedias()) {
                 if (media.getState() != PBMedia.PBMediaState.SYNCED) {
-                    mediaSender.send(media, false);
+                    sendMedia(media, false);
                     break;
                 }
             }
         }
+    }
+
+    public void sendMedia(PBMedia media, boolean manual) {
+        mediaSender.send(media, manual);
     }
 
 
