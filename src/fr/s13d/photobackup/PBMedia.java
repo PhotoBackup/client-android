@@ -38,15 +38,14 @@ public class PBMedia implements Serializable {
     // Constructors //
     //////////////////
     public PBMedia(Context context, Cursor mediaCursor) {
+        this.context = context;
         this.id = mediaCursor.getInt(mediaCursor.getColumnIndexOrThrow("_id"));
         this.path = mediaCursor.getString(mediaCursor.getColumnIndexOrThrow("_data"));
         this.dateAdded = mediaCursor.getLong(mediaCursor.getColumnIndexOrThrow("date_added"));
 
         // Find state from the shared preferences
-        SharedPreferences preferences = context.getSharedPreferences(PBApplication.PB_PICTURES_SHARED_PREFS, Context.MODE_PRIVATE);
-        String stateString = preferences.getString(String.valueOf(this.id), PBMedia.PBMediaState.WAITING.name());
+        String stateString = getPicturesPreferences().getString(String.valueOf(this.id), PBMedia.PBMediaState.WAITING.name());
         this.state = PBMedia.PBMediaState.valueOf(stateString);
-        this.context = context;
         this.errorMessage = "";
     }
 
@@ -88,10 +87,21 @@ public class PBMedia implements Serializable {
     public void setState(PBMediaState mediaState) {
         if (this.state != mediaState) {
             this.state = mediaState;
-            SharedPreferences preferences = context.getSharedPreferences(PBApplication.PB_PICTURES_SHARED_PREFS, Context.MODE_PRIVATE);
-            preferences.edit().putString(String.valueOf(this.getId()), mediaState.name()).apply();
+            getPicturesPreferences().edit().putString(String.valueOf(this.getId()), mediaState.name()).apply();
             Log.i("PBMedia", "Set state " + mediaState.toString() + " to " + this.getPath());
         }
+    }
+
+
+    //////////////////
+    // Lazy loaders //
+    //////////////////
+    static SharedPreferences picturesPreferences = null;
+    public final SharedPreferences getPicturesPreferences() {
+        if (picturesPreferences == null) {
+            picturesPreferences = context.getSharedPreferences(PBApplication.PB_PICTURES_SHARED_PREFS, Context.MODE_PRIVATE);
+        }
+        return picturesPreferences;
     }
 
 }
