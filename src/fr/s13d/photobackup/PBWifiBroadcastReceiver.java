@@ -45,20 +45,20 @@ public class PBWifiBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(final Context context, final Intent intent) {
-        final long now = System.currentTimeMillis() / 1000;
         // Receiver should only live a short time, but the onReceive is called multiple times
-        // Only call that once every 10 minutes
+        // Only accept reception every 10 minutes
+        final long now = System.currentTimeMillis() / 1000;
         if (now - lastFiredOn < 600) {
             return;
         }
-        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 
-
+        final WifiManager wifiManager = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String wifiOnlyString = preferences.getString(PBPreferenceFragment.PREF_WIFI_ONLY,
+        final String wifiOnlyString = preferences.getString(PBPreferenceFragment.PREF_WIFI_ONLY,
                 context.getResources().getString(R.string.only_wifi_default));
         Boolean wifiOnly = wifiOnlyString.equals(context.getResources().getString(R.string.only_wifi));
-        Log.i(LOG_TAG, "New Intent: action=" + intent.getAction() + ", type=" + intent.getType());
+
+        Log.i(LOG_TAG, "New intent: action=" + intent.getAction() + ", type=" + intent.getType());
         if (wifiManager.isWifiEnabled() && wifiOnly) {
 
             Log.i(LOG_TAG, "Wifi comes back, checking Service");
@@ -71,18 +71,18 @@ public class PBWifiBroadcastReceiver extends BroadcastReceiver {
                 return;
             }
             lastFiredOn = now;
-            Log.i(LOG_TAG, "Media Store: " + service.getMediaStore());
 
-            PBMediaStore mediaStore = service.getMediaStore();
+            final PBMediaStore mediaStore = service.getMediaStore();
+            Log.i(LOG_TAG, "Media Store: " + mediaStore);
             if (mediaStore == null) {
                 return;
             }
             List<PBMedia> medias = mediaStore.getMedias();
-            Log.i(LOG_TAG, "media_count=" + medias.size());
+            Log.i(LOG_TAG, "media count = " + medias.size());
 
             for (PBMedia media : mediaStore.getMedias()) {
                 // TODO replace with media.isUnsaved after PR merge and getAge
-                if (media.age() < 3600 * 24 * 7 && media.getState() != PBMedia.PBMediaState.SYNCED) {
+                if (media.getAge() < 3600 * 24 * 7 && media.getState() != PBMedia.PBMediaState.SYNCED) {
                     Log.i(LOG_TAG, "Notify to send " + media.getPath());
                     service.sendMedia(media, true);
                 }

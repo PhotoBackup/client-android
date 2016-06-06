@@ -60,9 +60,7 @@ public class PBMedia implements Serializable {
         return "PBMedia: " + this.path;
     }
 
-    public long age() {
-        return System.currentTimeMillis() / 1000 - getDateAdded();
-    }
+
     /////////////////////////////////////////
     // Getters/Setters are the Java fun... //
     /////////////////////////////////////////
@@ -76,6 +74,10 @@ public class PBMedia implements Serializable {
 
     public long getDateAdded() {
         return this.dateAdded;
+    }
+
+    public long getAge() {
+        return System.currentTimeMillis() / 1000 - this.dateAdded;
     }
 
     public String getErrorMessage() { return this.errorMessage; }
