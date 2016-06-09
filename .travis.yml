@@ -37,7 +37,7 @@ script:
   # Build the app
   - chmod +x gradlew
   - ./gradlew build -PdisablePreDex
-  - ./gradlew connectedAndroidTest
+#  - ./gradlew connectedAndroidTest
 
 # after_script:
   # - adb install build/outputs/apk/client-android-debug.apk
