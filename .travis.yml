@@ -27,7 +27,8 @@ before_script:
   - echo no | android create avd --force -n test -t android-$ANDROID_API_LEVEL --abi $ANDROID_ABI
   # Start emulator
   - emulator -avd test -no-skin -no-audio -no-window &
-  - adb wait-for-device
+  - adb wait-for-device &
+  - adb shell input keyevent 82 &
   # inject Falcon dependency (to take screenshots)
   # - sed -i "s/^dependencies {/dependencies { compile 'com.jraska:falcon:1.0.1'/g" build.gradle
   # - sed -i "s/^repositories {/repositories { jcenter()/g" build.gradle
@@ -37,6 +38,12 @@ script:
   - chmod +x gradlew
   - ./gradlew build -PdisablePreDex
   - ./gradlew connectedAndroidTest
+
+# after_script:
+  # - adb install build/outputs/apk/client-android-debug.apk
+  # - adb shell am start -n fr.s13d.photobackup/.PBActivity
+  # Go to About activity
+  # - adb shell input tap 500 1300
 
 
 # gitter integration
