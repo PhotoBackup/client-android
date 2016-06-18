@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">PhotoBackup</string>
-    <string name="app_version">PhotoBackup version %1$s</string>
+    <string name="app_version">PhotoBackup verze %1$s</string>
 
     <string name="service_title">Služba</string>
     <string name="service_state_running">PhotoBackup běží.</string>
