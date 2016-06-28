@@ -16,35 +16,45 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package fr.s13d.photobackup;
+package fr.s13d.photobackup.journal;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.ToggleButton;
 
+import fr.s13d.photobackup.Log;
+import fr.s13d.photobackup.PBActivity;
+import fr.s13d.photobackup.PBJournalAdapter;
+import fr.s13d.photobackup.PBMedia;
+import fr.s13d.photobackup.PBMediaSender;
+import fr.s13d.photobackup.R;
+import fr.s13d.photobackup.databinding.ActivityJournalBinding;
 import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
 
 
 public class PBJournalActivity extends ListActivity implements PBMediaSenderInterface {
 
-    private static final String LOG_TAG = "PBJournalActivity";
     private PBJournalAdapter adapter;
     private PBMediaSender mediaSender;
     private SharedPreferences preferences;
     private SharedPreferences.Editor preferencesEditor;
+    private ActivityJournalBinding binding;
 
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Set up the UI (with binding)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_about);
 
         // layout
         setContentView(R.layout.activity_journal);
@@ -54,8 +64,7 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
 
         // on click listener
         final Activity self = this;
-        final ListView listView = (ListView)findViewById(android.R.id.list);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        binding.journalListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     setOnItemClick(position, self);
@@ -87,12 +96,9 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
         }
 
         // set stored values
-        ToggleButton savedButton = (ToggleButton)this.findViewById(R.id.savedToggleButton);
-        savedButton.setChecked(preferences.getBoolean(PBMedia.PBMediaState.SYNCED.name(), true));
-        ToggleButton waitingButton = (ToggleButton)this.findViewById(R.id.waitingToggleButton);
-        waitingButton.setChecked(preferences.getBoolean(PBMedia.PBMediaState.WAITING.name(), true));
-        ToggleButton errorButton = (ToggleButton)this.findViewById(R.id.errorToggleButton);
-        errorButton.setChecked(preferences.getBoolean(PBMedia.PBMediaState.ERROR.name(), true));
+        binding.savedToggleButton.setChecked(preferences.getBoolean(PBMedia.PBMediaState.SYNCED.name(), true));
+        binding.waitingToggleButton.setChecked(preferences.getBoolean(PBMedia.PBMediaState.WAITING.name(), true));
+        binding.errorToggleButton.setChecked(preferences.getBoolean(PBMedia.PBMediaState.ERROR.name(), true));
     }
 
 

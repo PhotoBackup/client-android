@@ -1,70 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <ToggleButton
-            android:id="@+id/savedToggleButton"
-            android:drawableLeft="@android:drawable/presence_online"
-            android:drawableStart="@android:drawable/presence_online"
-            android:drawablePadding="0dip"
-            android:gravity="center"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_width="0px"
-            android:onClick="clickOnSaved"
-            android:paddingBottom="25dip"
-            android:paddingTop="20dip"
-            android:textOn="@string/journal_backedup"
-            android:textOff="@string/journal_backedup"/>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <ToggleButton
-            android:id="@+id/waitingToggleButton"
-            android:drawableLeft="@android:drawable/presence_away"
-            android:drawableStart="@android:drawable/presence_away"
-            android:drawablePadding="0dip"
-            android:gravity="center"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_width="0px"
-            android:onClick="clickOnWaiting"
-            android:paddingBottom="25dip"
-            android:paddingTop="20dip"
-            android:textOn="@string/journal_waiting"
-            android:textOff="@string/journal_waiting" />
+            <ToggleButton
+                android:id="@+id/savedToggleButton"
+                android:drawableLeft="@android:drawable/presence_online"
+                android:drawableStart="@android:drawable/presence_online"
+                android:drawablePadding="0dip"
+                android:gravity="center"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_width="0px"
+                android:onClick="clickOnSaved"
+                android:paddingBottom="25dip"
+                android:paddingTop="20dip"
+                android:textOn="@string/journal_backedup"
+                android:textOff="@string/journal_backedup"/>
 
-        <ToggleButton
-            android:id="@+id/errorToggleButton"
-            android:drawableLeft="@android:drawable/presence_busy"
-            android:drawableStart="@android:drawable/presence_busy"
-            android:drawablePadding="0dip"
-            android:gravity="center"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_width="0px"
-            android:onClick="clickOnError"
-            android:paddingBottom="25dip"
-            android:paddingTop="20dip"
-            android:textOn="@string/journal_error"
-            android:textOff="@string/journal_error" />
+            <ToggleButton
+                android:id="@+id/waitingToggleButton"
+                android:drawableLeft="@android:drawable/presence_away"
+                android:drawableStart="@android:drawable/presence_away"
+                android:drawablePadding="0dip"
+                android:gravity="center"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_width="0px"
+                android:onClick="clickOnWaiting"
+                android:paddingBottom="25dip"
+                android:paddingTop="20dip"
+                android:textOn="@string/journal_waiting"
+                android:textOff="@string/journal_waiting" />
+
+            <ToggleButton
+                android:id="@+id/errorToggleButton"
+                android:drawableLeft="@android:drawable/presence_busy"
+                android:drawableStart="@android:drawable/presence_busy"
+                android:drawablePadding="0dip"
+                android:gravity="center"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_width="0px"
+                android:onClick="clickOnError"
+                android:paddingBottom="25dip"
+                android:paddingTop="20dip"
+                android:textOn="@string/journal_error"
+                android:textOff="@string/journal_error" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="?android:attr/listDivider" />
+
+        <ListView
+            android:id="@+id/journalListView"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:text="@string/journal_title" />
 
     </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1px"
-        android:background="?android:attr/listDivider" />
-
-    <ListView
-        android:id="@android:id/list"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:text="@string/journal_title" />
-
-</LinearLayout>
+</layout>

@@ -20,13 +20,9 @@
 package fr.s13d.photobackup;
 
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -35,7 +31,6 @@ import android.preference.PreferenceManager;
 import java.util.List;
 
 import fr.s13d.photobackup.preferences.PBPreferenceFragment;
-import fr.s13d.photobackup.preferences.PBServerListPreference;
 
 public class PBWifiBroadcastReceiver extends BroadcastReceiver {
     private static final String LOG_TAG = "PBWifiBroadcastReceiver";

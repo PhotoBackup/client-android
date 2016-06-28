@@ -16,11 +16,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package fr.s13d.photobackup;
+package fr.s13d.photobackup.about;
 
 import android.app.Activity;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.widget.TextView;
+
+import fr.s13d.photobackup.BuildConfig;
+import fr.s13d.photobackup.R;
+import fr.s13d.photobackup.databinding.ActivityAboutBinding;
 
 
 public class PBAboutActivity extends Activity {
@@ -28,10 +32,10 @@ public class PBAboutActivity extends Activity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_about);
 
-        final TextView tv = (TextView)findViewById(R.id.versionTextView);
-        tv.setText(getString(R.string.app_version, BuildConfig.VERSION_NAME));
+        // Set up the UI (with binding)
+        ActivityAboutBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_about);
+        binding.versionTextView.setText(getString(R.string.app_version, BuildConfig.VERSION_NAME));
     }
 
 }
