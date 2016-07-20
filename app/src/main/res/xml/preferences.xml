@@ -47,7 +47,7 @@
             <intent
                 android:action="android.intent.action.VIEW"
                 android:targetPackage="fr.s13d.photobackup"
-                android:targetClass="fr.s13d.photobackup.PBJournalActivity"/>
+                android:targetClass="fr.s13d.photobackup.journal.PBJournalActivity"/>
         </Preference>
 
         <Preference android:key="aboutPref"
@@ -55,7 +55,7 @@
             <intent
                 android:action="android.intent.action.VIEW"
                 android:targetPackage="fr.s13d.photobackup"
-                android:targetClass="fr.s13d.photobackup.PBAboutActivity"/>
+                android:targetClass="fr.s13d.photobackup.about.PBAboutActivity"/>
         </Preference>
     </PreferenceCategory>
 

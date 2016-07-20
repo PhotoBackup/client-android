@@ -29,8 +29,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".PBJournalActivity" android:label="@string/journal_title" />
-        <activity android:name=".PBAboutActivity" android:label="@string/about_title" />
+        <activity android:name=".journal.PBJournalActivity" android:label="@string/journal_title" />
+        <activity android:name=".about.PBAboutActivity" android:label="@string/about_title" />
 
         <!-- Service -->
         <service android:name=".PBService" android:exported="false" />
