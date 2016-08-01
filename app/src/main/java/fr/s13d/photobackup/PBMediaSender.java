@@ -24,6 +24,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
@@ -68,6 +70,7 @@ public class PBMediaSender {
     private static List<PBMediaSenderInterface> interfaces = new ArrayList<>();
     private static int successCount = 0;
     private static int failureCount = 0;
+    private final static int timeoutInSeconds = 60;
 
 
     public PBMediaSender(final Context context) {
@@ -113,7 +116,7 @@ public class PBMediaSender {
     private void sendMedia(final PBMedia media) {
         this.builder.setContentText(context.getResources().getString(R.string.notif_start_text))
                 .setLargeIcon(MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(),
-                        media.getId(), MediaStore.Images.Thumbnails.MINI_KIND, null));
+                        media.getId(), MediaStore.Images.Thumbnails.MICRO_KIND, null));
         notificationManager.notify(0, this.builder.build());
 
         final MediaType MEDIA_TYPE_JPG = MediaType.parse("image/jpg");
@@ -129,7 +132,7 @@ public class PBMediaSender {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 Log.i(LOG_TAG, "Get response with code " + response.code());
-                if (response.code() == 200) {
+                if (response.code() == 200 || response.code() == 409) {
                     sendDidSucceed(media);
                 } else {
                     sendDidFail(media, new Throwable(response.message()));
@@ -164,7 +167,7 @@ public class PBMediaSender {
         getOkClient().newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful() || response.code() == 409) {
+                if (response.isSuccessful()) {
                     testDidSucceed(toast);
                 } else {
                     testDidFail(toast, response.message());
@@ -271,19 +274,18 @@ public class PBMediaSender {
 
 
     private void updateNotificationText() {
-        String successContent = context.getResources().getQuantityString(R.plurals.notif_success, successCount, successCount);
-        String failureContent = context.getResources().getQuantityString(R.plurals.notif_failure, failureCount, failureCount);
+        final String successContent = context.getResources().getQuantityString(R.plurals.notif_success, successCount, successCount);
+        final String failureContent = context.getResources().getQuantityString(R.plurals.notif_failure, failureCount, failureCount);
 
-        if (successCount != 0 && failureCount != 0) {
-            this.builder.setContentText(successContent + " ; " + failureContent);
-        } else {
-            if (successCount != 0) {
-                this.builder.setContentText(successContent);
-            }
-            if (failureCount != 0) {
-                this.builder.setContentText(failureContent);
-            }
+        String contentText = successContent + " ; " + failureContent;
+        if (successCount != 0 && failureCount == 0) {
+            contentText = successContent;
         }
+        if (successCount == 0 && failureCount != 0) {
+            contentText = failureContent;
+        }
+        Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher);
+        this.builder.setLargeIcon(icon).setContentText(contentText);
 
         notificationManager.notify(0, this.builder.build());
     }
@@ -308,9 +310,9 @@ public class PBMediaSender {
     private OkHttpClient getOkClient() {
         if (okClient == null) {
             okClient = new OkHttpClient.Builder()
-                    .readTimeout(30, TimeUnit.SECONDS)
-                    .connectTimeout(30, TimeUnit.SECONDS)
-                    .writeTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(timeoutInSeconds, TimeUnit.SECONDS)
+                    .connectTimeout(timeoutInSeconds, TimeUnit.SECONDS)
+                    .writeTimeout(timeoutInSeconds, TimeUnit.SECONDS)
                     .build();
             createAuthCredentials();
             buildNotificationBuilder();
