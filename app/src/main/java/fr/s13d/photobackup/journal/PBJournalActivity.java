@@ -28,15 +28,14 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ListView;
 import android.widget.ToggleButton;
 
 import fr.s13d.photobackup.Log;
 import fr.s13d.photobackup.PBActivity;
-import fr.s13d.photobackup.PBJournalAdapter;
 import fr.s13d.photobackup.PBMedia;
 import fr.s13d.photobackup.PBMediaSender;
 import fr.s13d.photobackup.R;
-import fr.s13d.photobackup.databinding.ActivityJournalBinding;
 import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
 
 
@@ -46,7 +45,6 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
     private PBMediaSender mediaSender;
     private SharedPreferences preferences;
     private SharedPreferences.Editor preferencesEditor;
-    private ActivityJournalBinding binding;
 
 
     @Override
@@ -54,7 +52,7 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
         super.onCreate(savedInstanceState);
 
         // Set up the UI (with binding)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_about);
+        DataBindingUtil.setContentView(this, R.layout.activity_journal);
 
         // layout
         setContentView(R.layout.activity_journal);
@@ -63,16 +61,16 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
         initPreferences();
 
         // on click listener
-        final Activity self = this;
-        binding.journalListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    setOnItemClick(position, self);
-                }
+        ListView list = (ListView) findViewById(android.R.id.list);
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                setOnItemClick(position, PBJournalActivity.this);
+            }
         });
 
         // adapter
-        adapter = new PBJournalAdapter(this);
+        adapter = new PBJournalAdapter(this, 0, PBActivity.getMediaStore().getMedias());
         setListAdapter(adapter);
         adapter.getFilter().filter(null); // to init the view
     }
@@ -96,9 +94,12 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
         }
 
         // set stored values
-        binding.savedToggleButton.setChecked(preferences.getBoolean(PBMedia.PBMediaState.SYNCED.name(), true));
-        binding.waitingToggleButton.setChecked(preferences.getBoolean(PBMedia.PBMediaState.WAITING.name(), true));
-        binding.errorToggleButton.setChecked(preferences.getBoolean(PBMedia.PBMediaState.ERROR.name(), true));
+        ToggleButton btn = (ToggleButton) findViewById(R.id.savedToggleButton);
+        btn.setChecked(preferences.getBoolean(PBMedia.PBMediaState.SYNCED.name(), true));
+        btn = (ToggleButton) findViewById(R.id.waitingToggleButton);
+        btn.setChecked(preferences.getBoolean(PBMedia.PBMediaState.WAITING.name(), true));
+        btn = (ToggleButton) findViewById(R.id.errorToggleButton);
+        btn.setChecked(preferences.getBoolean(PBMedia.PBMediaState.ERROR.name(), true));
     }
 
 
@@ -113,7 +114,7 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
 
     private void setOnItemClick(int position, final Activity self) {
         try {
-            final PBMedia media = PBActivity.getMediaStore().getMedias().get(position);
+            final PBMedia media = adapter.getFilteredMedias().get(position);
             final AlertDialog.Builder builder = new AlertDialog.Builder(self);
             builder.setMessage(self.getResources().getString(R.string.manual_backup_message))
                     .setTitle(self.getResources().getString(R.string.manual_backup_title));

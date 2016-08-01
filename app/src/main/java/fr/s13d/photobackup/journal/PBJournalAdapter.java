@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package fr.s13d.photobackup;
+package fr.s13d.photobackup.journal;
 
 import android.app.Activity;
 import android.content.Context;
@@ -26,11 +26,11 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore;
+import android.provider.MediaStore.Images.Thumbnails;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
@@ -39,28 +39,35 @@ import android.widget.TextView;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
+
+import fr.s13d.photobackup.Log;
+import fr.s13d.photobackup.PBMedia;
+import fr.s13d.photobackup.R;
 
 
-public class PBJournalAdapter extends BaseAdapter implements Filterable, Handler.Callback {
+public class PBJournalAdapter extends ArrayAdapter<PBMedia> implements Filterable, Handler.Callback {
     private static final String LOG_TAG = "PBJournalAdapter";
 	private static LayoutInflater inflater;
     private final Context context;
     private final SharedPreferences preferences;
     private Handler messageHandler;
-    private ArrayList<PBMedia> items;
-    private Map<View, PBMedia> viewsContent;
+    private Filter filter;
+    private List<PBMedia> medias;
+    private List<PBMedia> filteredMedias;
 
 
-	public PBJournalAdapter(final Activity activity) {
-        context = activity;
-		inflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        preferences = PreferenceManager.getDefaultSharedPreferences(activity);
-        viewsContent = new HashMap<>();
+	public PBJournalAdapter(final Activity activity, final int textViewResourceId, final List<PBMedia> medias) {
+        super(activity, textViewResourceId, medias);
+
+        this.context = activity;
+        this.preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+        this.medias = medias;
+        this.filteredMedias = new ArrayList<>(medias.size());
+
+        inflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         // Create and start a new thread for the handler
-        HandlerThread handlerThread = new HandlerThread("BackgroundThread");
+        final HandlerThread handlerThread = new HandlerThread("BackgroundThread");
         handlerThread.start();
         messageHandler = new Handler(handlerThread.getLooper(), this);
 	}
@@ -71,13 +78,16 @@ public class PBJournalAdapter extends BaseAdapter implements Filterable, Handler
     }
 
 
+    //////////////////////
+    // Handler.Callback //
+    //////////////////////
     @Override
     public boolean handleMessage(Message message) {
         // done on async thread
-        View view = (View)message.obj;
+        final View view = (View)message.obj;
         final ImageView thumbImageView = (ImageView)view.findViewById(R.id.thumbnail);
-        final Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(),
-                message.what, MediaStore.Images.Thumbnails.MINI_KIND, null);
+        final Bitmap bitmap = Thumbnails.getThumbnail(context.getContentResolver(),
+                message.what, Thumbnails.MICRO_KIND, null);
 
         // back on UI thread to set the bitmap to the view
         new Handler(context.getMainLooper()).post(new Runnable() {
@@ -99,16 +109,10 @@ public class PBJournalAdapter extends BaseAdapter implements Filterable, Handler
         // create the view if not available
         view = (view == null) ? inflater.inflate(R.layout.list_row, parent, false) : view;
 
-        PBMedia media = items.get(position);
+        final PBMedia media = filteredMedias.get(position);
         if (media == null || media.getId() == -1) {
             return view;
         }
-
-        // stop message of this view, in case of recycling
-        if (viewsContent.containsKey(view)) {
-            messageHandler.removeMessages(viewsContent.get(view).getId());
-        }
-        viewsContent.put(view, media);
 
         // create thumbnail
         messageHandler.obtainMessage(media.getId(), view).sendToTarget();
@@ -141,49 +145,27 @@ public class PBJournalAdapter extends BaseAdapter implements Filterable, Handler
 
 
     @Override
-    public Filter getFilter() {
-        return new Filter() {
-
-            @SuppressWarnings("unchecked")
-            @Override
-            protected void publishResults(CharSequence constraint, FilterResults results) {
-
-                items = (ArrayList<PBMedia>) results.values;
-                notifyDataSetChanged();
-            }
-
-            @Override
-            protected FilterResults performFiltering(CharSequence constraint) {
-
-                FilterResults results = new FilterResults();
-                List<PBMedia> mediaList = getMediaList();
-                results.values = mediaList;
-                results.count = mediaList.size();
-                return results;
-            }
-        };
-    }
-
-
-    @Override
     public int getCount() {
         int count = 0;
         try {
-            count = items.size();
+            count = filteredMedias.size();
         } catch (java.lang.NullPointerException e) {
-            Log.e(LOG_TAG, "count = " + count);
+            Log.w(LOG_TAG, "count = " + count);
+            e.printStackTrace();
         }
         return count;
     }
 
 
     @Override
-    public Object getItem(final int position) {
+    public PBMedia getItem(final int position) {
+        PBMedia item = null;
         try {
-            return items.get(position);
+            item = filteredMedias.get(position);
         } catch (java.lang.NullPointerException e) {
-            return null;
+            e.printStackTrace();
         }
+        return item;
     }
 
 
@@ -193,23 +175,62 @@ public class PBJournalAdapter extends BaseAdapter implements Filterable, Handler
     }
 
 
+    ////////////////
+    // Filterable //
+    ////////////////
+    @Override
+    public Filter getFilter() {
+        if (filter == null) {
+            filter = new Filter() {
+
+                @SuppressWarnings("unchecked")
+                @Override
+                protected void publishResults(CharSequence constraint, FilterResults results) {
+
+                    filteredMedias = (List<PBMedia>) results.values;
+                    notifyDataSetChanged();
+                }
+
+                @Override
+                protected FilterResults performFiltering(CharSequence constraint) {
+
+                    final FilterResults results = new FilterResults();
+                    final List<PBMedia> mediaList = getMediaList();
+                    results.values = mediaList;
+                    results.count = mediaList.size();
+                    return results;
+                }
+            };
+        }
+        return filter;
+    }
+
+
     /////////////////////
     // Private methods //
     /////////////////////
-    private List<PBMedia> getMediaList(){
+    private List<PBMedia> getMediaList() {
 
-        List<PBMedia> mediaList = new ArrayList<>();
-        Boolean synced = preferences.getBoolean(PBMedia.PBMediaState.SYNCED.name(), true);
-        Boolean waiting = preferences.getBoolean(PBMedia.PBMediaState.WAITING.name(), true);
-        Boolean error = preferences.getBoolean(PBMedia.PBMediaState.ERROR.name(), true);
-        for (PBMedia media : PBActivity.getMediaStore().getMedias()) {
+        //List<PBMedia> mediaList = new ArrayList<>(medias.size());
+        filteredMedias.clear();
+        final Boolean synced = preferences.getBoolean(PBMedia.PBMediaState.SYNCED.name(), true);
+        final Boolean waiting = preferences.getBoolean(PBMedia.PBMediaState.WAITING.name(), true);
+        final Boolean error = preferences.getBoolean(PBMedia.PBMediaState.ERROR.name(), true);
+
+        for (int i = 0; i < medias.size(); i++) {
+            PBMedia media = medias.get(i);
             if (media.getState() == PBMedia.PBMediaState.SYNCED && synced ||
                     media.getState() == PBMedia.PBMediaState.WAITING && waiting ||
                     media.getState() == PBMedia.PBMediaState.ERROR && error) {
-                mediaList.add(media);
+                filteredMedias.add(media);
             }
         }
-        return mediaList;
+        return filteredMedias;
     }
 
+
+    // Getter //
+    public List<PBMedia> getFilteredMedias() {
+        return filteredMedias;
+    }
 }

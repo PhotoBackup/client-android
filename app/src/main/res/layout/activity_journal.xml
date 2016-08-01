@@ -64,10 +64,9 @@
             android:background="?android:attr/listDivider" />
 
         <ListView
-            android:id="@+id/journalListView"
+            android:id="@android:id/list"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:text="@string/journal_title" />
+            android:layout_height="fill_parent" />
 
     </LinearLayout>
 </layout>
