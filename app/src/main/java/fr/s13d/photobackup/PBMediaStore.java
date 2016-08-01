@@ -47,22 +47,10 @@ public class PBMediaStore {
 
     public PBMediaStore(Context theContext) {
         context = theContext;
-        mediaList = new ArrayList<>();
         picturesPreferences = context.getSharedPreferences(PBApplication.PB_PICTURES_SHARED_PREFS, Context.MODE_PRIVATE);
         picturesPreferencesEditor = picturesPreferences.edit();
         picturesPreferencesEditor.apply();
 
-    }
-
-
-    private static void setMediaListToNull(){
-        mediaList = null;
-    }
-    private static void setPicturesPreferencesToNull(){
-        picturesPreferences = null;
-    }
-    private static void setPicturesPreferencesEditorToNull(){
-        picturesPreferencesEditor = null;
     }
 
 
@@ -108,6 +96,9 @@ public class PBMediaStore {
 
 
     public List<PBMedia> getMedias() {
+        if (mediaList == null) {
+            mediaList = new ArrayList<>();
+        }
         return mediaList;
     }
 
@@ -139,6 +130,20 @@ public class PBMediaStore {
     }
 
 
+    ////////////////////
+    // Static setters //
+    ////////////////////
+    private static void setMediaListToNull(){
+        mediaList = null;
+    }
+    private static void setPicturesPreferencesToNull(){
+        picturesPreferences = null;
+    }
+    private static void setPicturesPreferencesEditorToNull(){
+        picturesPreferencesEditor = null;
+    }
+
+
     private class SyncMediaStoreTask extends AsyncTask<Void, Void, Void> {
 
         /////////////////////////////////
@@ -164,7 +169,7 @@ public class PBMediaStore {
             PBMedia media;
             String stateString;
             PBMedia.PBMediaState state;
-            mediaList.clear();
+            getMedias().clear();
             while (cursor != null && cursor.moveToNext()) {
                 if(syncTask.isCancelled()) {
                     Log.i(LOG_TAG, "SyncMediaStoreTask cancelled");
@@ -176,7 +181,7 @@ public class PBMediaStore {
                 state = (stateString != null) ?
                         PBMedia.PBMediaState.valueOf(stateString) : PBMedia.PBMediaState.WAITING;
                 media.setState(state);
-                mediaList.add(media); // populate list
+                getMedias().add(media); // populate list
                 inCursor.add(Integer.toString(media.getId()));
             }
             if (cursor != null && !cursor.isClosed()) {
