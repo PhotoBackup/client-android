@@ -35,7 +35,8 @@ public class PBAboutActivity extends Activity {
 
         // Set up the UI (with binding)
         ActivityAboutBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_about);
-        binding.versionTextView.setText(getString(R.string.app_version, BuildConfig.VERSION_NAME));
+        String versionString = BuildConfig.VERSION_NAME + " (" + BuildConfig.VERSION_CODE + ')';
+        binding.versionTextView.setText(getString(R.string.app_version, versionString));
     }
 
 }

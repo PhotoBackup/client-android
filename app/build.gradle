@@ -9,7 +9,7 @@ android {
         applicationId "fr.s13d.photobackup"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 20
+        versionCode 23
         versionName "0.8.1-dev"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
