@@ -37,6 +37,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,7 +51,7 @@ public class PBJournalAdapter extends ArrayAdapter<PBMedia> implements Filterabl
 	private static LayoutInflater inflater;
     private final Context context;
     private final SharedPreferences preferences;
-    private Handler messageHandler;
+    private WeakReference<Handler> handlerWeakReference;
     private Filter filter;
     private List<PBMedia> medias;
     private List<PBMedia> filteredMedias;
@@ -69,12 +70,15 @@ public class PBJournalAdapter extends ArrayAdapter<PBMedia> implements Filterabl
         // Create and start a new thread for the handler
         final HandlerThread handlerThread = new HandlerThread("BackgroundThread");
         handlerThread.start();
-        messageHandler = new Handler(handlerThread.getLooper(), this);
+        handlerWeakReference = new WeakReference<>(new Handler(handlerThread.getLooper(), this));
 	}
 
 
     public void close() {
-        messageHandler.getLooper().quit();
+        if (handlerWeakReference != null) {
+            final Handler handler = handlerWeakReference.get();
+            handler.getLooper().quit();
+        }
     }
 
 
@@ -115,7 +119,10 @@ public class PBJournalAdapter extends ArrayAdapter<PBMedia> implements Filterabl
         }
 
         // create thumbnail
-        messageHandler.obtainMessage(media.getId(), view).sendToTarget();
+        if (handlerWeakReference != null) {
+            final Handler handler = handlerWeakReference.get();
+            handler.obtainMessage(media.getId(), view).sendToTarget();
+        }
 
         // filename
 		final TextView textView = (TextView)view.findViewById(R.id.filename);
