@@ -77,7 +77,9 @@ public class PBJournalAdapter extends ArrayAdapter<PBMedia> implements Filterabl
     public void close() {
         if (handlerWeakReference != null) {
             final Handler handler = handlerWeakReference.get();
-            handler.getLooper().quit();
+            if (handler != null) {
+                handler.getLooper().quit();
+            }
         }
     }
 
@@ -121,7 +123,9 @@ public class PBJournalAdapter extends ArrayAdapter<PBMedia> implements Filterabl
         // create thumbnail
         if (handlerWeakReference != null) {
             final Handler handler = handlerWeakReference.get();
-            handler.obtainMessage(media.getId(), view).sendToTarget();
+            if (handler != null) {
+                handler.obtainMessage(media.getId(), view).sendToTarget();
+            }
         }
 
         // filename
