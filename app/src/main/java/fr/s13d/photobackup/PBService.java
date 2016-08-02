@@ -46,15 +46,10 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
         super.onCreate();
         binder = new Binder();
         newMediaContentObserver = new MediaContentObserver();
-        mediaStore = new PBMediaStore(this);
-        mediaStore.addInterface(this);
-        mediaSender = new PBMediaSender(this);
-        mediaSender.addInterface(this);
         this.getApplicationContext().getContentResolver().registerContentObserver(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI, false, newMediaContentObserver);
 
         Log.i(LOG_TAG, "PhotoBackup service is created");
-        mediaStore.sync();
     }
 
 
@@ -63,8 +58,7 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
         super.onDestroy();
         this.getApplicationContext().getContentResolver().unregisterContentObserver(newMediaContentObserver);
         setNewMediaContentObserverToNull();
-        mediaStore.close();
-        mediaStore = null;
+        getMediaStore().close();
 
         Log.i(LOG_TAG, "PhotoBackup service has stopped");
     }
@@ -95,18 +89,16 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
     // Methods //
     /////////////
     public void sendNextMedia() {
-        if (mediaStore != null) {
-            for (PBMedia media : mediaStore.getMedias()) {
-                if (media.getState() != PBMedia.PBMediaState.SYNCED) {
-                    sendMedia(media, false);
-                    break;
-                }
+        for (PBMedia media : getMediaStore().getMedias()) {
+            if (media.getState() != PBMedia.PBMediaState.SYNCED) {
+                sendMedia(media, false);
+                break;
             }
         }
     }
 
     public void sendMedia(PBMedia media, boolean manual) {
-        mediaSender.send(media, manual);
+        getMediaSender().send(media, manual);
     }
 
 
@@ -151,9 +143,9 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
             if (uri.toString().equals("content://media/external/images/media")) {
 
                 try {
-                    final PBMedia media = mediaStore.getLastMediaInStore();
+                    final PBMedia media = getMediaStore().getLastMediaInStore();
                     media.setState(PBMedia.PBMediaState.WAITING);
-                    mediaSender.send(media, false);
+                    getMediaSender().send(media, false);
                     //mediaStore.sync();
                 }
                 catch (Exception e) {
@@ -169,12 +161,26 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
     // getters //
     /////////////
     public PBMediaStore getMediaStore() {
+        if (mediaStore == null) {
+            mediaStore = new PBMediaStore(this);
+            mediaStore.addInterface(this);
+            mediaStore.sync();
+        }
         return mediaStore;
     }
 
 
+    private PBMediaSender getMediaSender() {
+        if (mediaSender == null) {
+            mediaSender = new PBMediaSender(this);
+            mediaSender.addInterface(this);
+        }
+        return mediaSender;
+    }
+
+
     public int getMediaSize() {
-        return mediaStore.getMedias().size();
+        return getMediaStore().getMedias().size();
     }
 
 
