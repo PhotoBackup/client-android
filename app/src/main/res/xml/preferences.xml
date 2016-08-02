@@ -43,20 +43,10 @@
 
         <Preference android:key="uploadJournalPref"
                     android:enabled="false"
-                    android:title="@string/journal_noaccess">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:targetPackage="fr.s13d.photobackup"
-                android:targetClass="fr.s13d.photobackup.journal.PBJournalActivity"/>
-        </Preference>
+                    android:title="@string/journal_noaccess" />
 
         <Preference android:key="aboutPref"
-            android:title="@string/about_title">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:targetPackage="fr.s13d.photobackup"
-                android:targetClass="fr.s13d.photobackup.about.PBAboutActivity"/>
-        </Preference>
+                    android:title="@string/about_title" />
     </PreferenceCategory>
 
 </PreferenceScreen>

@@ -44,13 +44,16 @@ import android.widget.Toast;
 import java.util.Arrays;
 import java.util.Map;
 
+import fr.s13d.photobackup.BuildConfig;
 import fr.s13d.photobackup.Log;
 import fr.s13d.photobackup.PBActivity;
 import fr.s13d.photobackup.PBMediaSender;
 import fr.s13d.photobackup.PBService;
 import fr.s13d.photobackup.R;
+import fr.s13d.photobackup.about.PBAboutActivity;
 import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
 import fr.s13d.photobackup.interfaces.PBMediaStoreInterface;
+import fr.s13d.photobackup.journal.PBJournalActivity;
 
 
 public class PBPreferenceFragment extends PreferenceFragment
@@ -112,7 +115,26 @@ public class PBPreferenceFragment extends PreferenceFragment
         }
         migratePreferences();
 
+        // create preferences
         addPreferencesFromResource(R.xml.preferences);
+
+        // add click listeners to launch activities on click
+        // Intents were historically defined into preferences.xml but as build variants cannot
+        // inject applicationId as intent packageName properly, it was done this way now...
+        setOnClickListener("aboutPref", PBAboutActivity.class);
+        setOnClickListener("uploadJournalPref", PBJournalActivity.class);
+    }
+
+
+    private void setOnClickListener(final String preferenceKey, final Class cls) {
+        final Preference uploadJournalPref = findPreference(preferenceKey);
+        uploadJournalPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            public boolean onPreferenceClick(Preference preference) {
+                final Intent intent = new Intent(PBPreferenceFragment.this.getActivity(), cls);
+                startActivity(intent);
+                return true;
+            }
+        });
     }
 
 
@@ -299,7 +321,9 @@ public class PBPreferenceFragment extends PreferenceFragment
         if (activity != null) {
             final ActivityManager manager = (ActivityManager) getActivity().getSystemService(Context.ACTIVITY_SERVICE);
             for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-                if (PBService.class.getName().equals(service.service.getClassName())) {
+                boolean sameClass = PBService.class.getName().equals(service.service.getClassName());
+                boolean samePackage = BuildConfig.APPLICATION_ID.equals(service.service.getPackageName());
+                if (sameClass && samePackage) {
                     Log.i(LOG_TAG, "Service is running");
                     return true;
                 }
