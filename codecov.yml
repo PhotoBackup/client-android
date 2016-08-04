@@ -6,6 +6,3 @@ coverage:
   precision: 2
   round: down
   range: "70...100"
-
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
