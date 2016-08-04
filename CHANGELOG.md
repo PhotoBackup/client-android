@@ -1,5 +1,18 @@
 # Changelog
 
+# 0.9.0
+* [4a9e39c](https://github.com/PhotoBackup/client-android/commit/4a9e39c) Switch from loopj to OkHttp (to handle HTTPS SNI #23 and redirection #15) ;
+* [67eeb00](https://github.com/PhotoBackup/client-android/commit/67eeb00) Async update of Upload Log ui after manual upload ;
+* [71e7dee](https://github.com/PhotoBackup/client-android/commit/71e7dee) Saving the error message per photo and display it under the file name ;
+* [c5cfe04](https://github.com/PhotoBackup/client-android/commit/c5cfe04) New German translation thanks to @zealot128 ;
+* [0892104](https://github.com/PhotoBackup/client-android/commit/0892104) New Czech translation thanks to @svetlemodry ;
+* [ca629b3](https://github.com/PhotoBackup/client-android/commit/ca629b3) handling 409 status code properly #45 ;
+* [1108063](https://github.com/PhotoBackup/client-android/commit/1108063) remove 'Stop the service' action in the notification #41 ;
+* some Sonar-induced fixes ([c8ccce8](https://github.com/PhotoBackup/client-android/commit/c8ccce8), [af13b2c](https://github.com/PhotoBackup/client-android/commit/af13b2c), [f0f8508](https://github.com/PhotoBackup/client-android/commit/f0f8508) and [8ce3611](https://github.com/PhotoBackup/client-android/commit/8ce3611)) ;
+* finally, an operational Travis build: https://travis-ci.org/PhotoBackup/client-android ;
+* for developers, a gitter channel to discuss: https://gitter.im/PhotoBackup
+
+
 # 0.8.0
 * [3c4f128](https://github.com/PhotoBackup/client-android/commit/3c4f128) Czech translation
 * [47a0c62](https://github.com/PhotoBackup/client-android/commit/47a0c62) Add multiple servers capability basic architecture
