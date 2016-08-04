@@ -44,6 +44,7 @@ script:
   # - adb shell am start -n fr.s13d.photobackup/.PBActivity
   # Go to About activity
   # - adb shell input tap 500 1300
+  # - bash <(curl -s https://codecov.io/bash)
 
 
 # gitter integration
