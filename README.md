@@ -19,4 +19,3 @@ Join our dedicated online chat at [![Gitter](https://badges.gitter.im/PhotoBacku
 
 
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/PhotoBackup/client-android/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
