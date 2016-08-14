@@ -42,7 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.s13d.photobackup.Log;
-import fr.s13d.photobackup.PBMedia;
+import fr.s13d.photobackup.media.PBMedia;
 import fr.s13d.photobackup.R;
 
 

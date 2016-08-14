@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package fr.s13d.photobackup;
+package fr.s13d.photobackup.media;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -30,8 +30,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-import android.widget.Toast;
 
+import fr.s13d.photobackup.Log;
+import fr.s13d.photobackup.PBActivity;
+import fr.s13d.photobackup.PBApplication;
+import fr.s13d.photobackup.R;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Credentials;
@@ -55,14 +58,13 @@ import fr.s13d.photobackup.preferences.PBServerPreferenceFragment;
 
 
 public class PBMediaSender {
-    private static final String LOG_TAG = "PBMediaSender";
+    private final static String LOG_TAG = "PBMediaSender";
     private final static String PASSWORD_PARAM = "password";
     private final static String UPFILE_PARAM = "upfile";
     private final static String FILESIZE_PARAM = "filesize";
     private final static String TEST_PATH = "/test";
-    private final Context context;
     private final String serverUrl;
-    private final SharedPreferences prefs;
+    private final SharedPreferences preferences;
     private final NotificationManager notificationManager;
     private String credentials;
     private Notification.Builder builder;
@@ -73,11 +75,10 @@ public class PBMediaSender {
     private final static int timeoutInSeconds = 60;
 
 
-    public PBMediaSender(final Context context) {
-        this.context = context;
-        this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        this.serverUrl = removeFinalSlashes(prefs.getString(PBServerPreferenceFragment.PREF_SERVER_URL, ""));
+    public PBMediaSender() {
+        this.notificationManager = (NotificationManager) PBApplication.getApp().getSystemService(Context.NOTIFICATION_SERVICE);
+        this.preferences = PreferenceManager.getDefaultSharedPreferences(PBApplication.getApp());
+        this.serverUrl = removeFinalSlashes(preferences.getString(PBServerPreferenceFragment.PREF_SERVER_URL, ""));
         buildNotificationBuilder();
     }
 
@@ -92,17 +93,17 @@ public class PBMediaSender {
     ////////////////
     public void send(final PBMedia media, boolean manual) {
         // network
-        String wifiOnlyString = prefs.getString(PBPreferenceFragment.PREF_WIFI_ONLY,
-                context.getResources().getString(R.string.only_wifi_default));
-        Boolean wifiOnly = wifiOnlyString.equals(context.getResources().getString(R.string.only_wifi));
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        String wifiOnlyString = preferences.getString(PBPreferenceFragment.PREF_WIFI_ONLY,
+                PBApplication.getApp().getResources().getString(R.string.only_wifi_default));
+        Boolean wifiOnly = wifiOnlyString.equals(PBApplication.getApp().getResources().getString(R.string.only_wifi));
+        ConnectivityManager cm = (ConnectivityManager) PBApplication.getApp().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info = cm.getActiveNetworkInfo();
         Boolean onWifi = info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI;
 
         // recently taken picture
-        String uploadRecentOnlyString = prefs.getString(PBPreferenceFragment.PREF_RECENT_UPLOAD_ONLY,
-                context.getResources().getString(R.string.only_recent_upload_default));
-        Boolean uploadRecentOnly = uploadRecentOnlyString.equals(context.getResources().getString(R.string.only_recent_upload));
+        String uploadRecentOnlyString = preferences.getString(PBPreferenceFragment.PREF_RECENT_UPLOAD_ONLY,
+                PBApplication.getApp().getResources().getString(R.string.only_recent_upload_default));
+        Boolean uploadRecentOnly = uploadRecentOnlyString.equals(PBApplication.getApp().getResources().getString(R.string.only_recent_upload));
         Boolean recentPicture = (System.currentTimeMillis() / 1000 - media.getDateAdded()) < 600;
 
         Log.i(LOG_TAG, "Connectivity: onWifi=" + onWifi.toString() + ", wifiOnly=" + wifiOnly.toString() + ", recentPicture=" + recentPicture.toString());
@@ -114,8 +115,8 @@ public class PBMediaSender {
 
 
     private void sendMedia(final PBMedia media) {
-        this.builder.setContentText(context.getResources().getString(R.string.notif_start_text))
-                .setLargeIcon(MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(),
+        this.builder.setContentText(PBApplication.getApp().getResources().getString(R.string.notif_start_text))
+                .setLargeIcon(MediaStore.Images.Thumbnails.getThumbnail(PBApplication.getApp().getContentResolver(),
                         media.getId(), MediaStore.Images.Thumbnails.MICRO_KIND, null));
         notificationManager.notify(0, this.builder.build());
 
@@ -123,7 +124,7 @@ public class PBMediaSender {
         final File upfile = new File(media.getPath());
         final RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
-                .addFormDataPart(PASSWORD_PARAM, prefs.getString(PBServerPreferenceFragment.PREF_SERVER_PASS_HASH, ""))
+                .addFormDataPart(PASSWORD_PARAM, preferences.getString(PBServerPreferenceFragment.PREF_SERVER_PASS_HASH, ""))
                 .addFormDataPart(FILESIZE_PARAM, String.valueOf(upfile.length()))
                 .addFormDataPart(UPFILE_PARAM, upfile.getName(), RequestBody.create(MEDIA_TYPE_JPG, upfile))
                 .build();
@@ -153,13 +154,8 @@ public class PBMediaSender {
     // Send test //
     ///////////////
     public void test() {
-        final Toast toast = Toast.makeText(context,
-                context.getResources().getString(R.string.toast_test_configuration),
-                Toast.LENGTH_SHORT);
-        toast.show();
-
         final RequestBody requestBody = new FormBody.Builder()
-                .add(PASSWORD_PARAM, prefs.getString(PBServerPreferenceFragment.PREF_SERVER_PASS_HASH, ""))
+                .add(PASSWORD_PARAM, preferences.getString(PBServerPreferenceFragment.PREF_SERVER_PASS_HASH, ""))
                 .build();
         final Request request = makePostRequest(requestBody, TEST_PATH);
         Log.i(LOG_TAG, "Initiating test call to " + request.url());
@@ -168,16 +164,16 @@ public class PBMediaSender {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
-                    testDidSucceed(toast);
+                    testDidSucceed();
                 } else {
-                    testDidFail(toast, response.message());
+                    testDidFail(response.message());
                 }
                 response.body().close();
             }
 
             @Override
             public void onFailure(Call call, IOException e) {
-                testDidFail(toast, e.getLocalizedMessage());
+                testDidFail(e.getLocalizedMessage());
             }
         });
     }
@@ -205,11 +201,11 @@ public class PBMediaSender {
     /////////////////////
     private void createAuthCredentials() {
         // add HTTP Basic Auth to the client
-        final String login = prefs.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_LOGIN, "");
-        final String pass = prefs.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_PASS, "");
-        if(prefs.getBoolean(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_SWITCH, false) &&
-                !prefs.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_LOGIN, "").isEmpty() &&
-                !prefs.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_PASS, "").isEmpty()) {
+        final String login = preferences.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_LOGIN, "");
+        final String pass = preferences.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_PASS, "");
+        if(preferences.getBoolean(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_SWITCH, false) &&
+                !preferences.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_LOGIN, "").isEmpty() &&
+                !preferences.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_PASS, "").isEmpty()) {
             this.credentials = Credentials.basic(login, pass);
         } else {
             this.credentials = null;
@@ -218,15 +214,15 @@ public class PBMediaSender {
 
 
     private void buildNotificationBuilder() {
-        this.builder = new Notification.Builder(context);
+        this.builder = new Notification.Builder(PBApplication.getApp());
         this.builder.setSmallIcon(R.drawable.ic_backup_white_48dp)
-                .setContentTitle(context.getResources().getString(R.string.app_name));
+                .setContentTitle(PBApplication.getApp().getResources().getString(R.string.app_name));
 
         // add content intent to reopen the activity
-        Intent intent = new Intent(context, PBActivity.class);
+        Intent intent = new Intent(PBApplication.getApp(), PBActivity.class);
         intent.setAction(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(PBApplication.getApp(), 0, intent, 0);
         this.builder.setContentIntent(resultPendingIntent);
     }
 
@@ -256,26 +252,26 @@ public class PBMediaSender {
     }
 
 
-    private void testDidSucceed(final Toast toast) {
-        showToast(toast, context.getResources().getString(R.string.toast_configuration_ok), Toast.LENGTH_SHORT);
+    private void testDidSucceed() {
         for (PBMediaSenderInterface senderInterface : interfaces) {
+            senderInterface.onMessage(PBApplication.getApp().getResources().getString(R.string.toast_configuration_ok));
             senderInterface.onTestSuccess();
         }
     }
 
 
-    private void testDidFail(final Toast toast, final String message) {
-        final String toastMessage = context.getResources().getString(R.string.toast_configuration_ko) + " - (" + message + ")";
-        showToast(toast, toastMessage, Toast.LENGTH_LONG);
+    private void testDidFail(final String failMessage) {
+        final String message = PBApplication.getApp().getResources().getString(R.string.toast_configuration_ko) + " - (" + failMessage + ")";
         for (PBMediaSenderInterface senderInterface : interfaces) {
+            senderInterface.onMessage(message);
             senderInterface.onTestFailure();
         }
     }
 
 
     private void updateNotificationText() {
-        final String successContent = context.getResources().getQuantityString(R.plurals.notif_success, successCount, successCount);
-        final String failureContent = context.getResources().getQuantityString(R.plurals.notif_failure, failureCount, failureCount);
+        final String successContent = PBApplication.getApp().getResources().getQuantityString(R.plurals.notif_success, successCount, successCount);
+        final String failureContent = PBApplication.getApp().getResources().getQuantityString(R.plurals.notif_failure, failureCount, failureCount);
 
         String contentText = successContent + " ; " + failureContent;
         if (successCount != 0 && failureCount == 0) {
@@ -284,24 +280,11 @@ public class PBMediaSender {
         if (successCount == 0 && failureCount != 0) {
             contentText = failureContent;
         }
-        Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher);
+        Bitmap icon = BitmapFactory.decodeResource(PBApplication.getApp().getResources(), R.mipmap.ic_launcher);
         this.builder.setLargeIcon(icon).setContentText(contentText);
 
         notificationManager.notify(0, this.builder.build());
     }
-
-
-    // show a text in a given toast on the UI thread
-    private void showToast(final Toast toast, final String text, final int duration) {
-        ((PBActivity)context).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                toast.setText(text);
-                toast.setDuration(duration);
-                toast.show();
-            }
-        });
-   }
 
 
     //////////////////

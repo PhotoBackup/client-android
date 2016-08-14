@@ -30,6 +30,8 @@ import android.preference.PreferenceManager;
 
 import java.util.List;
 
+import fr.s13d.photobackup.media.PBMedia;
+import fr.s13d.photobackup.media.PBMediaStore;
 import fr.s13d.photobackup.preferences.PBPreferenceFragment;
 
 public class PBWifiBroadcastReceiver extends BroadcastReceiver {
@@ -72,10 +74,10 @@ public class PBWifiBroadcastReceiver extends BroadcastReceiver {
             if (mediaStore == null) {
                 return;
             }
-            List<PBMedia> medias = mediaStore.getMedias();
+            List<PBMedia> medias = mediaStore.getMediaList();
             Log.i(LOG_TAG, "media count = " + medias.size());
 
-            for (PBMedia media : mediaStore.getMedias()) {
+            for (PBMedia media : medias) {
                 // TODO replace with media.isUnsaved after PR merge and getAge
                 if (media.getAge() < 3600 * 24 * 7 && media.getState() != PBMedia.PBMediaState.SYNCED) {
                     Log.i(LOG_TAG, "Notify to send " + media.getPath());

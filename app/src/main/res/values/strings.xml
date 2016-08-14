@@ -61,4 +61,7 @@
     <string name="manual_backup_title">Manual backup</string>
     <string name="manual_backup_message">Save this picture now!</string>
 
+    <string name="folders_to_backup_title">Folders to backup</string>
+    <string name="folders_to_backup_noaccess">Launch the service to select folders.</string>
+
 </resources>
