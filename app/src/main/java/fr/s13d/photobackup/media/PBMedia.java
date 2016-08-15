@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package fr.s13d.photobackup;
+package fr.s13d.photobackup.media;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -24,27 +24,30 @@ import android.database.Cursor;
 
 import java.io.Serializable;
 
+import fr.s13d.photobackup.Log;
+import fr.s13d.photobackup.PBApplication;
+
 public class PBMedia implements Serializable {
-    final private int id;
-    final private String path;
-    final private long dateAdded;
+    private final int id;
+    private final String path;
+    private final long dateAdded;
+    private final SharedPreferences picturesPreferences;
     private String errorMessage;
     private PBMediaState state;
-    Context context;
     public enum PBMediaState { WAITING, SYNCED, ERROR }
 
 
     //////////////////
     // Constructors //
     //////////////////
-    public PBMedia(Context context, Cursor mediaCursor) {
-        this.context = context;
+    public PBMedia(Cursor mediaCursor) {
         this.id = mediaCursor.getInt(mediaCursor.getColumnIndexOrThrow("_id"));
         this.path = mediaCursor.getString(mediaCursor.getColumnIndexOrThrow("_data"));
         this.dateAdded = mediaCursor.getLong(mediaCursor.getColumnIndexOrThrow("date_added"));
+        this.picturesPreferences = PBApplication.getApp().getSharedPreferences(PBApplication.PB_PICTURES_SHARED_PREFS, Context.MODE_PRIVATE);
 
         // Find state from the shared preferences
-        String stateString = getPicturesPreferences().getString(String.valueOf(this.id), PBMedia.PBMediaState.WAITING.name());
+        String stateString = picturesPreferences.getString(String.valueOf(this.id), PBMedia.PBMediaState.WAITING.name());
         this.state = PBMedia.PBMediaState.valueOf(stateString);
         this.errorMessage = "";
     }
@@ -91,21 +94,9 @@ public class PBMedia implements Serializable {
     public void setState(PBMediaState mediaState) {
         if (this.state != mediaState) {
             this.state = mediaState;
-            getPicturesPreferences().edit().putString(String.valueOf(this.getId()), mediaState.name()).apply();
+            picturesPreferences.edit().putString(String.valueOf(this.getId()), mediaState.name()).apply();
             Log.i("PBMedia", "Set state " + mediaState.toString() + " to " + this.getPath());
         }
-    }
-
-
-    //////////////////
-    // Lazy loaders //
-    //////////////////
-    static SharedPreferences picturesPreferences = null;
-    public final SharedPreferences getPicturesPreferences() {
-        if (picturesPreferences == null) {
-            picturesPreferences = context.getSharedPreferences(PBApplication.PB_PICTURES_SHARED_PREFS, Context.MODE_PRIVATE);
-        }
-        return picturesPreferences;
     }
 
 }

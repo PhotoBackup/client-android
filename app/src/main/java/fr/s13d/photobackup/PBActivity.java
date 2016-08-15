@@ -25,6 +25,7 @@ import android.support.annotation.NonNull;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import fr.s13d.photobackup.media.PBMediaStore;
 import fr.s13d.photobackup.preferences.PBPreferenceFragment;
 
 public class PBActivity extends Activity {

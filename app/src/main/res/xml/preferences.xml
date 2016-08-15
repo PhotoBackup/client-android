@@ -37,16 +37,26 @@
         android:entryValues="@array/pref_upload_values"
         android:defaultValue="@string/only_recent_upload" />
 
+    <MultiSelectListPreference
+        android:key="PREF_PICTURE_FOLDER_LIST"
+        android:title="@string/folders_to_backup_noaccess"
+        android:enabled="false"
+        android:entries="@array/empty_array"
+        android:defaultValue="@array/empty_array"
+        android:entryValues="@array/empty_array" />
+
     <PreferenceCategory
         android:title="@string/info_conf"
         android:key="info_conf">
 
-        <Preference android:key="uploadJournalPref"
-                    android:enabled="false"
-                    android:title="@string/journal_noaccess" />
+        <Preference
+            android:key="PREF_UPLOAD_JOURNAL"
+            android:title="@string/journal_noaccess"
+            android:enabled="false" />
 
-        <Preference android:key="aboutPref"
-                    android:title="@string/about_title" />
+        <Preference
+            android:key="PREF_ABOUT"
+            android:title="@string/about_title" />
     </PreferenceCategory>
 
 </PreferenceScreen>

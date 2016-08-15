@@ -29,13 +29,16 @@ import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import fr.s13d.photobackup.Log;
 import fr.s13d.photobackup.PBActivity;
-import fr.s13d.photobackup.PBMedia;
-import fr.s13d.photobackup.PBMediaSender;
+import fr.s13d.photobackup.PBApplication;
+import fr.s13d.photobackup.media.PBMedia;
+import fr.s13d.photobackup.media.PBMediaSender;
 import fr.s13d.photobackup.R;
+import fr.s13d.photobackup.databinding.ActivityJournalBinding;
 import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
 
 
@@ -45,6 +48,7 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
     private PBMediaSender mediaSender;
     private SharedPreferences preferences;
     private SharedPreferences.Editor preferencesEditor;
+    private ActivityJournalBinding binding;
 
 
     @Override
@@ -52,7 +56,7 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
         super.onCreate(savedInstanceState);
 
         // Set up the UI (with binding)
-        DataBindingUtil.setContentView(this, R.layout.activity_journal);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_journal);
 
         // layout
         setContentView(R.layout.activity_journal);
@@ -70,7 +74,7 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
         });
 
         // adapter
-        adapter = new PBJournalAdapter(this, 0, PBActivity.getMediaStore().getMedias());
+        adapter = new PBJournalAdapter(this, 0, PBActivity.getMediaStore().getMediaList());
         setListAdapter(adapter);
         adapter.getFilter().filter(null); // to init the view
     }
@@ -94,18 +98,15 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
         }
 
         // set stored values
-        ToggleButton btn = (ToggleButton) findViewById(R.id.savedToggleButton);
-        btn.setChecked(preferences.getBoolean(PBMedia.PBMediaState.SYNCED.name(), true));
-        btn = (ToggleButton) findViewById(R.id.waitingToggleButton);
-        btn.setChecked(preferences.getBoolean(PBMedia.PBMediaState.WAITING.name(), true));
-        btn = (ToggleButton) findViewById(R.id.errorToggleButton);
-        btn.setChecked(preferences.getBoolean(PBMedia.PBMediaState.ERROR.name(), true));
+        binding.savedToggleButton.setChecked(preferences.getBoolean(PBMedia.PBMediaState.SYNCED.name(), true));
+        binding.waitingToggleButton.setChecked(preferences.getBoolean(PBMedia.PBMediaState.WAITING.name(), true));
+        binding.errorToggleButton.setChecked(preferences.getBoolean(PBMedia.PBMediaState.ERROR.name(), true));
     }
 
 
     private PBMediaSender getMediaSender() {
         if (mediaSender == null) {
-            mediaSender = new PBMediaSender(this);
+            mediaSender = new PBMediaSender();
             mediaSender.addInterface(this);
         }
         return mediaSender;
@@ -161,6 +162,16 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
     ////////////////////////////
     // PBMediaSenderInterface //
     ////////////////////////////
+    public void onMessage(final String message) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(PBApplication.getApp(), message, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
     @Override
     public void onSendSuccess() {
         runOnUiThread(new Runnable() {
@@ -174,9 +185,7 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
 
 
     @Override
-    public void onSendFailure() {
-        onSendSuccess();
-    }
+    public void onSendFailure() { onSendSuccess(); }
 
 
     @Override

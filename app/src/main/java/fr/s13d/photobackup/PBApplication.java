@@ -19,16 +19,33 @@
 package fr.s13d.photobackup;
 
 import android.app.Application;
+import android.preference.PreferenceManager;
+
+import java.util.Map;
+import java.util.Set;
 
 
 public class PBApplication extends Application {
 
     private final static String LOG_TAG = "PBApplication";
+    private static PBApplication app;
+
 
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.e(LOG_TAG, "Initializing app");
+        Log.d(LOG_TAG, "Initializing app");
+        app = this;
+
+        if (BuildConfig.DEBUG) {
+            Log.d(LOG_TAG, "Default SharedPreferences:");
+            Map<String, ?> allPrefs = PreferenceManager.getDefaultSharedPreferences(this).getAll();
+            Set<String> set = allPrefs.keySet();
+            for(String s : set) {
+                Log.d(LOG_TAG, s + "<" + allPrefs.get(s).getClass().getSimpleName() +"> =  "
+                        + allPrefs.get(s).toString());
+            }
+        }
     }
 
 
@@ -38,4 +55,11 @@ public class PBApplication extends Application {
     public final static String PB_USER_AGENT = "PhotoBackup Android Client v" + BuildConfig.VERSION_NAME;
     public static final String PB_PICTURES_SHARED_PREFS = "PB_PICTURES_SHARED_PREFS";
 
+
+    /////////////
+    // Getters //
+    /////////////
+    public static PBApplication getApp() {
+        return app;
+    }
 }

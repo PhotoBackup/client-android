@@ -32,22 +32,28 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.ListPreference;
+import android.preference.MultiSelectListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.util.ArrayMap;
+import android.text.TextUtils;
 import android.webkit.URLUtil;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 
 import fr.s13d.photobackup.BuildConfig;
 import fr.s13d.photobackup.Log;
 import fr.s13d.photobackup.PBActivity;
-import fr.s13d.photobackup.PBMediaSender;
+import fr.s13d.photobackup.PBApplication;
+import fr.s13d.photobackup.media.PBMediaSender;
 import fr.s13d.photobackup.PBService;
 import fr.s13d.photobackup.R;
 import fr.s13d.photobackup.about.PBAboutActivity;
@@ -61,11 +67,9 @@ public class PBPreferenceFragment extends PreferenceFragment
                                            PBMediaStoreInterface, PBMediaSenderInterface {
 
     private static final String LOG_TAG = "PBPreferenceFragment";
-    private static PBPreferenceFragment self;
     private PBService currentService;
-    private SharedPreferences preferences;
-    private SharedPreferences.Editor preferencesEditor;
-    private Preference uploadJournalPref;
+    private final SharedPreferences preferences;
+    private ArrayMap<String, String> bucketNames;
     public static final int PERMISSION_READ_EXTERNAL_STORAGE = 0;
 
 
@@ -76,9 +80,10 @@ public class PBPreferenceFragment extends PreferenceFragment
         public void onServiceConnected(ComponentName className, IBinder binder) {
             PBService.Binder b = (PBService.Binder) binder;
             currentService = b.getService();
-            currentService.getMediaStore().addInterface(self);
-            updateUploadJournalPreference(); // update journal serverKeys number
+            currentService.getMediaStore().addInterface(PBPreferenceFragment.this);
+            updatePreferences(); // update journal serverKeys number
             Log.i(LOG_TAG, "Connected to service");
+            fillBuckets();
         }
 
         public void onServiceDisconnected(ComponentName className) {
@@ -92,13 +97,16 @@ public class PBPreferenceFragment extends PreferenceFragment
     public static final String PREF_SERVER = "PREF_SERVER";
     public static final String PREF_WIFI_ONLY = "PREF_WIFI_ONLY";
     public static final String PREF_RECENT_UPLOAD_ONLY = "PREF_RECENT_UPLOAD_ONLY";
+    public static final String PREF_PICTURE_FOLDER_LIST = "PREF_PICTURE_FOLDER_LIST";
+    private static final String PREF_UPLOAD_JOURNAL = "PREF_UPLOAD_JOURNAL";
+    private static final String PREF_ABOUT = "PREF_ABOUT";
 
 
     //////////////////
     // Constructors //
     //////////////////
     public PBPreferenceFragment() {
-        self = this;
+        this.preferences = PreferenceManager.getDefaultSharedPreferences(PBApplication.getApp());
     }
 
 
@@ -108,11 +116,6 @@ public class PBPreferenceFragment extends PreferenceFragment
     @Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-        if (preferences == null) {
-            preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            preferencesEditor = preferences.edit();
-            preferencesEditor.apply();
-        }
         migratePreferences();
 
         // create preferences
@@ -121,8 +124,8 @@ public class PBPreferenceFragment extends PreferenceFragment
         // add click listeners to launch activities on click
         // Intents were historically defined into preferences.xml but as build variants cannot
         // inject applicationId as intent packageName properly, it was done this way now...
-        setOnClickListener("aboutPref", PBAboutActivity.class);
-        setOnClickListener("uploadJournalPref", PBJournalActivity.class);
+        setOnClickListener(PREF_ABOUT, PBAboutActivity.class);
+        setOnClickListener(PREF_UPLOAD_JOURNAL, PBJournalActivity.class);
     }
 
 
@@ -151,16 +154,14 @@ public class PBPreferenceFragment extends PreferenceFragment
             isBoundToService = true;
         }
 
-        updateUploadJournalPreference();
+        updatePreferences();
     }
 
 
     @Override
     public void onPause() {
         super.onPause();
-        if (preferences != null) {
-            preferences.unregisterOnSharedPreferenceChangeListener(this);
-        }
+        preferences.unregisterOnSharedPreferenceChangeListener(this);
         if (isPhotoBackupServiceRunning() && isBoundToService) {
             getActivity().unbindService(serviceConnection);
             isBoundToService = false;
@@ -181,6 +182,9 @@ public class PBPreferenceFragment extends PreferenceFragment
         } else if (key.equals(PREF_RECENT_UPLOAD_ONLY)) {
             setSummaries();
 
+        } else if (key.equals(PREF_PICTURE_FOLDER_LIST)) {
+            Log.w(LOG_TAG, "PREF_PICTURE_FOLDER_LIST");
+            setSummaries();
         } else if (sharedPreferences == null) {
             Log.e(LOG_TAG, "Error: preferences == null");
         }
@@ -199,7 +203,8 @@ public class PBPreferenceFragment extends PreferenceFragment
                 Log.i(LOG_TAG, "Migrating PREF_WIFI_ONLY for v0.7.0");
                 Boolean bool = preferences.getBoolean(PREF_WIFI_ONLY, false);
                 String wifiOnlyString = bool ? getString(R.string.only_wifi) : getString(R.string.not_only_wifi);
-                preferencesEditor.putString(PREF_WIFI_ONLY, wifiOnlyString).apply();
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putString(PREF_WIFI_ONLY, wifiOnlyString).apply();
                 Log.i(LOG_TAG, "Migration done!");
             }
         }
@@ -209,7 +214,6 @@ public class PBPreferenceFragment extends PreferenceFragment
 
     private void initPreferences() {
         // init
-        uploadJournalPref = findPreference("uploadJournalPref");
         ((PBActivity)getActivity()).setActionBar();
 
         // switch on if service is running
@@ -254,6 +258,22 @@ public class PBPreferenceFragment extends PreferenceFragment
                 }
             }
         }
+
+        String bucketSummary = "";
+        final Set<String> selectedBuckets = preferences.getStringSet(PREF_PICTURE_FOLDER_LIST, null);
+        if (selectedBuckets != null && bucketNames != null) {
+            ArrayList<String> selectedBucketNames = new ArrayList<>();
+            for(String entry: selectedBuckets) {
+                String oneName = bucketNames.get(entry);
+                if (oneName != null) {
+                    oneName = oneName.substring(0, oneName.lastIndexOf('(') - 1);
+                    selectedBucketNames.add(oneName);
+                }
+            }
+            bucketSummary = TextUtils.join(", ", selectedBucketNames);
+        }
+        final MultiSelectListPreference bucketListPreference = (MultiSelectListPreference)findPreference(PREF_PICTURE_FOLDER_LIST);
+        bucketListPreference.setSummary(bucketSummary);
     }
 
 
@@ -275,7 +295,7 @@ public class PBPreferenceFragment extends PreferenceFragment
             isBoundToService = false;
             currentService.stopSelf();
             currentService = null;
-            updateUploadJournalPreference();
+            updatePreferences();
         }
     }
 
@@ -296,6 +316,7 @@ public class PBPreferenceFragment extends PreferenceFragment
             testMediaSender();
         }
     }
+
 
     private boolean validatePreferences() {
         String serverUrl = preferences.getString(PBServerPreferenceFragment.PREF_SERVER_URL, "");
@@ -334,15 +355,24 @@ public class PBPreferenceFragment extends PreferenceFragment
     }
 
 
-    private void updateUploadJournalPreference() {
+    private void updatePreferences() {
         try {
+            final Preference uploadJournalPref = findPreference(PREF_UPLOAD_JOURNAL);
+            final MultiSelectListPreference bucketListPreference = (MultiSelectListPreference)findPreference(PREF_PICTURE_FOLDER_LIST);
+            // service is running
             if (isPhotoBackupServiceRunning() && currentService != null) {
                 uploadJournalPref.setTitle(this.getResources().getString(R.string.journal_title) +
                         " (" + currentService.getMediaSize() + ")");
                 uploadJournalPref.setEnabled(currentService.getMediaSize() > 0);
+
+                bucketListPreference.setTitle(getResources().getString(R.string.folders_to_backup_title));
+                bucketListPreference.setEnabled(true);
+            // service is not running
             } else {
-                uploadJournalPref.setTitle(this.getResources().getString(R.string.journal_noaccess));
+                uploadJournalPref.setTitle(getResources().getString(R.string.journal_noaccess));
                 uploadJournalPref.setEnabled(false);
+                bucketListPreference.setTitle(getResources().getString(R.string.folders_to_backup_noaccess));
+                bucketListPreference.setEnabled(false);
             }
         } catch (IllegalStateException e) {
             Log.w(LOG_TAG, e.toString());
@@ -350,11 +380,26 @@ public class PBPreferenceFragment extends PreferenceFragment
     }
 
 
+    private void fillBuckets() {
+        this.bucketNames = currentService.getMediaStore().getBucketData();
+
+        final CharSequence[] bucketIds = this.bucketNames.values().toArray(new CharSequence[this.bucketNames.size()]);
+        final CharSequence[] bucketNames = this.bucketNames.keySet().toArray(new CharSequence[this.bucketNames.size()]);
+
+        final MultiSelectListPreference bucketListPreference = (MultiSelectListPreference)findPreference("PREF_PICTURE_FOLDER_LIST");
+        bucketListPreference.setEntries(bucketIds);
+        bucketListPreference.setEnabled(true);
+        bucketListPreference.setEntryValues(bucketNames);
+
+        setSummaries();
+    }
+
+
     ////////////////////
     // public methods //
     ////////////////////
     public void testMediaSender() {
-        PBMediaSender mediaSender = new PBMediaSender(getActivity());
+        PBMediaSender mediaSender = new PBMediaSender();
         mediaSender.addInterface(this);
         mediaSender.test();
     }
@@ -364,13 +409,23 @@ public class PBPreferenceFragment extends PreferenceFragment
     // PBMediaStoreListener callbacks //
     ////////////////////////////////////
     public void onSyncMediaStoreTaskPostExecute() {
-        updateUploadJournalPreference();
+        updatePreferences();
     }
 
 
     ///////////////////////////////////
     // PBMediaSenderEvents callbacks //
     ///////////////////////////////////
+    public void onMessage(final String message) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(PBApplication.getApp(), message, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
     public void onTestSuccess() {
         final Intent serviceIntent = new Intent(getActivity(), PBService.class);
         getActivity().startService(serviceIntent);
