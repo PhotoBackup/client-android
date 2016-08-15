@@ -63,7 +63,7 @@ public class PBMediaSender {
     private final static String UPFILE_PARAM = "upfile";
     private final static String FILESIZE_PARAM = "filesize";
     private final static String TEST_PATH = "/test";
-    private final String serverUrl;
+    private String serverUrl;
     private final SharedPreferences preferences;
     private final NotificationManager notificationManager;
     private String credentials;
@@ -165,6 +165,9 @@ public class PBMediaSender {
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
                     testDidSucceed();
+                } else if (response.isRedirect()) {
+                    prepareRedirectFollowing(response);
+                    test(); // rerun
                 } else {
                     testDidFail(response.message());
                 }
@@ -193,6 +196,16 @@ public class PBMediaSender {
             requestBuilder.header("Authorization", credentials);
         }
         return requestBuilder.build();
+    }
+
+
+    private void prepareRedirectFollowing(final Response response) {
+        final String redirection = response.header("Location");
+        Log.d(LOG_TAG, "Redirected to " + redirection);
+        String newUrl = removeFinalSlashes(redirection).substring(0, redirection.length() - TEST_PATH.length());
+        Log.d(LOG_TAG, "Update server url to " + newUrl);
+        this.serverUrl = newUrl;
+        preferences.edit().putString(PBServerPreferenceFragment.PREF_SERVER_URL, newUrl).apply();
     }
 
 
@@ -293,6 +306,8 @@ public class PBMediaSender {
     private OkHttpClient getOkClient() {
         if (okClient == null) {
             okClient = new OkHttpClient.Builder()
+//                    .followRedirects(true)
+//                    .followSslRedirects(true)
                     .readTimeout(timeoutInSeconds, TimeUnit.SECONDS)
                     .connectTimeout(timeoutInSeconds, TimeUnit.SECONDS)
                     .writeTimeout(timeoutInSeconds, TimeUnit.SECONDS)
