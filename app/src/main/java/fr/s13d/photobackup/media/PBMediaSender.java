@@ -182,6 +182,9 @@ public class PBMediaSender {
     }
 
 
+    /////////////////////
+    // Private methods //
+    /////////////////////
     private Request makePostRequest(RequestBody requestBody) {
         return makePostRequest(requestBody, "");
     }
@@ -209,9 +212,6 @@ public class PBMediaSender {
     }
 
 
-    /////////////////////
-    // Private methods //
-    /////////////////////
     private void createAuthCredentials() {
         // add HTTP Basic Auth to the client
         final String login = preferences.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_LOGIN, "");
@@ -306,8 +306,6 @@ public class PBMediaSender {
     private OkHttpClient getOkClient() {
         if (okClient == null) {
             okClient = new OkHttpClient.Builder()
-//                    .followRedirects(true)
-//                    .followSslRedirects(true)
                     .readTimeout(timeoutInSeconds, TimeUnit.SECONDS)
                     .connectTimeout(timeoutInSeconds, TimeUnit.SECONDS)
                     .writeTimeout(timeoutInSeconds, TimeUnit.SECONDS)
