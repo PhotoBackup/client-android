@@ -82,7 +82,6 @@ public class PBPreferenceFragment extends PreferenceFragment
             currentService = b.getService();
             updatePreferences(); // update journal serverKeys number
             Log.i(LOG_TAG, "Connected to service");
-            fillBuckets();
         }
 
         public void onServiceDisconnected(ComponentName className) {
@@ -147,6 +146,7 @@ public class PBPreferenceFragment extends PreferenceFragment
         }
 
         updatePreferences();
+        fillBuckets();
     }
 
 
@@ -352,21 +352,15 @@ public class PBPreferenceFragment extends PreferenceFragment
     private void updatePreferences() {
         try {
             final Preference uploadJournalPref = findPreference(PREF_UPLOAD_JOURNAL);
-            final MultiSelectListPreference bucketListPreference = (MultiSelectListPreference)findPreference(PREF_PICTURE_FOLDER_LIST);
             // service is running
             if (isPhotoBackupServiceRunning() && currentService != null) {
                 uploadJournalPref.setTitle(this.getResources().getString(R.string.journal_title) +
                         " (" + currentService.getMediaSize() + ")");
                 uploadJournalPref.setEnabled(currentService.getMediaSize() > 0);
-
-                bucketListPreference.setTitle(getResources().getString(R.string.folders_to_backup_title));
-                bucketListPreference.setEnabled(true);
             // service is not running
             } else {
                 uploadJournalPref.setTitle(getResources().getString(R.string.journal_noaccess));
                 uploadJournalPref.setEnabled(false);
-                bucketListPreference.setTitle(getResources().getString(R.string.folders_to_backup_noaccess));
-                bucketListPreference.setEnabled(false);
             }
         } catch (IllegalStateException e) {
             Log.w(LOG_TAG, e.toString());
