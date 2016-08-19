@@ -68,7 +68,7 @@ public class PBPreferenceFragment extends PreferenceFragment
 
     private static final String LOG_TAG = "PBPreferenceFragment";
     private PBService currentService;
-    private final SharedPreferences preferences;
+    private final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(PBApplication.getApp());
     private ArrayMap<String, String> bucketNames;
     public static final int PERMISSION_READ_EXTERNAL_STORAGE = 0;
 
@@ -80,7 +80,6 @@ public class PBPreferenceFragment extends PreferenceFragment
         public void onServiceConnected(ComponentName className, IBinder binder) {
             PBService.Binder b = (PBService.Binder) binder;
             currentService = b.getService();
-            currentService.getMediaStore().addInterface(PBPreferenceFragment.this);
             updatePreferences(); // update journal serverKeys number
             Log.i(LOG_TAG, "Connected to service");
             fillBuckets();
@@ -100,14 +99,6 @@ public class PBPreferenceFragment extends PreferenceFragment
     public static final String PREF_PICTURE_FOLDER_LIST = "PREF_PICTURE_FOLDER_LIST";
     private static final String PREF_UPLOAD_JOURNAL = "PREF_UPLOAD_JOURNAL";
     private static final String PREF_ABOUT = "PREF_ABOUT";
-
-
-    //////////////////
-    // Constructors //
-    //////////////////
-    public PBPreferenceFragment() {
-        this.preferences = PreferenceManager.getDefaultSharedPreferences(PBApplication.getApp());
-    }
 
 
     //////////////
@@ -147,6 +138,7 @@ public class PBPreferenceFragment extends PreferenceFragment
 
         initPreferences();
         preferences.registerOnSharedPreferenceChangeListener(this);
+        PBApplication.getMediaStore().addInterface(this);
 
         if (isPhotoBackupServiceRunning()) {
             Intent intent = new Intent(this.getActivity(), PBService.class);
@@ -162,6 +154,8 @@ public class PBPreferenceFragment extends PreferenceFragment
     public void onPause() {
         super.onPause();
         preferences.unregisterOnSharedPreferenceChangeListener(this);
+        PBApplication.getMediaStore().removeInterface(this);
+
         if (isPhotoBackupServiceRunning() && isBoundToService) {
             getActivity().unbindService(serviceConnection);
             isBoundToService = false;
@@ -381,7 +375,7 @@ public class PBPreferenceFragment extends PreferenceFragment
 
 
     private void fillBuckets() {
-        this.bucketNames = currentService.getMediaStore().getBucketData();
+        this.bucketNames = PBApplication.getMediaStore().getBucketData();
 
         final CharSequence[] bucketIds = this.bucketNames.values().toArray(new CharSequence[this.bucketNames.size()]);
         final CharSequence[] bucketNames = this.bucketNames.keySet().toArray(new CharSequence[this.bucketNames.size()]);
@@ -447,12 +441,4 @@ public class PBPreferenceFragment extends PreferenceFragment
 
     public void onSendSuccess() {}
     public void onSendFailure()  {}
-
-
-    /////////////
-    // getters //
-    /////////////
-    public PBService getService() {
-        return currentService;
-    }
 }

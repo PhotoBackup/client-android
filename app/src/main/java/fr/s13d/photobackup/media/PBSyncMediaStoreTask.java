@@ -35,15 +35,13 @@ public class PBSyncMediaStoreTask extends AsyncTask<Void, Void, Void> {
 
     private static final String LOG_TAG = "PBSyncMediaStoreTask";
     private final SharedPreferences picturesPreferences;
-    private final PBMediaStore mediaStore;
 
 
     /////////////////
     // Constructor //
     /////////////////
-    public PBSyncMediaStoreTask(PBMediaStore mediaStore) {
+    public PBSyncMediaStoreTask() {
         this.picturesPreferences = PBApplication.getApp().getSharedPreferences(PBApplication.PB_PICTURES_SHARED_PREFS, Context.MODE_PRIVATE);
-        this.mediaStore = mediaStore;
     }
 
 
@@ -57,13 +55,13 @@ public class PBSyncMediaStoreTask extends AsyncTask<Void, Void, Void> {
         final Set<String> inCursor = new HashSet<>();
 
         // Get all pictures on device
-        final Cursor cursor = mediaStore.getAllMediasCursor();
+        final Cursor cursor = PBApplication.getMediaStore().getAllMediasCursor();
 
         // loop through them to sync
         PBMedia media;
         String stateString;
         PBMedia.PBMediaState state;
-        mediaStore.getMediaList().clear();
+        PBApplication.getMediaStore().getMediaList().clear();
         while (cursor != null && cursor.moveToNext()) {
             if(isCancelled()) {
                 Log.i(LOG_TAG, "PBSyncMediaStoreTask cancelled");
@@ -75,7 +73,7 @@ public class PBSyncMediaStoreTask extends AsyncTask<Void, Void, Void> {
             state = (stateString != null) ?
                     PBMedia.PBMediaState.valueOf(stateString) : PBMedia.PBMediaState.WAITING;
             media.setState(state);
-            mediaStore.getMediaList().add(media); // populate list
+            PBApplication.getMediaStore().getMediaList().add(media); // populate list
             inCursor.add(Integer.toString(media.getId()));
         }
         if (cursor != null && !cursor.isClosed()) {
@@ -98,6 +96,6 @@ public class PBSyncMediaStoreTask extends AsyncTask<Void, Void, Void> {
     }
 
     protected void onPostExecute(Void result) {
-        mediaStore.onPostSync();
+        PBApplication.getMediaStore().onPostSync();
     }
 }

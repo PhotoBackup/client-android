@@ -33,7 +33,6 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import fr.s13d.photobackup.Log;
-import fr.s13d.photobackup.PBActivity;
 import fr.s13d.photobackup.PBApplication;
 import fr.s13d.photobackup.media.PBMedia;
 import fr.s13d.photobackup.media.PBMediaSender;
@@ -74,7 +73,7 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
         });
 
         // adapter
-        adapter = new PBJournalAdapter(this, 0, PBActivity.getMediaStore().getMediaList());
+        adapter = new PBJournalAdapter(this, 0, PBApplication.getMediaStore().getMediaList());
         setListAdapter(adapter);
         adapter.getFilter().filter(null); // to init the view
     }
@@ -86,6 +85,13 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
         adapter.close();
     }
 
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        adapter.notifyDataSetChanged();
+    }
 
     /////////////////////
     // private methods //
