@@ -71,8 +71,10 @@ public class PBApplication extends Application {
 
     private void trimMemory() {
         Log.d(LOG_TAG, "trimMemory");
-        mediaStore.close();
-        mediaStore = null;
+        if (mediaStore != null) {
+            mediaStore.close();
+            mediaStore = null;
+        }
     }
 
 
