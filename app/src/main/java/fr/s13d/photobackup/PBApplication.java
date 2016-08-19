@@ -24,13 +24,19 @@ import android.preference.PreferenceManager;
 import java.util.Map;
 import java.util.Set;
 
+import fr.s13d.photobackup.media.PBMediaStore;
+
 
 public class PBApplication extends Application {
 
     private final static String LOG_TAG = "PBApplication";
     private static PBApplication app;
+    private static PBMediaStore mediaStore;
 
 
+    ////////////////
+    // Life-cycle //
+    ////////////////
     @Override
     public void onCreate() {
         super.onCreate();
@@ -49,6 +55,27 @@ public class PBApplication extends Application {
     }
 
 
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        trimMemory();
+    }
+
+
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        trimMemory();
+    }
+
+
+    private void trimMemory() {
+        Log.d(LOG_TAG, "trimMemory");
+        mediaStore.close();
+        mediaStore = null;
+    }
+
+
     ///////////////
     // Constants //
     ///////////////
@@ -59,7 +86,14 @@ public class PBApplication extends Application {
     /////////////
     // Getters //
     /////////////
-    public static PBApplication getApp() {
-        return app;
+    public static PBApplication getApp() { return app; }
+
+
+    public static PBMediaStore getMediaStore() {
+        if (mediaStore == null) {
+            mediaStore = new PBMediaStore();
+            mediaStore.sync();
+        }
+        return mediaStore;
     }
 }

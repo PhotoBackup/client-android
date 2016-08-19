@@ -25,7 +25,6 @@ import android.support.annotation.NonNull;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import fr.s13d.photobackup.media.PBMediaStore;
 import fr.s13d.photobackup.preferences.PBPreferenceFragment;
 
 public class PBActivity extends Activity {
@@ -80,19 +79,6 @@ public class PBActivity extends Activity {
         setTitle(R.string.app_name);
         if (getActionBar() != null) {
             getActionBar().setDisplayHomeAsUpEnabled(false);
-        }
-    }
-
-
-    /////////////
-    // getters //
-    /////////////
-    public static PBMediaStore getMediaStore() {
-        try {
-            return preferenceFragment.getService().getMediaStore();
-        }
-        catch (Exception e) {
-            return null;
         }
     }
 }

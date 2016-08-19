@@ -39,8 +39,7 @@
 
     <MultiSelectListPreference
         android:key="PREF_PICTURE_FOLDER_LIST"
-        android:title="@string/folders_to_backup_noaccess"
-        android:enabled="false"
+        android:title="@string/folders_to_backup_title"
         android:entries="@array/empty_array"
         android:defaultValue="@array/empty_array"
         android:entryValues="@array/empty_array" />

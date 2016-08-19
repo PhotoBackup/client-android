@@ -44,6 +44,5 @@ Um deinen eigenen Server zu installieren und konfigurieren, schaue bitte hier:</
     <string name="toast_urisyntaxexception">Die Serveradresse ist ungültig.</string>
 
     <string name="folders_to_backup_title">Ordner zur Sicherung auswählen</string>
-    <string name="folders_to_backup_noaccess">Starte erst den Dienst.</string>
 
 </resources>

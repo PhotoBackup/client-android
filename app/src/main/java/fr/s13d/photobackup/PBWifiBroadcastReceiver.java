@@ -27,12 +27,11 @@ import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 
-
 import java.util.List;
 
 import fr.s13d.photobackup.media.PBMedia;
-import fr.s13d.photobackup.media.PBMediaStore;
 import fr.s13d.photobackup.preferences.PBPreferenceFragment;
+
 
 public class PBWifiBroadcastReceiver extends BroadcastReceiver {
     private static final String LOG_TAG = "PBWifiBroadcastReceiver";
@@ -69,12 +68,7 @@ public class PBWifiBroadcastReceiver extends BroadcastReceiver {
             }
             lastFiredOn = now;
 
-            final PBMediaStore mediaStore = service.getMediaStore();
-            Log.i(LOG_TAG, "Media Store: " + mediaStore);
-            if (mediaStore == null) {
-                return;
-            }
-            List<PBMedia> medias = mediaStore.getMediaList();
+            List<PBMedia> medias = PBApplication.getMediaStore().getMediaList();
             Log.i(LOG_TAG, "media count = " + medias.size());
 
             for (PBMedia media : medias) {

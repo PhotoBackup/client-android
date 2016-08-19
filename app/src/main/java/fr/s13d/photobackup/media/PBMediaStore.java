@@ -43,7 +43,8 @@ public class PBMediaStore {
     private static final String LOG_TAG = "PBMediaStore";
     private static List<PBMedia> mediaList;
     private static PBSyncMediaStoreTask syncTask;
-    private final SharedPreferences picturesPreferences;
+    private static final SharedPreferences picturesPreferences = PBApplication.getApp()
+            .getSharedPreferences(PBApplication.PB_PICTURES_SHARED_PREFS, Context.MODE_PRIVATE);
     private final List<PBMediaStoreInterface> interfaces = new ArrayList<>();
     private static final Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 
@@ -51,13 +52,13 @@ public class PBMediaStore {
     ////////////////
     // Life-cycle //
     ////////////////
-    public PBMediaStore() {
-        picturesPreferences = PBApplication.getApp().getSharedPreferences(PBApplication.PB_PICTURES_SHARED_PREFS, Context.MODE_PRIVATE);
+    public void addInterface(PBMediaStoreInterface storeInterface) {
+        interfaces.add(storeInterface);
     }
 
 
-    public void addInterface(PBMediaStoreInterface storeInterface) {
-        interfaces.add(storeInterface);
+    public void removeInterface(PBMediaStoreInterface storeInterface) {
+        interfaces.remove(storeInterface);
     }
 
 
@@ -81,7 +82,7 @@ public class PBMediaStore {
         }
 
         final int bucketId = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID);
-        if (isBucketSelected(cursor.getString(bucketId))) {
+        if (!isBucketSelected(cursor.getString(bucketId))) {
             Log.d(LOG_TAG, "Media not in selected buckets.");
             return null;
         }
@@ -183,7 +184,7 @@ public class PBMediaStore {
             syncTask.cancel(true);
         }
 
-        syncTask = new PBSyncMediaStoreTask(this);
+        syncTask = new PBSyncMediaStoreTask();
         syncTask.execute();
         Log.i(LOG_TAG, "Start SyncMediaStoreTask");
     }
