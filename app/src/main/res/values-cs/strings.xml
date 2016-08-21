@@ -60,5 +60,7 @@
     <string name="thumbnail_description">Náhled fotografie</string>
     <string name="manual_backup_title">Manuální záloha</string>
     <string name="manual_backup_message">Ihned uložit fotografii!</string>
+    
+    <string name="folders_to_backup_title">Adresáře k zálohování</string>
 
 </resources>
