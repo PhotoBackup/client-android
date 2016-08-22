@@ -34,6 +34,7 @@ import android.provider.MediaStore;
 import fr.s13d.photobackup.Log;
 import fr.s13d.photobackup.PBActivity;
 import fr.s13d.photobackup.PBApplication;
+import fr.s13d.photobackup.PBConstants;
 import fr.s13d.photobackup.R;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -93,7 +94,7 @@ public class PBMediaSender {
     ////////////////
     public void send(final PBMedia media, boolean manual) {
         // network
-        String wifiOnlyString = preferences.getString(PBPreferenceFragment.PREF_WIFI_ONLY,
+        String wifiOnlyString = preferences.getString(PBConstants.PREF_WIFI_ONLY,
                 PBApplication.getApp().getResources().getString(R.string.only_wifi_default));
         Boolean wifiOnly = wifiOnlyString.equals(PBApplication.getApp().getResources().getString(R.string.only_wifi));
         ConnectivityManager cm = (ConnectivityManager) PBApplication.getApp().getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -101,7 +102,7 @@ public class PBMediaSender {
         Boolean onWifi = info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI;
 
         // recently taken picture
-        String uploadRecentOnlyString = preferences.getString(PBPreferenceFragment.PREF_RECENT_UPLOAD_ONLY,
+        String uploadRecentOnlyString = preferences.getString(PBConstants.PREF_RECENT_UPLOAD_ONLY,
                 PBApplication.getApp().getResources().getString(R.string.only_recent_upload_default));
         Boolean uploadRecentOnly = uploadRecentOnlyString.equals(PBApplication.getApp().getResources().getString(R.string.only_recent_upload));
         Boolean recentPicture = (System.currentTimeMillis() / 1000 - media.getDateAdded()) < 600;

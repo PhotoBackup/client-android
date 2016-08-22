@@ -55,7 +55,12 @@ public class PBSyncMediaStoreTask extends AsyncTask<Void, Void, Void> {
         final Set<String> inCursor = new HashSet<>();
 
         // Get all pictures on device
-        final Cursor cursor = PBApplication.getMediaStore().getAllMediasCursor();
+        Cursor cursor = null;
+        try {
+            cursor = PBApplication.getMediaStore().getAllMediasCursor();
+        } catch (SecurityException e) {
+            Log.d(LOG_TAG, "Permission denied...");
+        }
 
         // loop through them to sync
         PBMedia media;

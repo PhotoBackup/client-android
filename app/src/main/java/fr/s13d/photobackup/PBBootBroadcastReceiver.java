@@ -25,8 +25,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import fr.s13d.photobackup.preferences.PBPreferenceFragment;
-
 public class PBBootBroadcastReceiver extends BroadcastReceiver {
 
     @Override
@@ -34,7 +32,7 @@ public class PBBootBroadcastReceiver extends BroadcastReceiver {
 
         if (intent != null && intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
             final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-            final boolean running = preferences.getBoolean(PBPreferenceFragment.PREF_SERVICE_RUNNING, false);
+            final boolean running = preferences.getBoolean(PBConstants.PREF_SERVICE_RUNNING, false);
             if (running) {
                 final Intent startServiceIntent = new Intent(context, PBService.class);
                 context.startService(startServiceIntent);

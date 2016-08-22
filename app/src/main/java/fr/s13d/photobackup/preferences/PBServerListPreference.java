@@ -37,6 +37,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import fr.s13d.photobackup.Log;
+import fr.s13d.photobackup.PBApplication;
+import fr.s13d.photobackup.PBConstants;
 import fr.s13d.photobackup.R;
 
 public class PBServerListPreference extends ListPreference {
@@ -45,10 +47,7 @@ public class PBServerListPreference extends ListPreference {
 
     ListPreferenceAdapter listPreferenceAdapter = null;
     Context context;
-    private LayoutInflater inflater;
     CharSequence[] servers;
-    SharedPreferences prefs;
-    SharedPreferences.Editor editor;
 
 
     //////////////////
@@ -57,10 +56,6 @@ public class PBServerListPreference extends ListPreference {
     public PBServerListPreference(Context theContext, AttributeSet attrs) {
         super(theContext, attrs);
         context = theContext;
-        inflater = LayoutInflater.from(context);
-        prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        editor = prefs.edit();
-        editor.apply();
     }
 
 
@@ -105,7 +100,7 @@ public class PBServerListPreference extends ListPreference {
 
         public View getView(final int position, View row, ViewGroup parent) {
             if (row == null) {
-                row = inflater.inflate(R.layout.server_list_row, parent, false);
+                row = LayoutInflater.from(context).inflate(R.layout.server_list_row, parent, false);
                 RowHolder holder = new RowHolder(position, row);
 
                 row.setTag(holder);
@@ -126,7 +121,8 @@ public class PBServerListPreference extends ListPreference {
 
         private void clickedAtPosition(int position) {
             // store the preference as the position
-            editor.putString(PBPreferenceFragment.PREF_SERVER, servers[position].toString()).apply();
+            final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(PBApplication.getApp());
+            preferences.edit().putString(PBConstants.PREF_SERVER, servers[position].toString()).apply();
 
             // build new preference fragment from server position in list
             Bundle fragmentArguments = new Bundle(1);

@@ -53,6 +53,7 @@ import fr.s13d.photobackup.BuildConfig;
 import fr.s13d.photobackup.Log;
 import fr.s13d.photobackup.PBActivity;
 import fr.s13d.photobackup.PBApplication;
+import fr.s13d.photobackup.PBConstants;
 import fr.s13d.photobackup.media.PBMediaSender;
 import fr.s13d.photobackup.PBService;
 import fr.s13d.photobackup.R;
@@ -90,16 +91,6 @@ public class PBPreferenceFragment extends PreferenceFragment
     };
 
 
-    // should correspond to what is in preferences.xml
-    public static final String PREF_SERVICE_RUNNING = "PREF_SERVICE_RUNNING";
-    public static final String PREF_SERVER = "PREF_SERVER";
-    public static final String PREF_WIFI_ONLY = "PREF_WIFI_ONLY";
-    public static final String PREF_RECENT_UPLOAD_ONLY = "PREF_RECENT_UPLOAD_ONLY";
-    public static final String PREF_PICTURE_FOLDER_LIST = "PREF_PICTURE_FOLDER_LIST";
-    private static final String PREF_UPLOAD_JOURNAL = "PREF_UPLOAD_JOURNAL";
-    private static final String PREF_ABOUT = "PREF_ABOUT";
-
-
     //////////////
     // Override //
     //////////////
@@ -114,8 +105,8 @@ public class PBPreferenceFragment extends PreferenceFragment
         // add click listeners to launch activities on click
         // Intents were historically defined into preferences.xml but as build variants cannot
         // inject applicationId as intent packageName properly, it was done this way now...
-        setOnClickListener(PREF_ABOUT, PBAboutActivity.class);
-        setOnClickListener(PREF_UPLOAD_JOURNAL, PBJournalActivity.class);
+        setOnClickListener(PBConstants.PREF_ABOUT, PBAboutActivity.class);
+        setOnClickListener(PBConstants.PREF_UPLOAD_JOURNAL, PBJournalActivity.class);
     }
 
 
@@ -146,7 +137,12 @@ public class PBPreferenceFragment extends PreferenceFragment
         }
 
         updatePreferences();
-        fillBuckets();
+        try {
+            fillBuckets();
+        } catch (SecurityException e) {
+            Log.d(LOG_TAG, "Permission denied...");
+        }
+
     }
 
 
@@ -167,16 +163,16 @@ public class PBPreferenceFragment extends PreferenceFragment
     public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
 
         Log.i(LOG_TAG, "onSharedPreferenceChanged: " + key);
-        if (key.equals(PREF_SERVICE_RUNNING)) {
+        if (key.equals(PBConstants.PREF_SERVICE_RUNNING)) {
             startOrStopService(sharedPreferences);
 
-        } else if (key.equals(PREF_WIFI_ONLY)) {
+        } else if (key.equals(PBConstants.PREF_WIFI_ONLY)) {
             setSummaries();
 
-        } else if (key.equals(PREF_RECENT_UPLOAD_ONLY)) {
+        } else if (key.equals(PBConstants.PREF_RECENT_UPLOAD_ONLY)) {
             setSummaries();
 
-        } else if (key.equals(PREF_PICTURE_FOLDER_LIST)) {
+        } else if (key.equals(PBConstants.PREF_PICTURE_FOLDER_LIST)) {
             Log.w(LOG_TAG, "PREF_PICTURE_FOLDER_LIST");
             setSummaries();
         } else if (sharedPreferences == null) {
@@ -191,14 +187,14 @@ public class PBPreferenceFragment extends PreferenceFragment
     /////////////////////
     private void migratePreferences() {
         Map<String, ?> allPrefs = preferences.getAll();
-        if (allPrefs.containsKey(PREF_WIFI_ONLY)) {
-            Object obj = allPrefs.get(PREF_WIFI_ONLY);
+        if (allPrefs.containsKey(PBConstants.PREF_WIFI_ONLY)) {
+            Object obj = allPrefs.get(PBConstants.PREF_WIFI_ONLY);
             if (obj instanceof Boolean) {
                 Log.i(LOG_TAG, "Migrating PREF_WIFI_ONLY for v0.7.0");
-                Boolean bool = preferences.getBoolean(PREF_WIFI_ONLY, false);
+                Boolean bool = preferences.getBoolean(PBConstants.PREF_WIFI_ONLY, false);
                 String wifiOnlyString = bool ? getString(R.string.only_wifi) : getString(R.string.not_only_wifi);
                 SharedPreferences.Editor editor = preferences.edit();
-                editor.putString(PREF_WIFI_ONLY, wifiOnlyString).apply();
+                editor.putString(PBConstants.PREF_WIFI_ONLY, wifiOnlyString).apply();
                 Log.i(LOG_TAG, "Migration done!");
             }
         }
@@ -211,7 +207,7 @@ public class PBPreferenceFragment extends PreferenceFragment
         ((PBActivity)getActivity()).setActionBar();
 
         // switch on if service is running
-        final SwitchPreference switchPreference = (SwitchPreference) findPreference(PREF_SERVICE_RUNNING);
+        final SwitchPreference switchPreference = (SwitchPreference) findPreference(PBConstants.PREF_SERVICE_RUNNING);
         switchPreference.setChecked(isPhotoBackupServiceRunning());
 
         // initiate preferences summaries
@@ -220,21 +216,21 @@ public class PBPreferenceFragment extends PreferenceFragment
 
 
     private void setSummaries() {
-        final String wifiOnly = preferences.getString(PREF_WIFI_ONLY,
+        final String wifiOnly = preferences.getString(PBConstants.PREF_WIFI_ONLY,
                 getResources().getString(R.string.only_wifi_default)); // default
-        final ListPreference wifiPreference = (ListPreference) findPreference(PREF_WIFI_ONLY);
+        final ListPreference wifiPreference = (ListPreference) findPreference(PBConstants.PREF_WIFI_ONLY);
         wifiPreference.setSummary(wifiOnly);
 
-        final String recentUploadOnly = preferences.getString(PREF_RECENT_UPLOAD_ONLY,
+        final String recentUploadOnly = preferences.getString(PBConstants.PREF_RECENT_UPLOAD_ONLY,
                 getResources().getString(R.string.only_recent_upload_default)); // default
-        final ListPreference recentUploadPreference = (ListPreference) findPreference(PREF_RECENT_UPLOAD_ONLY);
+        final ListPreference recentUploadPreference = (ListPreference) findPreference(PBConstants.PREF_RECENT_UPLOAD_ONLY);
         recentUploadPreference.setSummary(recentUploadOnly);
 
         final String serverUrl = preferences.getString(PBServerPreferenceFragment.PREF_SERVER_URL, null);
         if (serverUrl != null) {
-            final String serverName = preferences.getString(PREF_SERVER, null);
+            final String serverName = preferences.getString(PBConstants.PREF_SERVER, null);
             if (serverName != null) {
-                final PBServerListPreference serverPreference = (PBServerListPreference) findPreference(PREF_SERVER);
+                final PBServerListPreference serverPreference = (PBServerListPreference) findPreference(PBConstants.PREF_SERVER);
                 serverPreference.setSummary(serverName + " @ " + serverUrl);
 
                 // bonus: left icon of the server
@@ -254,7 +250,7 @@ public class PBPreferenceFragment extends PreferenceFragment
         }
 
         String bucketSummary = "";
-        final Set<String> selectedBuckets = preferences.getStringSet(PREF_PICTURE_FOLDER_LIST, null);
+        final Set<String> selectedBuckets = preferences.getStringSet(PBConstants.PREF_PICTURE_FOLDER_LIST, null);
         if (selectedBuckets != null && bucketNames != null) {
             ArrayList<String> selectedBucketNames = new ArrayList<>();
             for(String entry: selectedBuckets) {
@@ -266,13 +262,13 @@ public class PBPreferenceFragment extends PreferenceFragment
             }
             bucketSummary = TextUtils.join(", ", selectedBucketNames);
         }
-        final MultiSelectListPreference bucketListPreference = (MultiSelectListPreference)findPreference(PREF_PICTURE_FOLDER_LIST);
+        final MultiSelectListPreference bucketListPreference = (MultiSelectListPreference)findPreference(PBConstants.PREF_PICTURE_FOLDER_LIST);
         bucketListPreference.setSummary(bucketSummary);
     }
 
 
     private void startOrStopService(final SharedPreferences preferences) {
-        boolean userDidStart = preferences.getBoolean(PREF_SERVICE_RUNNING, false);
+        boolean userDidStart = preferences.getBoolean(PBConstants.PREF_SERVICE_RUNNING, false);
         Log.i(LOG_TAG, "PREF_SERVICE_RUNNING = " + userDidStart);
 
         if (userDidStart) {
@@ -280,7 +276,7 @@ public class PBPreferenceFragment extends PreferenceFragment
                 Log.i(LOG_TAG, "start PhotoBackup service");
                 checkPermissions();
             } else {
-                final SwitchPreference switchPreference = (SwitchPreference) findPreference(PREF_SERVICE_RUNNING);
+                final SwitchPreference switchPreference = (SwitchPreference) findPreference(PBConstants.PREF_SERVICE_RUNNING);
                 switchPreference.setChecked(false);
             }
         } else if (isPhotoBackupServiceRunning() && currentService != null) {
@@ -351,7 +347,7 @@ public class PBPreferenceFragment extends PreferenceFragment
 
     private void updatePreferences() {
         try {
-            final Preference uploadJournalPref = findPreference(PREF_UPLOAD_JOURNAL);
+            final Preference uploadJournalPref = findPreference(PBConstants.PREF_UPLOAD_JOURNAL);
             // service is running
             if (isPhotoBackupServiceRunning() && currentService != null) {
                 uploadJournalPref.setTitle(this.getResources().getString(R.string.journal_title) +
@@ -426,7 +422,7 @@ public class PBPreferenceFragment extends PreferenceFragment
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                final SwitchPreference switchPreference = (SwitchPreference) findPreference(PREF_SERVICE_RUNNING);
+                final SwitchPreference switchPreference = (SwitchPreference) findPreference(PBConstants.PREF_SERVICE_RUNNING);
                 switchPreference.setChecked(false);
             }
         });

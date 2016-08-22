@@ -30,7 +30,6 @@ import android.preference.PreferenceManager;
 import java.util.List;
 
 import fr.s13d.photobackup.media.PBMedia;
-import fr.s13d.photobackup.preferences.PBPreferenceFragment;
 
 
 public class PBWifiBroadcastReceiver extends BroadcastReceiver {
@@ -50,7 +49,7 @@ public class PBWifiBroadcastReceiver extends BroadcastReceiver {
 
         final WifiManager wifiManager = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        final String wifiOnlyString = preferences.getString(PBPreferenceFragment.PREF_WIFI_ONLY,
+        final String wifiOnlyString = preferences.getString(PBConstants.PREF_WIFI_ONLY,
                 context.getResources().getString(R.string.only_wifi_default));
         Boolean wifiOnly = wifiOnlyString.equals(context.getResources().getString(R.string.only_wifi));
 

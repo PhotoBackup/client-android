@@ -34,6 +34,7 @@ import java.util.Set;
 
 import fr.s13d.photobackup.Log;
 import fr.s13d.photobackup.PBApplication;
+import fr.s13d.photobackup.PBConstants;
 import fr.s13d.photobackup.interfaces.PBMediaStoreInterface;
 import fr.s13d.photobackup.preferences.PBPreferenceFragment;
 
@@ -102,7 +103,7 @@ public class PBMediaStore {
 
     public Cursor getAllMediasCursor() {
         String WHERE = null;
-        final Set<String> bucketIds = picturesPreferences.getStringSet(PBPreferenceFragment.PREF_PICTURE_FOLDER_LIST, null);
+        final Set<String> bucketIds = picturesPreferences.getStringSet(PBConstants.PREF_PICTURE_FOLDER_LIST, null);
         if (bucketIds != null && bucketIds.size() > 0) {
             String bucket_ids = TextUtils.join(", ", bucketIds);
             WHERE = "bucket_id in (" + bucket_ids + ")";
@@ -123,7 +124,7 @@ public class PBMediaStore {
     public boolean isBucketSelected(final String requestedBucketId) {
         Log.d(LOG_TAG, "Checking if bucket " + requestedBucketId + " is selected by user.");
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(PBApplication.getApp());
-        final Set<String> bucketSet = preferences.getStringSet(PBPreferenceFragment.PREF_PICTURE_FOLDER_LIST, null);
+        final Set<String> bucketSet = preferences.getStringSet(PBConstants.PREF_PICTURE_FOLDER_LIST, null);
         return (bucketSet != null && bucketSet.contains(requestedBucketId));
     }
 
