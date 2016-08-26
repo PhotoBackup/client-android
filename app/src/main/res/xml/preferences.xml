@@ -1,57 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:key="PBPreferences"
     android:title="PhotoBackup Settings">
 
     <SwitchPreference
-        android:key="PREF_SERVICE_RUNNING"
-        android:title="@string/service_title"
-        android:summaryOn="@string/service_state_running"
-        android:summaryOff="@string/service_state_not_running"
         android:defaultValue="false"
-        android:disableDependentsState="true" />
+        android:disableDependentsState="true"
+        android:key="PREF_SERVICE_RUNNING"
+        android:summaryOff="@string/service_state_not_running"
+        android:summaryOn="@string/service_state_running"
+        android:title="@string/service_title" />
 
     <fr.s13d.photobackup.preferences.PBServerListPreference
-        android:key="PREF_SERVER"
-        android:title="@string/server_pref_title"
-        android:summary="@string/server_pref_summary"
         android:dependency="PREF_SERVICE_RUNNING"
         android:entries="@array/pref_server_names"
-        android:entryValues="@array/pref_server_names">
-    </fr.s13d.photobackup.preferences.PBServerListPreference>
+        android:entryValues="@array/pref_server_names"
+        android:key="PREF_SERVER"
+        android:summary="@string/server_pref_summary"
+        android:title="@string/server_pref_title" />
 
     <ListPreference
-        android:key="PREF_WIFI_ONLY"
-        android:title="@string/only_wifi_title"
+        android:defaultValue="@string/only_wifi"
         android:dialogTitle="@string/only_wifi_title"
         android:entries="@array/pref_wifi_entries"
         android:entryValues="@array/pref_wifi_values"
-        android:defaultValue="@string/only_wifi" />
+        android:key="PREF_WIFI_ONLY"
+        android:title="@string/only_wifi_title" />
 
-    <ListPreference
-        android:key="PREF_RECENT_UPLOAD_ONLY"
-        android:title="@string/only_recent_upload_title"
-        android:dialogTitle="@string/only_recent_upload_title"
-        android:entries="@array/pref_upload_entries"
-        android:entryValues="@array/pref_upload_values"
-        android:defaultValue="@string/only_recent_upload" />
+    <PreferenceScreen
+        android:key="button_voicemail_category_key"
+        android:title="Medias to backup">
 
-    <MultiSelectListPreference
-        android:key="PREF_PICTURE_FOLDER_LIST"
-        android:title="@string/folders_to_backup_title"
-        android:entries="@array/empty_array"
-        android:defaultValue="@array/empty_array"
-        android:entryValues="@array/empty_array" />
+        <ListPreference
+            android:defaultValue="@string/only_recent_upload"
+            android:dialogTitle="@string/only_recent_upload_title"
+            android:entries="@array/pref_upload_entries"
+            android:entryValues="@array/pref_upload_values"
+            android:key="PREF_RECENT_UPLOAD_ONLY"
+            android:title="@string/only_recent_upload_title" />
+
+        <MultiSelectListPreference
+            android:defaultValue="@array/empty_array"
+            android:entries="@array/empty_array"
+            android:entryValues="@array/empty_array"
+            android:key="PREF_PICTURE_FOLDER_LIST"
+            android:title="@string/folders_to_backup_title" />
+
+        <!--<CheckBoxPreference
+            android:defaultValue="false"
+            android:key="PREF_MEDIA_BACKUP_VIDEO"
+            android:summaryOff="Photos only"
+            android:summaryOn="Photos and videos"
+            android:title="Backup videos" />-->
+    </PreferenceScreen>
 
     <PreferenceCategory
-        android:title="@string/info_conf"
-        android:key="info_conf">
+        android:key="info_conf"
+        android:title="@string/info_conf">
 
         <Preference
+            android:enabled="false"
             android:key="PREF_UPLOAD_JOURNAL"
-            android:title="@string/journal_noaccess"
-            android:enabled="false" />
+            android:title="@string/journal_noaccess" />
 
         <Preference
             android:key="PREF_ABOUT"

@@ -16,7 +16,3 @@ as you don't know what they do with your photos. With PhotoBackup, only you shou
 Join our dedicated online chat at [![Gitter](https://badges.gitter.im/PhotoBackup/client-android.svg)](https://gitter.im/PhotoBackup/client-android).
 
 <img src="https://github.com/PhotoBackup/PhotoBackup.github.io/raw/master/img/android-screen1.png" alt="Screenshot" width="540px" />
-
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/PhotoBackup/client-android/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
