@@ -36,6 +36,7 @@ import android.preference.MultiSelectListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -72,6 +73,7 @@ public class PBPreferenceFragment extends PreferenceFragment
     private final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(PBApplication.getApp());
     private ArrayMap<String, String> bucketNames;
     public static final int PERMISSION_READ_EXTERNAL_STORAGE = 0;
+    private int permissionOrigin;
 
 
     // binding
@@ -107,6 +109,15 @@ public class PBPreferenceFragment extends PreferenceFragment
         // inject applicationId as intent packageName properly, it was done this way now...
         setOnClickListener(PBConstants.PREF_ABOUT, PBAboutActivity.class);
         setOnClickListener(PBConstants.PREF_UPLOAD_JOURNAL, PBJournalActivity.class);
+
+        final PreferenceScreen mediasPreferenceScreen = (PreferenceScreen)findPreference(PBConstants.PREF_MEDIAS_TO_BACKUP);
+        mediasPreferenceScreen.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                checkPermissions(PBConstants.PERM_ORIGIN_MEDIAS);
+                return true;
+            }
+        });
     }
 
 
@@ -175,6 +186,7 @@ public class PBPreferenceFragment extends PreferenceFragment
         } else if (key.equals(PBConstants.PREF_PICTURE_FOLDER_LIST)) {
             Log.w(LOG_TAG, "PREF_PICTURE_FOLDER_LIST");
             setSummaries();
+            PBApplication.getMediaStore().sync();
         } else if (sharedPreferences == null) {
             Log.e(LOG_TAG, "Error: preferences == null");
         }
@@ -273,8 +285,7 @@ public class PBPreferenceFragment extends PreferenceFragment
 
         if (userDidStart) {
             if (validatePreferences()) {
-                Log.i(LOG_TAG, "start PhotoBackup service");
-                checkPermissions();
+                checkPermissions(PBConstants.PERM_ORIGIN_SERVICE);
             } else {
                 final SwitchPreference switchPreference = (SwitchPreference) findPreference(PBConstants.PREF_SERVICE_RUNNING);
                 switchPreference.setChecked(false);
@@ -290,7 +301,8 @@ public class PBPreferenceFragment extends PreferenceFragment
     }
 
 
-    private void checkPermissions() {
+    private void checkPermissions(final int permOrigin) {
+        permissionOrigin = permOrigin;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             int permissionCheck = ContextCompat.checkSelfPermission(getContext(),
                     Manifest.permission.READ_EXTERNAL_STORAGE);
@@ -300,10 +312,19 @@ public class PBPreferenceFragment extends PreferenceFragment
                         PERMISSION_READ_EXTERNAL_STORAGE);
             } else {
                 Log.i(LOG_TAG, "Permission READ_EXTERNAL_STORAGE already given, cool!");
-                testMediaSender(); // next step
+                didGrantPermission(); // next step
             }
         } else { // for older Android versions, continue without asking permission
+            didGrantPermission();
+        }
+    }
+
+
+    public void didGrantPermission() {
+        if (permissionOrigin == PBConstants.PERM_ORIGIN_SERVICE) {
             testMediaSender();
+        } else if (permissionOrigin == PBConstants.PERM_ORIGIN_MEDIAS) {
+            fillBuckets();
         }
     }
 
@@ -350,9 +371,9 @@ public class PBPreferenceFragment extends PreferenceFragment
             final Preference uploadJournalPref = findPreference(PBConstants.PREF_UPLOAD_JOURNAL);
             // service is running
             if (isPhotoBackupServiceRunning() && currentService != null) {
-                uploadJournalPref.setTitle(this.getResources().getString(R.string.journal_title) +
-                        " (" + currentService.getMediaSize() + ")");
-                uploadJournalPref.setEnabled(currentService.getMediaSize() > 0);
+                int nbMedia = PBApplication.getMediaStore().getMediaList().size();
+                uploadJournalPref.setTitle(this.getResources().getString(R.string.journal_title) + " (" + nbMedia + ")");
+                uploadJournalPref.setEnabled(nbMedia > 0);
             // service is not running
             } else {
                 uploadJournalPref.setTitle(getResources().getString(R.string.journal_noaccess));
@@ -383,6 +404,7 @@ public class PBPreferenceFragment extends PreferenceFragment
     // public methods //
     ////////////////////
     public void testMediaSender() {
+        Log.i(LOG_TAG, "start PhotoBackup service");
         PBMediaSender mediaSender = new PBMediaSender();
         mediaSender.addInterface(this);
         mediaSender.test();

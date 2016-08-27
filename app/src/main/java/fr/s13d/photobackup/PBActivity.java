@@ -52,7 +52,7 @@ public class PBActivity extends Activity {
         if (requestCode == PBPreferenceFragment.PERMISSION_READ_EXTERNAL_STORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.i("PBPreferenceFragment", "READ_EXTERNAL_STORAGE permission granted.");
-                preferenceFragment.testMediaSender(); // continue to next step
+                preferenceFragment.didGrantPermission(); // continue to next step
             } else {
                 Log.i("PBPreferenceFragment", "READ_EXTERNAL_STORAGE was NOT granted.");
                 Toast.makeText(this, R.string.toast_permission_not_granted, Toast.LENGTH_LONG).show();

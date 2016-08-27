@@ -171,11 +171,6 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
     }
 
 
-    public int getMediaSize() {
-        return PBApplication.getMediaStore().getMediaList().size();
-    }
-
-
     private static void setNewMediaContentObserverToNull(){
         newMediaContentObserver = null;
     }

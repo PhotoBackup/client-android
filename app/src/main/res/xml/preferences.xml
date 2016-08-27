@@ -28,7 +28,7 @@
         android:title="@string/only_wifi_title" />
 
     <PreferenceScreen
-        android:key="button_voicemail_category_key"
+        android:key="PREF_MEDIAS_TO_BACKUP"
         android:title="Medias to backup">
 
         <ListPreference
