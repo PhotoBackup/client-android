@@ -31,7 +31,7 @@ import fr.s13d.photobackup.Log;
 import fr.s13d.photobackup.PBApplication;
 
 
-public class PBSyncMediaStoreTask extends AsyncTask<Void, Void, Void> {
+class PBSyncMediaStoreTask extends AsyncTask<Void, Void, Void> {
 
     private static final String LOG_TAG = "PBSyncMediaStoreTask";
     private final SharedPreferences picturesPreferences;

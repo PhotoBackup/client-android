@@ -54,7 +54,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
-import fr.s13d.photobackup.preferences.PBPreferenceFragment;
 import fr.s13d.photobackup.preferences.PBServerPreferenceFragment;
 
 
@@ -70,7 +69,7 @@ public class PBMediaSender {
     private String credentials;
     private Notification.Builder builder;
     private OkHttpClient okClient;
-    private static List<PBMediaSenderInterface> interfaces = new ArrayList<>();
+    private static final List<PBMediaSenderInterface> interfaces = new ArrayList<>();
     private static int successCount = 0;
     private static int failureCount = 0;
     private final static int timeoutInSeconds = 60;
@@ -276,6 +275,7 @@ public class PBMediaSender {
 
     private void testDidFail(final String failMessage) {
         final String message = PBApplication.getApp().getResources().getString(R.string.toast_configuration_ko) + " - (" + failMessage + ")";
+        Log.d(LOG_TAG, message);
         for (PBMediaSenderInterface senderInterface : interfaces) {
             senderInterface.onMessage(message);
             senderInterface.onTestFailure();
@@ -321,7 +321,7 @@ public class PBMediaSender {
     ///////////
     // Utils //
     ///////////
-    static public String removeFinalSlashes(String s) {
+    private static String removeFinalSlashes(String s) {
         if (s == null || s.length() == 0) {
             return s;
         }

@@ -44,10 +44,8 @@ import fr.s13d.photobackup.R;
 public class PBServerListPreference extends ListPreference {
 
     private static final String LOG_TAG = "PBServerListPreference";
-
-    ListPreferenceAdapter listPreferenceAdapter = null;
-    Context context;
-    CharSequence[] servers;
+    private final Context context;
+    private CharSequence[] servers;
 
 
     //////////////////
@@ -70,7 +68,7 @@ public class PBServerListPreference extends ListPreference {
             throw new IllegalStateException("ListPreference requires an entryValues array!");
         }
 
-        listPreferenceAdapter = new ListPreferenceAdapter();
+        ListPreferenceAdapter listPreferenceAdapter = new ListPreferenceAdapter();
         builder.setPositiveButton(null, null);
         builder.setAdapter(listPreferenceAdapter, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {

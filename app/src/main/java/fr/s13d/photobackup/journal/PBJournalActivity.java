@@ -73,7 +73,7 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
         });
 
         // adapter
-        adapter = new PBJournalAdapter(this, 0, PBApplication.getMediaStore().getMediaList());
+        adapter = new PBJournalAdapter(this, PBApplication.getMediaStore().getMediaList());
         setListAdapter(adapter);
         adapter.getFilter().filter(null); // to init the view
     }

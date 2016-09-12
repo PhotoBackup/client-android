@@ -36,7 +36,6 @@ import fr.s13d.photobackup.Log;
 import fr.s13d.photobackup.PBApplication;
 import fr.s13d.photobackup.PBConstants;
 import fr.s13d.photobackup.interfaces.PBMediaStoreInterface;
-import fr.s13d.photobackup.preferences.PBPreferenceFragment;
 
 
 public class PBMediaStore {
@@ -121,7 +120,7 @@ public class PBMediaStore {
     }
 
 
-    public boolean isBucketSelected(final String requestedBucketId) {
+    private boolean isBucketSelected(final String requestedBucketId) {
         Log.d(LOG_TAG, "Checking if bucket " + requestedBucketId + " is selected by user.");
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(PBApplication.getApp());
         final Set<String> bucketSet = preferences.getStringSet(PBConstants.PREF_PICTURE_FOLDER_LIST, null);

@@ -46,19 +46,19 @@ import fr.s13d.photobackup.media.PBMedia;
 import fr.s13d.photobackup.R;
 
 
-public class PBJournalAdapter extends ArrayAdapter<PBMedia> implements Filterable, Handler.Callback {
+class PBJournalAdapter extends ArrayAdapter<PBMedia> implements Filterable, Handler.Callback {
     private static final String LOG_TAG = "PBJournalAdapter";
 	private static LayoutInflater inflater;
     private final Context context;
     private final SharedPreferences preferences;
-    private WeakReference<Handler> handlerWeakReference;
+    private final WeakReference<Handler> handlerWeakReference;
     private Filter filter;
-    private List<PBMedia> medias;
+    private final List<PBMedia> medias;
     private List<PBMedia> filteredMedias;
 
 
-	public PBJournalAdapter(final Activity activity, final int textViewResourceId, final List<PBMedia> medias) {
-        super(activity, textViewResourceId, medias);
+	public PBJournalAdapter(final Activity activity, final List<PBMedia> medias) {
+        super(activity, 0, medias);
 
         this.context = activity;
         this.preferences = PreferenceManager.getDefaultSharedPreferences(activity);
