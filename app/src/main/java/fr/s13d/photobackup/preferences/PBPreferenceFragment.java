@@ -42,6 +42,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.webkit.URLUtil;
 import android.widget.Toast;
 
@@ -97,8 +100,8 @@ public class PBPreferenceFragment extends PreferenceFragment
     // Override //
     //////////////
     @Override
-	public void onCreate(final Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    public void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         migratePreferences();
 
         // create preferences
@@ -110,7 +113,7 @@ public class PBPreferenceFragment extends PreferenceFragment
         setOnClickListener(PBConstants.PREF_ABOUT, PBAboutActivity.class);
         setOnClickListener(PBConstants.PREF_UPLOAD_JOURNAL, PBJournalActivity.class);
 
-        final PreferenceScreen mediasPreferenceScreen = (PreferenceScreen)findPreference(PBConstants.PREF_MEDIAS_TO_BACKUP);
+        final PreferenceScreen mediasPreferenceScreen = (PreferenceScreen) findPreference(PBConstants.PREF_MEDIAS_TO_BACKUP);
         mediasPreferenceScreen.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -118,6 +121,7 @@ public class PBPreferenceFragment extends PreferenceFragment
                 return true;
             }
         });
+        setHasOptionsMenu(true);
     }
 
 
@@ -194,6 +198,25 @@ public class PBPreferenceFragment extends PreferenceFragment
     }
 
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.main_menu, menu);
+        menu.findItem(R.id.menu_upload_all).setVisible(isPhotoBackupServiceRunning());
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_upload_all) {
+            currentService.sendNextMedia();
+            Toast.makeText(getActivity(), R.string.toast_upload_all, Toast.LENGTH_SHORT).show();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
     /////////////////////
     // private methods //
     /////////////////////
@@ -215,8 +238,7 @@ public class PBPreferenceFragment extends PreferenceFragment
 
 
     private void initPreferences() {
-        // init
-        ((PBActivity)getActivity()).setActionBar();
+        ((PBActivity) getActivity()).setActionBar();
 
         // switch on if service is running
         final SwitchPreference switchPreference = (SwitchPreference) findPreference(PBConstants.PREF_SERVICE_RUNNING);
@@ -265,7 +287,7 @@ public class PBPreferenceFragment extends PreferenceFragment
         final Set<String> selectedBuckets = preferences.getStringSet(PBConstants.PREF_PICTURE_FOLDER_LIST, null);
         if (selectedBuckets != null && bucketNames != null) {
             ArrayList<String> selectedBucketNames = new ArrayList<>();
-            for(String entry: selectedBuckets) {
+            for (String entry : selectedBuckets) {
                 String oneName = bucketNames.get(entry);
                 if (oneName != null) {
                     oneName = oneName.substring(0, oneName.lastIndexOf('(') - 1);
@@ -274,7 +296,7 @@ public class PBPreferenceFragment extends PreferenceFragment
             }
             bucketSummary = TextUtils.join(", ", selectedBucketNames);
         }
-        final MultiSelectListPreference bucketListPreference = (MultiSelectListPreference)findPreference(PBConstants.PREF_PICTURE_FOLDER_LIST);
+        final MultiSelectListPreference bucketListPreference = (MultiSelectListPreference) findPreference(PBConstants.PREF_PICTURE_FOLDER_LIST);
         bucketListPreference.setSummary(bucketSummary);
     }
 
@@ -293,6 +315,7 @@ public class PBPreferenceFragment extends PreferenceFragment
         } else if (isPhotoBackupServiceRunning() && currentService != null) {
             Log.i(LOG_TAG, "stop PhotoBackup service");
             getActivity().unbindService(serviceConnection);
+            getActivity().invalidateOptionsMenu();
             isBoundToService = false;
             currentService.stopSelf();
             currentService = null;
@@ -391,7 +414,7 @@ public class PBPreferenceFragment extends PreferenceFragment
         final CharSequence[] bucketIds = this.bucketNames.values().toArray(new CharSequence[this.bucketNames.size()]);
         final CharSequence[] bucketNames = this.bucketNames.keySet().toArray(new CharSequence[this.bucketNames.size()]);
 
-        final MultiSelectListPreference bucketListPreference = (MultiSelectListPreference)findPreference("PREF_PICTURE_FOLDER_LIST");
+        final MultiSelectListPreference bucketListPreference = (MultiSelectListPreference) findPreference("PREF_PICTURE_FOLDER_LIST");
         bucketListPreference.setEntries(bucketIds);
         bucketListPreference.setEnabled(true);
         bucketListPreference.setEntryValues(bucketNames);
@@ -403,7 +426,7 @@ public class PBPreferenceFragment extends PreferenceFragment
     ////////////////////
     // public methods //
     ////////////////////
-    public void testMediaSender() {
+    private void testMediaSender() {
         Log.i(LOG_TAG, "start PhotoBackup service");
         PBMediaSender mediaSender = new PBMediaSender();
         mediaSender.addInterface(this);
@@ -437,6 +460,7 @@ public class PBPreferenceFragment extends PreferenceFragment
         getActivity().startService(serviceIntent);
         getActivity().bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
         isBoundToService = true;
+        getActivity().invalidateOptionsMenu();
     }
 
 

@@ -39,6 +39,7 @@
     <string name="journal_backedup">Sauvegardé</string>
     <string name="journal_waiting">En attente</string>
     <string name="journal_error">Erreur</string>
+    <string name="upload_all">Tout sauvegarder</string>
 
     <string name="about_title">À propos</string>
     <string name="about_text">PhotoBackup pour Android sauvegarde les photos de cet appareil
@@ -62,5 +63,6 @@
     <string name="manual_backup_message">Sauvegarder cette photo maintenant !</string>
 
     <string name="folders_to_backup_title">Répertoires à sauvegarder</string>
+    <string name="toast_upload_all">Sauvegarde de toutes les photos démarrée.</string>
 
 </resources>

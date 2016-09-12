@@ -62,5 +62,7 @@
     <string name="manual_backup_message">Ihned uložit fotografii!</string>
     
     <string name="folders_to_backup_title">Adresáře k zálohování</string>
+    <string name="upload_all">Nahrát všechny</string>
+    <string name="toast_upload_all">Začal nahrát všechny obrázky.</string>
 
 </resources>
