@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
 
-ext.supportLibVersion = '24.2.0'
+ext.supportLibVersion = '24.2.1'
 
 
 android {
