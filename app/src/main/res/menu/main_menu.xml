@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_upload_all"
+        android:icon="@drawable/ic_file_upload_white_24dp"
+        android:showAsAction="always"
+        android:title="@string/upload_all" />
+</menu>
