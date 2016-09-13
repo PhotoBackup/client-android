@@ -28,7 +28,6 @@
 
     <string name="toast_urisyntaxexception">The server address is invalid!</string>
     <string name="toast_serverpassempty">The password cannot be empty!</string>
-    <string name="toast_test_configuration">Testing server</string>
     <string name="toast_configuration_ok">Server configuration is valid, great!</string>
     <string name="toast_configuration_ko">Server test failed, please verify your configuration.</string>
     <string name="toast_permission_not_granted">PhotoBackup cannot work properly without the permission to read your pictures.</string>

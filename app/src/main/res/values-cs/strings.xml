@@ -28,7 +28,6 @@
 
     <string name="toast_urisyntaxexception">Neplatná adresa serveru!</string>
     <string name="toast_serverpassempty">Heslo nesmí být prázdné!</string>
-    <string name="toast_test_configuration">Testování serveru</string>
     <string name="toast_configuration_ok">Výborně, nastavení serveru je funkční!</string>
     <string name="toast_configuration_ko">Test serveru selhal, ověřte prosím svou konfiguraci.</string>
     <string name="toast_permission_not_granted">Bez oprávnění číst obrázky nemůže PhotoBackup správně pracovat.</string>
