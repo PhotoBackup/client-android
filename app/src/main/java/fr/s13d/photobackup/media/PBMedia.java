@@ -31,7 +31,7 @@ public class PBMedia implements Serializable {
     private final int id;
     private final String path;
     private final long dateAdded;
-    private final SharedPreferences picturesPreferences;
+    private final SharedPreferences mediasPreferences;
     private String errorMessage;
     private PBMediaState state;
     public enum PBMediaState { WAITING, SYNCED, ERROR }
@@ -44,10 +44,10 @@ public class PBMedia implements Serializable {
         this.id = mediaCursor.getInt(mediaCursor.getColumnIndexOrThrow("_id"));
         this.path = mediaCursor.getString(mediaCursor.getColumnIndexOrThrow("_data"));
         this.dateAdded = mediaCursor.getLong(mediaCursor.getColumnIndexOrThrow("date_added"));
-        this.picturesPreferences = PBApplication.getApp().getSharedPreferences(PBApplication.PB_PICTURES_SHARED_PREFS, Context.MODE_PRIVATE);
+        this.mediasPreferences = PBApplication.getApp().getSharedPreferences(PBApplication.PB_MEDIAS_SHARED_PREFS, Context.MODE_PRIVATE);
 
         // Find state from the shared preferences
-        String stateString = picturesPreferences.getString(String.valueOf(this.id), PBMedia.PBMediaState.WAITING.name());
+        String stateString = mediasPreferences.getString(String.valueOf(this.id), PBMedia.PBMediaState.WAITING.name());
         this.state = PBMedia.PBMediaState.valueOf(stateString);
         this.errorMessage = "";
     }
@@ -94,7 +94,7 @@ public class PBMedia implements Serializable {
     public void setState(PBMediaState mediaState) {
         if (this.state != mediaState) {
             this.state = mediaState;
-            picturesPreferences.edit().putString(String.valueOf(this.getId()), mediaState.name()).apply();
+            mediasPreferences.edit().putString(String.valueOf(this.getId()), mediaState.name()).apply();
             Log.i("PBMedia", "Set state " + mediaState.toString() + " to " + this.getPath());
         }
     }

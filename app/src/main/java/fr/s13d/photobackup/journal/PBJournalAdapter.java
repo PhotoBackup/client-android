@@ -27,6 +27,7 @@ import android.os.HandlerThread;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore.Images.Thumbnails;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -110,8 +111,9 @@ class PBJournalAdapter extends ArrayAdapter<PBMedia> implements Filterable, Hand
     /////////////
     // Adapter //
     /////////////
+    @NonNull
     @Override
-	public View getView(int position, View view, ViewGroup parent) {
+	public View getView(int position, View view, @NonNull ViewGroup parent) {
         // create the view if not available
         view = (view == null) ? inflater.inflate(R.layout.list_row, parent, false) : view;
 
@@ -189,6 +191,7 @@ class PBJournalAdapter extends ArrayAdapter<PBMedia> implements Filterable, Hand
     ////////////////
     // Filterable //
     ////////////////
+    @NonNull
     @Override
     public Filter getFilter() {
         if (filter == null) {

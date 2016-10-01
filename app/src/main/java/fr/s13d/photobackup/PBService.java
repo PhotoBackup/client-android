@@ -20,9 +20,11 @@ package fr.s13d.photobackup;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 
 import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
@@ -34,7 +36,8 @@ import fr.s13d.photobackup.media.PBMediaSender;
 public class PBService extends Service implements PBMediaStoreInterface, PBMediaSenderInterface {
 
 	private static final String LOG_TAG = "PBService";
-    private static MediaContentObserver newMediaContentObserver;
+    private static MediaContentObserver imagesContentObserver;
+    private static MediaContentObserver videosContentObserver;
     private PBMediaSender mediaSender;
     private Binder binder;
 
@@ -46,9 +49,12 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
     public void onCreate() {
         super.onCreate();
         binder = new Binder();
-        newMediaContentObserver = new MediaContentObserver();
+        imagesContentObserver = new MediaContentObserver();
         this.getApplicationContext().getContentResolver().registerContentObserver(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, false, newMediaContentObserver);
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, false, imagesContentObserver);
+        videosContentObserver = new MediaContentObserver();
+        this.getApplicationContext().getContentResolver().registerContentObserver(
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI, false, videosContentObserver);
         PBApplication.getMediaStore().addInterface(this);
 
         Log.i(LOG_TAG, "PhotoBackup service is created");
@@ -58,8 +64,9 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
     @Override
     public void onDestroy() {
         super.onDestroy();
-        this.getApplicationContext().getContentResolver().unregisterContentObserver(newMediaContentObserver);
-        setNewMediaContentObserverToNull();
+        this.getApplicationContext().getContentResolver().unregisterContentObserver(imagesContentObserver);
+        this.getApplicationContext().getContentResolver().unregisterContentObserver(videosContentObserver);
+        setMediaContentObserversToNull();
         PBApplication.getMediaStore().removeInterface(this);
 
         Log.i(LOG_TAG, "PhotoBackup service has stopped");
@@ -127,13 +134,8 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
     /////////////////////////////////////////////////////////////
     private class MediaContentObserver extends ContentObserver {
 
-        public MediaContentObserver() {
+        private MediaContentObserver() {
             super(null);
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            onChange(selfChange, null);
         }
 
         @Override
@@ -141,10 +143,13 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
             super.onChange(selfChange);
             Log.i(LOG_TAG, "MediaContentObserver:onChange()");
 
-            if (uri.toString().equals("content://media/external/images/media")) {
+            final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(PBService.this);
+            final boolean backupVideos = sp.getBoolean(PBConstants.PREF_MEDIA_BACKUP_VIDEO, false);
+            if (uri.toString().equals("content://media/external/images/media") ||
+                    (backupVideos && uri.toString().equals("content://media/external/video/media"))) {
 
                 try {
-                    final PBMedia media = PBApplication.getMediaStore().createMediaForLatestInStore();
+                    final PBMedia media = PBApplication.getMediaStore().createMediaForLatestInStore(backupVideos);
                     if (media != null) {
                         media.setState(PBMedia.PBMediaState.WAITING);
                         getMediaSender().send(media, false);
@@ -171,8 +176,9 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
     }
 
 
-    private static void setNewMediaContentObserverToNull(){
-        newMediaContentObserver = null;
+    private static void setMediaContentObserversToNull(){
+        imagesContentObserver = null;
+        videosContentObserver = null;
     }
 
 }

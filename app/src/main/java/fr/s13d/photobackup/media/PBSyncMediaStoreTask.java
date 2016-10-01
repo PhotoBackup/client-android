@@ -41,7 +41,7 @@ class PBSyncMediaStoreTask extends AsyncTask<Void, Void, Void> {
     // Constructor //
     /////////////////
     public PBSyncMediaStoreTask() {
-        this.picturesPreferences = PBApplication.getApp().getSharedPreferences(PBApplication.PB_PICTURES_SHARED_PREFS, Context.MODE_PRIVATE);
+        this.picturesPreferences = PBApplication.getApp().getSharedPreferences(PBApplication.PB_MEDIAS_SHARED_PREFS, Context.MODE_PRIVATE);
     }
 
 

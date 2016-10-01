@@ -46,7 +46,6 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
     private PBJournalAdapter adapter;
     private PBMediaSender mediaSender;
     private SharedPreferences preferences;
-    private SharedPreferences.Editor preferencesEditor;
     private ActivityJournalBinding binding;
 
 
@@ -99,8 +98,6 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
     private void initPreferences() {
         if (preferences == null) {
             preferences = PreferenceManager.getDefaultSharedPreferences(this);
-            preferencesEditor = preferences.edit();
-            preferencesEditor.apply();
         }
 
         // set stored values
@@ -144,6 +141,7 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
     public void clickOnSaved(View v) {
         Log.i("PBJournalActivity", "clickOnSaved");
         ToggleButton btn = (ToggleButton)v;
+        final SharedPreferences.Editor preferencesEditor = preferences.edit();
         preferencesEditor.putBoolean(PBMedia.PBMediaState.SYNCED.name(), btn.isChecked()).apply();
         adapter.getFilter().filter(null);
     }
@@ -152,6 +150,7 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
     public void clickOnWaiting(View v) {
         Log.i("PBJournalActivity", "clickOnWaiting");
         ToggleButton btn = (ToggleButton)v;
+        final SharedPreferences.Editor preferencesEditor = preferences.edit();
         preferencesEditor.putBoolean(PBMedia.PBMediaState.WAITING.name(), btn.isChecked()).apply();
         adapter.getFilter().filter(null);
     }
@@ -160,6 +159,7 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
     public void clickOnError(View v) {
         Log.i("PBJournalActivity", "clickOnError");
         ToggleButton btn = (ToggleButton)v;
+        final SharedPreferences.Editor preferencesEditor = preferences.edit();
         preferencesEditor.putBoolean(PBMedia.PBMediaState.ERROR.name(), btn.isChecked()).apply();
         adapter.getFilter().filter(null);
     }

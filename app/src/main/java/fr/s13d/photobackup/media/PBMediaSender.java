@@ -177,6 +177,7 @@ public class PBMediaSender {
             @Override
             public void onFailure(Call call, IOException e) {
                 testDidFail(e.getLocalizedMessage());
+                e.printStackTrace();
             }
         });
     }

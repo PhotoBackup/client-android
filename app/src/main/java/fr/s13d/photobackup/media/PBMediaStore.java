@@ -44,9 +44,10 @@ public class PBMediaStore {
     private static List<PBMedia> mediaList;
     private static PBSyncMediaStoreTask syncTask;
     private static final SharedPreferences picturesPreferences = PBApplication.getApp()
-            .getSharedPreferences(PBApplication.PB_PICTURES_SHARED_PREFS, Context.MODE_PRIVATE);
+            .getSharedPreferences(PBApplication.PB_MEDIAS_SHARED_PREFS, Context.MODE_PRIVATE);
     private final List<PBMediaStoreInterface> interfaces = new ArrayList<>();
-    private static final Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+    private static final Uri imagesUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+    private static final Uri videosUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
 
 
     ////////////////
@@ -73,16 +74,16 @@ public class PBMediaStore {
     /////////////
     // Queries //
     /////////////
-    public PBMedia createMediaForLatestInStore() {
+    public PBMedia createMediaForLatestInStore(boolean backupVideos) {
         final ContentResolver cr = PBApplication.getApp().getContentResolver();
-        final Cursor cursor = cr.query(uri, null, null, null, "date_added DESC");
+        final Cursor cursor = cr.query(backupVideos ? videosUri : imagesUri, null, null, null, "date_added DESC");
         if (cursor == null || !cursor.moveToFirst()) {
             Log.d(LOG_TAG, "Media cursor is null or empty.");
             return null;
         }
 
         final int bucketId = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID);
-        if (!isBucketSelected(cursor.getString(bucketId))) {
+        if (!backupVideos && !isBucketSelected(cursor.getString(bucketId))) {
             Log.d(LOG_TAG, "Media not in selected buckets.");
             return null;
         }
@@ -110,7 +111,7 @@ public class PBMediaStore {
 
         final String[] PROJECTION = new String[] { "_id", "_data", "date_added" };
         final ContentResolver cr = PBApplication.getApp().getContentResolver();
-        final Cursor cursor = cr.query(uri, PROJECTION, WHERE, null, "date_added DESC");
+        final Cursor cursor = cr.query(imagesUri, PROJECTION, WHERE, null, "date_added DESC");
         if (cursor == null) {
             Log.d(LOG_TAG, "Media cursor is null.");
             return null;
@@ -144,7 +145,7 @@ public class PBMediaStore {
                 "count(*) as photo_count"
         };
         final String GROUP_BY = "1) GROUP BY (2";
-        final Cursor cursor = PBApplication.getApp().getContentResolver().query(uri, PROJECTION, GROUP_BY, null, "photo_count desc");
+        final Cursor cursor = PBApplication.getApp().getContentResolver().query(imagesUri, PROJECTION, GROUP_BY, null, "photo_count desc");
         final ArrayMap<String, String> bucketNamesList = new ArrayMap<>();
 
         if (cursor != null && cursor.moveToFirst()) {

@@ -46,12 +46,12 @@
             android:key="PREF_PICTURE_FOLDER_LIST"
             android:title="@string/folders_to_backup_title" />
 
-        <!--<CheckBoxPreference
+        <CheckBoxPreference
             android:defaultValue="false"
             android:key="PREF_MEDIA_BACKUP_VIDEO"
             android:summaryOff="Photos only"
             android:summaryOn="Photos and videos"
-            android:title="Backup videos" />-->
+            android:title="Backup videos" />
     </PreferenceScreen>
 
     <PreferenceCategory

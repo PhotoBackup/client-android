@@ -82,7 +82,7 @@ public class PBApplication extends Application {
     // Constants //
     ///////////////
     public final static String PB_USER_AGENT = "PhotoBackup Android Client v" + BuildConfig.VERSION_NAME;
-    public static final String PB_PICTURES_SHARED_PREFS = "PB_PICTURES_SHARED_PREFS";
+    public static final String PB_MEDIAS_SHARED_PREFS = "PB_MEDIAS_SHARED_PREFS";
 
 
     /////////////
