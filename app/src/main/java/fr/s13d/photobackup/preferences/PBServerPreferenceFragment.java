@@ -42,15 +42,15 @@ public class PBServerPreferenceFragment extends PreferenceFragment
     private static final String LOG_TAG = "PBServerPreferenceFragment";
     private String serverName;
     private SharedPreferences preferences;
-    private SharedPreferences.Editor preferencesEditor;
+    //private SharedPreferences.Editor preferencesEditor;
 
     public static final String PREF_SERVER_NAME = "PREF_SERVER_NAME";
     public static final String PREF_SERVER_URL = "PREF_SERVER_URL";
     private static final String PREF_SERVER_PASS = "PREF_SERVER_PASS";
     public static final String PREF_SERVER_PASS_HASH = "PREF_SERVER_PASS_HASH";
-    public static final String PREF_SERVER_HTTPAUTH_SWITCH = "PREF_SERVER_HTTPAUTH_SWITCH";
-    public static final String PREF_SERVER_HTTPAUTH_LOGIN = "PREF_SERVER_HTTPAUTH_LOGIN";
-    public static final String PREF_SERVER_HTTPAUTH_PASS = "PREF_SERVER_HTTPAUTH_PASS";
+    public static final String PREF_SERVER_HTTP_AUTH_SWITCH = "PREF_SERVER_HTTP_AUTH_SWITCH";
+    public static final String PREF_SERVER_HTTP_AUTH_LOGIN = "PREF_SERVER_HTTP_AUTH_LOGIN";
+    public static final String PREF_SERVER_HTTP_AUTH_PASS = "PREF_SERVER_HTTP_AUTH_PASS";
 
 
     //////////////////
@@ -68,8 +68,6 @@ public class PBServerPreferenceFragment extends PreferenceFragment
         addPreferencesFromResource(R.xml.server_preferences);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        preferencesEditor = preferences.edit();
-        preferencesEditor.apply();
     }
 
 
@@ -132,8 +130,9 @@ public class PBServerPreferenceFragment extends PreferenceFragment
             getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-            // save server name into the preferences
-        preferencesEditor.putString(PREF_SERVER_NAME, serverName);
+        // save server name into the preferences
+        final SharedPreferences.Editor preferencesEditor = preferences.edit();
+        preferencesEditor.putString(PREF_SERVER_NAME, serverName).apply();
 
         // access configuration in servers_params.xml file
         final int arrayId = getActivity().getResources().getIdentifier(serverName, "array", getActivity().getPackageName());
@@ -162,12 +161,12 @@ public class PBServerPreferenceFragment extends PreferenceFragment
             serverPassTextPreference.setSummary(getResources().getString(R.string.server_password_summary_set));
         }
 
-        final EditTextPreference httpLoginPreference = (EditTextPreference) findPreference(PREF_SERVER_HTTPAUTH_LOGIN);
-        httpLoginPreference.setSummary(preferences.getString(PREF_SERVER_HTTPAUTH_LOGIN, ""));
+        final EditTextPreference httpLoginPreference = (EditTextPreference) findPreference(PREF_SERVER_HTTP_AUTH_LOGIN);
+        httpLoginPreference.setSummary(preferences.getString(PREF_SERVER_HTTP_AUTH_LOGIN, ""));
 
-        String httpPass = preferences.getString(PREF_SERVER_HTTPAUTH_PASS,"");
+        String httpPass = preferences.getString(PREF_SERVER_HTTP_AUTH_PASS,"");
         if (!httpPass.isEmpty()) {
-            final EditTextPreference httpPassPreference = (EditTextPreference) findPreference(PREF_SERVER_HTTPAUTH_PASS);
+            final EditTextPreference httpPassPreference = (EditTextPreference) findPreference(PREF_SERVER_HTTP_AUTH_PASS);
             httpPassPreference.setSummary(getResources().getString(R.string.server_password_summary_set));
         }
     }
@@ -201,6 +200,7 @@ public class PBServerPreferenceFragment extends PreferenceFragment
             hash += s;
         }
 
+        final SharedPreferences.Editor preferencesEditor = preferences.edit();
         // set the hash in the preferences
         preferencesEditor.putString(PREF_SERVER_PASS_HASH, hash).apply();
         // remove the real password from the preferences, for security

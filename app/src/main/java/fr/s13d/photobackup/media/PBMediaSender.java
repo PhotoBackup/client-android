@@ -215,11 +215,11 @@ public class PBMediaSender {
 
     private void createAuthCredentials() {
         // add HTTP Basic Auth to the client
-        final String login = preferences.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_LOGIN, "");
-        final String pass = preferences.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_PASS, "");
-        if(preferences.getBoolean(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_SWITCH, false) &&
-                !preferences.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_LOGIN, "").isEmpty() &&
-                !preferences.getString(PBServerPreferenceFragment.PREF_SERVER_HTTPAUTH_PASS, "").isEmpty()) {
+        final String login = preferences.getString(PBServerPreferenceFragment.PREF_SERVER_HTTP_AUTH_LOGIN, "");
+        final String pass = preferences.getString(PBServerPreferenceFragment.PREF_SERVER_HTTP_AUTH_PASS, "");
+        if(preferences.getBoolean(PBServerPreferenceFragment.PREF_SERVER_HTTP_AUTH_SWITCH, false) &&
+                !preferences.getString(PBServerPreferenceFragment.PREF_SERVER_HTTP_AUTH_LOGIN, "").isEmpty() &&
+                !preferences.getString(PBServerPreferenceFragment.PREF_SERVER_HTTP_AUTH_PASS, "").isEmpty()) {
             this.credentials = Credentials.basic(login, pass);
         } else {
             this.credentials = null;
