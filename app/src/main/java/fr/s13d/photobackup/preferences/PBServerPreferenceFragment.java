@@ -42,7 +42,6 @@ public class PBServerPreferenceFragment extends PreferenceFragment
     private static final String LOG_TAG = "PBServerPreferenceFragment";
     private String serverName;
     private SharedPreferences preferences;
-    //private SharedPreferences.Editor preferencesEditor;
 
     public static final String PREF_SERVER_NAME = "PREF_SERVER_NAME";
     public static final String PREF_SERVER_URL = "PREF_SERVER_URL";
