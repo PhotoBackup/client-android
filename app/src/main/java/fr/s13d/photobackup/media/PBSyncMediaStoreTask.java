@@ -40,7 +40,7 @@ class PBSyncMediaStoreTask extends AsyncTask<Void, Void, Void> {
     /////////////////
     // Constructor //
     /////////////////
-    public PBSyncMediaStoreTask() {
+    PBSyncMediaStoreTask() {
         this.picturesPreferences = PBApplication.getApp().getSharedPreferences(PBApplication.PB_MEDIAS_SHARED_PREFS, Context.MODE_PRIVATE);
     }
 
@@ -75,8 +75,7 @@ class PBSyncMediaStoreTask extends AsyncTask<Void, Void, Void> {
             // create new media
             media = new PBMedia(cursor);
             stateString = (String)mediasMap.get(Integer.toString(media.getId()));
-            state = (stateString != null) ?
-                    PBMedia.PBMediaState.valueOf(stateString) : PBMedia.PBMediaState.WAITING;
+            state = (stateString != null) ? PBMedia.PBMediaState.valueOf(stateString) : PBMedia.PBMediaState.WAITING;
             media.setState(state);
             PBApplication.getMediaStore().getMediaList().add(media); // populate list
             inCursor.add(Integer.toString(media.getId()));
@@ -92,7 +91,7 @@ class PBSyncMediaStoreTask extends AsyncTask<Void, Void, Void> {
         inCursor.removeAll(inCursorCopy);
         inMap.addAll(inCursor);
 
-        for (String key : inMap) {
+        for (final String key : inMap) {
             Log.d(LOG_TAG, "Remove media " + key + " from preference");
             picturesPreferences.edit().remove(key).apply();
         }

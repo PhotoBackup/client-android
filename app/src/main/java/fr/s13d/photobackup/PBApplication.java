@@ -85,9 +85,9 @@ public class PBApplication extends Application {
     public static final String PB_MEDIAS_SHARED_PREFS = "PB_MEDIAS_SHARED_PREFS";
 
 
-    /////////////
-    // Getters //
-    /////////////
+    /////////////////////
+    // Getters/setters //
+    /////////////////////
     public static PBApplication getApp() { return app; }
 
 
@@ -97,5 +97,9 @@ public class PBApplication extends Application {
             mediaStore.sync();
         }
         return mediaStore;
+    }
+
+    public static void setMediaStore(PBMediaStore store) {
+        mediaStore = store;
     }
 }

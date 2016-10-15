@@ -68,6 +68,7 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
         this.getApplicationContext().getContentResolver().unregisterContentObserver(videosContentObserver);
         setMediaContentObserversToNull();
         PBApplication.getMediaStore().removeInterface(this);
+        PBApplication.setMediaStore(null);
 
         Log.i(LOG_TAG, "PhotoBackup service has stopped");
     }

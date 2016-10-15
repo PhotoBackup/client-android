@@ -23,7 +23,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
@@ -36,6 +35,8 @@ import fr.s13d.photobackup.Log;
 import fr.s13d.photobackup.PBApplication;
 import fr.s13d.photobackup.PBConstants;
 import fr.s13d.photobackup.interfaces.PBMediaStoreInterface;
+
+import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 
 
 public class PBMediaStore {
@@ -101,11 +102,12 @@ public class PBMediaStore {
     }
 
 
-    public Cursor getAllMediasCursor() {
+    Cursor getAllMediasCursor() {
         String WHERE = null;
-        final Set<String> bucketIds = picturesPreferences.getStringSet(PBConstants.PREF_PICTURE_FOLDER_LIST, null);
+        final SharedPreferences prefs = getDefaultSharedPreferences(PBApplication.getApp());
+        final Set<String> bucketIds = prefs.getStringSet(PBConstants.PREF_PICTURE_FOLDER_LIST, null);
         if (bucketIds != null && bucketIds.size() > 0) {
-            String bucket_ids = TextUtils.join(", ", bucketIds);
+            final String bucket_ids = TextUtils.join(", ", bucketIds);
             WHERE = "bucket_id in (" + bucket_ids + ")";
         }
 
@@ -123,7 +125,7 @@ public class PBMediaStore {
 
     private boolean isBucketSelected(final String requestedBucketId) {
         Log.d(LOG_TAG, "Checking if bucket " + requestedBucketId + " is selected by user.");
-        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(PBApplication.getApp());
+        final SharedPreferences preferences = getDefaultSharedPreferences(PBApplication.getApp());
         final Set<String> bucketSet = preferences.getStringSet(PBConstants.PREF_PICTURE_FOLDER_LIST, null);
         return (bucketSet != null && bucketSet.contains(requestedBucketId));
     }
@@ -191,7 +193,7 @@ public class PBMediaStore {
     }
 
 
-    public void onPostSync() {
+    void onPostSync() {
         for(PBMediaStoreInterface storeInterface : interfaces) {
             storeInterface.onSyncMediaStoreTaskPostExecute();
         }
