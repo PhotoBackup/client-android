@@ -98,10 +98,14 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
     // Methods //
     /////////////
     public void sendNextMedia() {
-        for (PBMedia media : PBApplication.getMediaStore().getMediaList()) {
-            if (media.getState() != PBMedia.PBMediaState.SYNCED) {
-                sendMedia(media, false);
-                break;
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(PBApplication.getApp());
+        final boolean isRunning = preferences.getBoolean(PBConstants.PREF_SERVICE_RUNNING, false);
+        if (isRunning) {
+            for (PBMedia media : PBApplication.getMediaStore().getMediaList()) {
+                if (media.getState() != PBMedia.PBMediaState.SYNCED) {
+                    sendMedia(media, false);
+                    break;
+                }
             }
         }
     }
