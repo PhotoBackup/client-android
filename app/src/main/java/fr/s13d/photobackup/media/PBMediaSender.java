@@ -31,11 +31,19 @@ import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import fr.s13d.photobackup.Log;
 import fr.s13d.photobackup.PBActivity;
 import fr.s13d.photobackup.PBApplication;
 import fr.s13d.photobackup.PBConstants;
 import fr.s13d.photobackup.R;
+import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
+import fr.s13d.photobackup.preferences.PBServerPreferenceFragment;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Credentials;
@@ -46,15 +54,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
-import fr.s13d.photobackup.preferences.PBServerPreferenceFragment;
 
 
 public class PBMediaSender {
@@ -93,18 +92,16 @@ public class PBMediaSender {
     ////////////////
     public void send(final PBMedia media, boolean manual) {
         // network
-        String wifiOnlyString = preferences.getString(PBConstants.PREF_WIFI_ONLY,
-                PBApplication.getApp().getResources().getString(R.string.only_wifi_default));
-        Boolean wifiOnly = wifiOnlyString.equals(PBApplication.getApp().getResources().getString(R.string.only_wifi));
-        ConnectivityManager cm = (ConnectivityManager) PBApplication.getApp().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info = cm.getActiveNetworkInfo();
-        Boolean onWifi = info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI;
+        final String wifiOnlyString = preferences.getString(PBConstants.PREF_WIFI_ONLY, PBApplication.getApp().getResources().getString(R.string.only_wifi_default));
+        final Boolean wifiOnly = wifiOnlyString.equals(PBApplication.getApp().getResources().getString(R.string.only_wifi));
+        final ConnectivityManager cm = (ConnectivityManager) PBApplication.getApp().getSystemService(Context.CONNECTIVITY_SERVICE);
+        final NetworkInfo info = cm.getActiveNetworkInfo();
+        final Boolean onWifi = info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI;
 
         // recently taken picture
-        String uploadRecentOnlyString = preferences.getString(PBConstants.PREF_RECENT_UPLOAD_ONLY,
-                PBApplication.getApp().getResources().getString(R.string.only_recent_upload_default));
-        Boolean uploadRecentOnly = uploadRecentOnlyString.equals(PBApplication.getApp().getResources().getString(R.string.only_recent_upload));
-        Boolean recentPicture = (System.currentTimeMillis() / 1000 - media.getDateAdded()) < 600;
+        final String uploadRecentOnlyString = preferences.getString(PBConstants.PREF_RECENT_UPLOAD_ONLY, PBApplication.getApp().getResources().getString(R.string.only_recent_upload_default));
+        final Boolean uploadRecentOnly = uploadRecentOnlyString.equals(PBApplication.getApp().getResources().getString(R.string.only_recent_upload));
+        final Boolean recentPicture = (System.currentTimeMillis() / 1000 - media.getDateAdded()) < 600;
 
         Log.i(LOG_TAG, "Connectivity: onWifi=" + onWifi.toString() + ", wifiOnly=" + wifiOnly.toString() + ", recentPicture=" + recentPicture.toString());
         // test to send or not
@@ -233,10 +230,10 @@ public class PBMediaSender {
                 .setContentTitle(PBApplication.getApp().getResources().getString(R.string.app_name));
 
         // add content intent to reopen the activity
-        Intent intent = new Intent(PBApplication.getApp(), PBActivity.class);
+        final Intent intent = new Intent(PBApplication.getApp(), PBActivity.class);
         intent.setAction(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        PendingIntent resultPendingIntent = PendingIntent.getActivity(PBApplication.getApp(), 0, intent, 0);
+        final PendingIntent resultPendingIntent = PendingIntent.getActivity(PBApplication.getApp(), 0, intent, 0);
         this.builder.setContentIntent(resultPendingIntent);
     }
 
@@ -267,7 +264,7 @@ public class PBMediaSender {
 
 
     private void testDidSucceed() {
-        for (PBMediaSenderInterface senderInterface : interfaces) {
+        for (final PBMediaSenderInterface senderInterface : interfaces) {
             senderInterface.onMessage(PBApplication.getApp().getResources().getString(R.string.toast_configuration_ok));
             senderInterface.onTestSuccess();
         }
@@ -277,7 +274,7 @@ public class PBMediaSender {
     private void testDidFail(final String failMessage) {
         final String message = PBApplication.getApp().getResources().getString(R.string.toast_configuration_ko) + " - (" + failMessage + ")";
         Log.d(LOG_TAG, message);
-        for (PBMediaSenderInterface senderInterface : interfaces) {
+        for (final PBMediaSenderInterface senderInterface : interfaces) {
             senderInterface.onMessage(message);
             senderInterface.onTestFailure();
         }
@@ -295,7 +292,7 @@ public class PBMediaSender {
         if (successCount == 0 && failureCount != 0) {
             contentText = failureContent;
         }
-        Bitmap icon = BitmapFactory.decodeResource(PBApplication.getApp().getResources(), R.mipmap.ic_launcher);
+        final Bitmap icon = BitmapFactory.decodeResource(PBApplication.getApp().getResources(), R.mipmap.ic_launcher);
         this.builder.setLargeIcon(icon).setContentText(contentText);
 
         notificationManager.notify(0, this.builder.build());

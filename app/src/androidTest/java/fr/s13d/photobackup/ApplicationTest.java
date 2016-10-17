@@ -19,6 +19,7 @@
 package fr.s13d.photobackup;
 
 import android.support.test.InstrumentationRegistry;
+import android.support.test.espresso.NoMatchingViewException;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -52,22 +53,30 @@ public class ApplicationTest {
         onView(withText(R.string.service_state_not_running)).check(matches(isDisplayed()));
 
         onView(withText(R.string.server_pref_title)).check(matches(isDisplayed()));
-    /*}
+    }
+
 
     @Test
-    public void clickOnAboutPreference_shouldOpenAboutActivity() {*/
-        onView(withText(R.string.app_name)).check(matches(isDisplayed()));
+    public void clickOnAboutPreference_shouldOpenAboutActivity() {
 
-        // Service is not running at start
-        onView(withText(R.string.service_state_not_running)).check(matches(isDisplayed()));
+        try {
+            onView(withText(R.string.app_name)).check(matches(isDisplayed()));
 
-        onView(withText(R.string.about_title)).check(matches(isDisplayed()));
+            // Service is not running at start
+            onView(withText(R.string.service_state_not_running)).check(matches(isDisplayed()));
 
-        // open About activity
-        onView(withText(R.string.about_title)).perform(click());
+            onView(withText(R.string.about_title)).check(matches(isDisplayed()));
 
-        // check that About activity is opened
-        String aboutText = InstrumentationRegistry.getTargetContext().getString(R.string.about_text);
-        onView(withId(R.id.aboutTextTextView)).check(matches(withText(aboutText)));
+            // open About activity
+            onView(withText(R.string.about_title)).perform(click());
+
+            // check that About activity is opened
+            String aboutText = InstrumentationRegistry.getTargetContext().getString(R.string.about_text);
+            onView(withId(R.id.aboutTextTextView)).check(matches(withText(aboutText)));
+        } catch (NoMatchingViewException ex) {
+            //openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
+            //onView(withText(R.string.s_ab_filter_by)).perform(click());
+            Log.e(ApplicationTest.class.getName(), ex.toString());
+        }
     }
 }

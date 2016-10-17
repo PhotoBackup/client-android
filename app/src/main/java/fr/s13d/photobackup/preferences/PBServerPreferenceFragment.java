@@ -80,9 +80,9 @@ public class PBServerPreferenceFragment extends PreferenceFragment
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = super.onCreateView(inflater, container, savedInstanceState);
+        final View view = super.onCreateView(inflater, container, savedInstanceState);
 
-        Bundle bundle = getArguments();
+        final Bundle bundle = getArguments();
         if (bundle!= null && bundle.containsKey(PREF_SERVER_NAME)) {
             serverName = bundle.getString(PREF_SERVER_NAME);
             configurePreference();
@@ -138,10 +138,10 @@ public class PBServerPreferenceFragment extends PreferenceFragment
         final String[] serverPrefsToRemove = getActivity().getResources().getStringArray(arrayId);
 
         // remove unused preferences given in xml list
-        PreferenceScreen screen = (PreferenceScreen) findPreference(LOG_TAG);
+        final PreferenceScreen screen = (PreferenceScreen) findPreference(LOG_TAG);
         for (String param : serverPrefsToRemove) {
             Log.i(LOG_TAG, "Remove preference named: " + param);
-            Preference pref = findPreference(param);
+            final Preference pref = findPreference(param);
             screen.removePreference(pref);
         }
 
@@ -163,7 +163,7 @@ public class PBServerPreferenceFragment extends PreferenceFragment
         final EditTextPreference httpLoginPreference = (EditTextPreference) findPreference(PREF_SERVER_HTTP_AUTH_LOGIN);
         httpLoginPreference.setSummary(preferences.getString(PREF_SERVER_HTTP_AUTH_LOGIN, ""));
 
-        String httpPass = preferences.getString(PREF_SERVER_HTTP_AUTH_PASS,"");
+        final String httpPass = preferences.getString(PREF_SERVER_HTTP_AUTH_PASS,"");
         if (!httpPass.isEmpty()) {
             final EditTextPreference httpPassPreference = (EditTextPreference) findPreference(PREF_SERVER_HTTP_AUTH_PASS);
             httpPassPreference.setSummary(getResources().getString(R.string.server_password_summary_set));
