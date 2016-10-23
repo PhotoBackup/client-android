@@ -44,6 +44,7 @@
     <string name="about_text">PhotoBackup pour Android sauvegarde les photos de cet appareil
         sur votre serveur personnel. Ainsi, vous restez l\'unique propriétaire et utilisateur
         de vos photographies. Pour installer et configurer un serveur, voir :</string>
+    <string name="about_open_source_licenses">Licences open source</string>
 
     <string name="notif_start_text">Votre photo est en cours de sauvegarde.</string>
     <plurals name="notif_success">

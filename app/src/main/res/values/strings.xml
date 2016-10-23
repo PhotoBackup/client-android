@@ -45,6 +45,7 @@
     <string name="about_text">PhotoBackup for Android backups the pictures of this device
     on your home server. This way, you are the unique owner and user of your pictures.
     To install and configure a server, see:</string>
+    <string name="about_open_source_licenses">Open source licenses</string>
 
     <string name="notif_start_text">Your photo is being backed up on your server.</string>
     <plurals name="notif_success">

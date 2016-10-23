@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2015 Stéphane Péchard.
+ * Copyright (C) 2013-2016 Stéphane Péchard.
  *
  * This file is part of PhotoBackup.
  *
@@ -21,7 +21,12 @@ package fr.s13d.photobackup.about;
 import android.app.Activity;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.view.View;
 
+import de.psdev.licensesdialog.LicensesDialog;
+import de.psdev.licensesdialog.licenses.ApacheSoftwareLicense20;
+import de.psdev.licensesdialog.model.Notice;
+import de.psdev.licensesdialog.model.Notices;
 import fr.s13d.photobackup.BuildConfig;
 import fr.s13d.photobackup.R;
 import fr.s13d.photobackup.databinding.ActivityAboutBinding;
@@ -39,4 +44,28 @@ public class PBAboutActivity extends Activity {
         binding.versionTextView.setText(getString(R.string.app_version, versionString));
     }
 
+
+    public void clickOnOpenSourceLicenses(final View view) throws Exception {
+        final Notices notices = new Notices();
+        notices.addNotice(new Notice(
+                "Android v7 Support Libraries",
+                "https://developer.android.com/topic/libraries/support-library/features.html#v7",
+                "Copyright (C) 2012 The Android Open Source Project",
+                new ApacheSoftwareLicense20()));
+        notices.addNotice(new Notice(
+                "LicensesDialog",
+                "http://psdev.de",
+                "Copyright 2013 Philip Schiffer <admin@psdev.de>",
+                new ApacheSoftwareLicense20()));
+        notices.addNotice(new Notice(
+                "OkHttp",
+                "http://square.github.io/okhttp/",
+                "Copyright 2016 Square, Inc.",
+                new ApacheSoftwareLicense20()));
+
+        new LicensesDialog.Builder(this)
+                .setNotices(notices)
+                .build()
+                .show();
+    }
 }
