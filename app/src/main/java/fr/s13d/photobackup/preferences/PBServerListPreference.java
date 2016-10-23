@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013-2015 Stéphane Péchard.
+ * Copyright (C) 2013-2016 Stéphane Péchard.
  * <p/>
  * This file is part of PhotoBackup.
  * <p/>

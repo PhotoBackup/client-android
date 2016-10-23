@@ -13,7 +13,7 @@ android {
         minSdkVersion 16
         targetSdkVersion 24
         versionCode 30
-        versionName "0.10.5"
+        versionName "0.10.6"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -37,6 +37,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile "com.android.support:appcompat-v7:${supportLibVersion}"
     compile 'com.squareup.okhttp3:okhttp:3.2.0'
+    compile('de.psdev.licensesdialog:licensesdialog:1.8.1')
 
     // jUnit
     testCompile 'junit:junit:4.12'
@@ -44,6 +45,6 @@ dependencies {
     // androidTestCompile
     androidTestCompile 'com.android.support.test:runner:0.5'
     androidTestCompile 'com.android.support.test:rules:0.5'
-    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
+    //androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
     androidTestCompile "com.android.support:appcompat-v7:${supportLibVersion}"
 }
