@@ -5,6 +5,8 @@
 Auf diese Weise bleibst hat niemand anderes Zugriff zu den Photos.
 Um deinen eigenen Server zu installieren und konfigurieren, schaue bitte hier:</string>
     <string name="about_title">Über</string>
+    <string name="about_open_source_licenses">Open-Source-Lizenzen</string>
+
     <string name="app_version">PhotoBackup Version %1$s</string>
     <string name="cancel">Abbrechen</string>
     <string name="info_conf">Informationen</string>

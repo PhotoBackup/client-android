@@ -41,6 +41,7 @@
 
     <string name="about_title">O aplikaci</string>
     <string name="about_text">PhotoBackup pro Android zálohuje obrázky z tohoto přístroje na váš domácí server. Tímto způsobem zůstáváte jediným vlastníkem a uživatelem svých fotografií. Pro instalaci a nastavení serveru si prohlédněte:</string>
+    <string name="about_open_source_licenses">Open source licence</string>
 
     <string name="notif_start_text">Vaše fotografie jsou zálohovány na váš server.</string>
     <plurals name="notif_success">
