@@ -55,7 +55,9 @@ public class PBServerPreferenceFragment extends PreferenceFragment
     //////////////////
     // Constructors //
     //////////////////
-    public PBServerPreferenceFragment() {}
+    public PBServerPreferenceFragment() {
+        // Do nothing
+    }
 
 
     //////////////
@@ -177,7 +179,7 @@ public class PBServerPreferenceFragment extends PreferenceFragment
         try {
             md = MessageDigest.getInstance("SHA-512");
         } catch (NoSuchAlgorithmException e) {
-            Log.e(LOG_TAG, "ERROR: " + e.getMessage());
+            Log.e(LOG_TAG, e);
             return;
         }
 
@@ -188,20 +190,21 @@ public class PBServerPreferenceFragment extends PreferenceFragment
 
         // compute the hash
         md.update(pass.getBytes());
-        byte[] mb = md.digest();
-        String hash = "";
-        for (byte temp : mb) {
-            String s = Integer.toHexString(temp);
-            while (s.length() < 2) {
-                s = "0" + s;
+        final byte[] mb = md.digest();
+        final StringBuilder sbHash = new StringBuilder();
+        for (final byte temp : mb) {
+            final StringBuilder sb = new StringBuilder(Integer.toHexString(temp));
+            if (sb.length() == 0) {
+                sb.insert(0, "00");
+            } else if (sb.length() == 1) {
+                sb.insert(0, '0');
             }
-            s = s.substring(s.length() - 2);
-            hash += s;
+            sbHash.append(sb.substring(sb.length() - 2));
         }
 
         final SharedPreferences.Editor preferencesEditor = preferences.edit();
         // set the hash in the preferences
-        preferencesEditor.putString(PREF_SERVER_PASS_HASH, hash).apply();
+        preferencesEditor.putString(PREF_SERVER_PASS_HASH, sbHash.toString()).apply();
         // remove the real password from the preferences, for security
         preferencesEditor.putString(PREF_SERVER_PASS, "").apply();
     }

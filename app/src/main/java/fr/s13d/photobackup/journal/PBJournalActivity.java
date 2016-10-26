@@ -1,24 +1,23 @@
 /**
  * Copyright (C) 2013-2016 Stéphane Péchard.
- *
+ * <p>
  * This file is part of PhotoBackup.
- *
+ * <p>
  * PhotoBackup is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * PhotoBackup is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package fr.s13d.photobackup.journal;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
@@ -34,19 +33,52 @@ import android.widget.ToggleButton;
 
 import fr.s13d.photobackup.Log;
 import fr.s13d.photobackup.PBApplication;
-import fr.s13d.photobackup.media.PBMedia;
-import fr.s13d.photobackup.media.PBMediaSender;
 import fr.s13d.photobackup.R;
 import fr.s13d.photobackup.databinding.ActivityJournalBinding;
 import fr.s13d.photobackup.interfaces.PBMediaSenderInterface;
+import fr.s13d.photobackup.media.PBMedia;
+import fr.s13d.photobackup.media.PBMediaSender;
 
 
 public class PBJournalActivity extends ListActivity implements PBMediaSenderInterface {
+
+    private final static String LOG_TAG = "PBJournalActivity";
 
     private PBJournalAdapter adapter;
     private PBMediaSender mediaSender;
     private SharedPreferences preferences;
     private ActivityJournalBinding binding;
+
+
+    private final AdapterView.OnItemClickListener itemClickListener = new AdapterView.OnItemClickListener() {
+        private PBMediaSender getMediaSender() {
+            if (mediaSender == null) {
+                mediaSender = new PBMediaSender();
+                mediaSender.addInterface(PBJournalActivity.this);
+            }
+            return mediaSender;
+        }
+
+
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            try {
+                final PBMedia media = adapter.getFilteredMedias().get(position);
+                final AlertDialog.Builder builder = new AlertDialog.Builder(PBJournalActivity.this);
+                builder.setMessage(PBJournalActivity.this.getResources().getString(R.string.manual_backup_message))
+                        .setTitle(PBJournalActivity.this.getResources().getString(R.string.manual_backup_title));
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        getMediaSender().send(media, true);
+                    }
+                });
+                builder.setNegativeButton(PBJournalActivity.this.getString(R.string.cancel), null);
+                builder.create().show();
+            } catch (NullPointerException e) {
+                Log.e(LOG_TAG, e);
+            }
+        }
+    };
 
 
     @Override
@@ -63,13 +95,8 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
         initPreferences();
 
         // on click listener
-        ListView list = (ListView) findViewById(android.R.id.list);
-        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                setOnItemClick(position, PBJournalActivity.this);
-            }
-        });
+        final ListView list = (ListView) findViewById(android.R.id.list);
+        list.setOnItemClickListener(itemClickListener);
 
         // adapter
         adapter = new PBJournalAdapter(this, PBApplication.getMediaStore().getMediaList());
@@ -83,7 +110,6 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
         super.onDestroy();
         adapter.close();
     }
-
 
 
     @Override
@@ -107,40 +133,12 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
     }
 
 
-    private PBMediaSender getMediaSender() {
-        if (mediaSender == null) {
-            mediaSender = new PBMediaSender();
-            mediaSender.addInterface(this);
-        }
-        return mediaSender;
-    }
-
-
-    private void setOnItemClick(int position, final Activity self) {
-        try {
-            final PBMedia media = adapter.getFilteredMedias().get(position);
-            final AlertDialog.Builder builder = new AlertDialog.Builder(self);
-            builder.setMessage(self.getResources().getString(R.string.manual_backup_message))
-                    .setTitle(self.getResources().getString(R.string.manual_backup_title));
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    getMediaSender().send(media, true);
-                }
-            });
-            builder.setNegativeButton(self.getString(R.string.cancel), null);
-            builder.create().show();
-        } catch(NullPointerException e) {
-            e.printStackTrace();
-        }
-    }
-
-
     //////////////////
     // buttons call //
     //////////////////
     public void clickOnSaved(View v) {
-        Log.i("PBJournalActivity", "clickOnSaved");
-        ToggleButton btn = (ToggleButton)v;
+        Log.i(LOG_TAG, "clickOnSaved");
+        ToggleButton btn = (ToggleButton) v;
         final SharedPreferences.Editor preferencesEditor = preferences.edit();
         preferencesEditor.putBoolean(PBMedia.PBMediaState.SYNCED.name(), btn.isChecked()).apply();
         adapter.getFilter().filter(null);
@@ -148,8 +146,8 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
 
 
     public void clickOnWaiting(View v) {
-        Log.i("PBJournalActivity", "clickOnWaiting");
-        ToggleButton btn = (ToggleButton)v;
+        Log.i(LOG_TAG, "clickOnWaiting");
+        ToggleButton btn = (ToggleButton) v;
         final SharedPreferences.Editor preferencesEditor = preferences.edit();
         preferencesEditor.putBoolean(PBMedia.PBMediaState.WAITING.name(), btn.isChecked()).apply();
         adapter.getFilter().filter(null);
@@ -157,8 +155,8 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
 
 
     public void clickOnError(View v) {
-        Log.i("PBJournalActivity", "clickOnError");
-        ToggleButton btn = (ToggleButton)v;
+        Log.i(LOG_TAG, "clickOnError");
+        ToggleButton btn = (ToggleButton) v;
         final SharedPreferences.Editor preferencesEditor = preferences.edit();
         preferencesEditor.putBoolean(PBMedia.PBMediaState.ERROR.name(), btn.isChecked()).apply();
         adapter.getFilter().filter(null);
@@ -183,7 +181,7 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Log.i("PBJournalActivity", "Trying to refresh view");
+                Log.i(LOG_TAG, "Trying to refresh view");
                 adapter.notifyDataSetChanged();
             }
         });
@@ -191,13 +189,19 @@ public class PBJournalActivity extends ListActivity implements PBMediaSenderInte
 
 
     @Override
-    public void onSendFailure() { onSendSuccess(); }
+    public void onSendFailure() {
+        onSendSuccess();
+    }
 
 
     @Override
-    public void onTestSuccess() {}
+    public void onTestSuccess() {
+        // Do nothing
+    }
 
 
     @Override
-    public void onTestFailure() {}
+    public void onTestFailure() {
+        // Do nothing
+    }
 }

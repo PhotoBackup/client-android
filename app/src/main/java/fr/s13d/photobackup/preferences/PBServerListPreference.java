@@ -81,8 +81,10 @@ public class PBServerListPreference extends ListPreference {
     /////////////
     // private //
     /////////////
-    class ListPreferenceAdapter extends BaseAdapter {
-        public ListPreferenceAdapter() {}
+    private class ListPreferenceAdapter extends BaseAdapter {
+        ListPreferenceAdapter() {
+            // Do nothing
+        }
 
         public int getCount() {
             return servers.length;
@@ -96,7 +98,8 @@ public class PBServerListPreference extends ListPreference {
             return position;
         }
 
-        public View getView(final int position, View row, ViewGroup parent) {
+        public View getView(final int position, View view, ViewGroup parent) {
+            View row = view;
             if (row == null) {
                 row = LayoutInflater.from(context).inflate(R.layout.server_list_row, parent, false);
                 RowHolder holder = new RowHolder(position, row);

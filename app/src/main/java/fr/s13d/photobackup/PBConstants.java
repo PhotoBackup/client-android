@@ -16,4 +16,8 @@ public class PBConstants {
     // origin to permission asking, to be able to reroute
     public static final int PERM_ORIGIN_SERVICE = 0;
     public static final int PERM_ORIGIN_MEDIAS = 1;
+
+
+    // Prevent from constructing objects of this class
+    private PBConstants() { throw new AssertionError(); }
 }

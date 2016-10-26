@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013-2016 Stéphane Péchard.
- *
+ * <p>
  * This file is part of PhotoBackup.
- *
+ * <p>
  * PhotoBackup is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * PhotoBackup is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -29,9 +29,16 @@ import fr.s13d.photobackup.media.PBMediaStore;
 
 public class PBApplication extends Application {
 
-    private final static String LOG_TAG = "PBApplication";
+    private static final String LOG_TAG = "PBApplication";
     private static PBApplication app;
     private static PBMediaStore mediaStore;
+
+
+    ///////////////
+    // Constants //
+    ///////////////
+    public static final String PB_USER_AGENT = "PhotoBackup Android Client v" + BuildConfig.VERSION_NAME;
+    public static final String PB_MEDIAS_SHARED_PREFS = "PB_MEDIAS_SHARED_PREFS";
 
 
     ////////////////
@@ -41,14 +48,14 @@ public class PBApplication extends Application {
     public void onCreate() {
         super.onCreate();
         Log.d(LOG_TAG, "Initializing app");
-        app = this;
+        setApp(this);
 
         if (BuildConfig.DEBUG) {
             Log.d(LOG_TAG, "Default SharedPreferences:");
             Map<String, ?> allPrefs = PreferenceManager.getDefaultSharedPreferences(this).getAll();
             Set<String> set = allPrefs.keySet();
-            for(String s : set) {
-                Log.d(LOG_TAG, s + "<" + allPrefs.get(s).getClass().getSimpleName() +"> =  "
+            for (String s : set) {
+                Log.d(LOG_TAG, s + "<" + allPrefs.get(s).getClass().getSimpleName() + "> =  "
                         + allPrefs.get(s).toString());
             }
         }
@@ -73,22 +80,22 @@ public class PBApplication extends Application {
         Log.d(LOG_TAG, "trimMemory");
         if (mediaStore != null) {
             mediaStore.close();
-            mediaStore = null;
+            setMediaStore(null);
         }
     }
-
-
-    ///////////////
-    // Constants //
-    ///////////////
-    public final static String PB_USER_AGENT = "PhotoBackup Android Client v" + BuildConfig.VERSION_NAME;
-    public static final String PB_MEDIAS_SHARED_PREFS = "PB_MEDIAS_SHARED_PREFS";
 
 
     /////////////////////
     // Getters/setters //
     /////////////////////
-    public static PBApplication getApp() { return app; }
+    public static PBApplication getApp() {
+        return app;
+    }
+
+
+    public static void setApp(PBApplication application) {
+        app = application;
+    }
 
 
     public static PBMediaStore getMediaStore() {

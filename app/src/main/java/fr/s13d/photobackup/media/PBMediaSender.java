@@ -57,11 +57,11 @@ import okhttp3.Response;
 
 
 public class PBMediaSender {
-    private final static String LOG_TAG = "PBMediaSender";
-    private final static String PASSWORD_PARAM = "password";
-    private final static String UPFILE_PARAM = "upfile";
-    private final static String FILESIZE_PARAM = "filesize";
-    private final static String TEST_PATH = "/test";
+    private static final String LOG_TAG = "PBMediaSender";
+    private static final String PASS_PARAM = "password";
+    private static final String UPFILE_PARAM = "upfile";
+    private static final String FILESIZE_PARAM = "filesize";
+    private static final String TEST_PATH = "/test";
     private String serverUrl;
     private final SharedPreferences preferences;
     private final NotificationManager notificationManager;
@@ -71,7 +71,7 @@ public class PBMediaSender {
     private static final List<PBMediaSenderInterface> interfaces = new ArrayList<>();
     private static int successCount = 0;
     private static int failureCount = 0;
-    private final static int timeoutInSeconds = 60;
+    private static final int TIMEOUT_IN_SECONDS = 60;
 
 
     public PBMediaSender() {
@@ -93,17 +93,17 @@ public class PBMediaSender {
     public void send(final PBMedia media, boolean manual) {
         // network
         final String wifiOnlyString = preferences.getString(PBConstants.PREF_WIFI_ONLY, PBApplication.getApp().getResources().getString(R.string.only_wifi_default));
-        final Boolean wifiOnly = wifiOnlyString.equals(PBApplication.getApp().getResources().getString(R.string.only_wifi));
+        final boolean wifiOnly = wifiOnlyString.equals(PBApplication.getApp().getResources().getString(R.string.only_wifi));
         final ConnectivityManager cm = (ConnectivityManager) PBApplication.getApp().getSystemService(Context.CONNECTIVITY_SERVICE);
         final NetworkInfo info = cm.getActiveNetworkInfo();
-        final Boolean onWifi = info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI;
+        final boolean onWifi = info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI;
 
         // recently taken picture
         final String uploadRecentOnlyString = preferences.getString(PBConstants.PREF_RECENT_UPLOAD_ONLY, PBApplication.getApp().getResources().getString(R.string.only_recent_upload_default));
         final Boolean uploadRecentOnly = uploadRecentOnlyString.equals(PBApplication.getApp().getResources().getString(R.string.only_recent_upload));
         final Boolean recentPicture = (System.currentTimeMillis() / 1000 - media.getDateAdded()) < 600;
 
-        Log.i(LOG_TAG, "Connectivity: onWifi=" + onWifi.toString() + ", wifiOnly=" + wifiOnly.toString() + ", recentPicture=" + recentPicture.toString());
+        Log.i(LOG_TAG, "Connectivity: onWifi=" + onWifi + ", wifiOnly=" + wifiOnly + ", recentPicture=" + recentPicture.toString());
         // test to send or not
         if (manual || (!wifiOnly || onWifi) && (!uploadRecentOnly || recentPicture)) {
             sendMedia(media);
@@ -117,13 +117,13 @@ public class PBMediaSender {
                         media.getId(), MediaStore.Images.Thumbnails.MICRO_KIND, null));
         notificationManager.notify(0, this.builder.build());
 
-        final MediaType MEDIA_TYPE_JPG = MediaType.parse("image/jpg");
+        final MediaType mediaTypeJPG = MediaType.parse("image/jpg");
         final File upfile = new File(media.getPath());
         final RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
-                .addFormDataPart(PASSWORD_PARAM, preferences.getString(PBServerPreferenceFragment.PREF_SERVER_PASS_HASH, ""))
+                .addFormDataPart(PASS_PARAM, preferences.getString(PBServerPreferenceFragment.PREF_SERVER_PASS_HASH, ""))
                 .addFormDataPart(FILESIZE_PARAM, String.valueOf(upfile.length()))
-                .addFormDataPart(UPFILE_PARAM, upfile.getName(), RequestBody.create(MEDIA_TYPE_JPG, upfile))
+                .addFormDataPart(UPFILE_PARAM, upfile.getName(), RequestBody.create(mediaTypeJPG, upfile))
                 .build();
         final Request request = makePostRequest(requestBody);
         getOkClient().newCall(request).enqueue(new Callback() {
@@ -152,7 +152,7 @@ public class PBMediaSender {
     ///////////////
     public void test() {
         final RequestBody requestBody = new FormBody.Builder()
-                .add(PASSWORD_PARAM, preferences.getString(PBServerPreferenceFragment.PREF_SERVER_PASS_HASH, ""))
+                .add(PASS_PARAM, preferences.getString(PBServerPreferenceFragment.PREF_SERVER_PASS_HASH, ""))
                 .build();
         final Request request = makePostRequest(requestBody, TEST_PATH);
         Log.i(LOG_TAG, "Initiating test call to " + request.url());
@@ -174,7 +174,7 @@ public class PBMediaSender {
             @Override
             public void onFailure(Call call, IOException e) {
                 testDidFail(e.getLocalizedMessage());
-                e.printStackTrace();
+                Log.e(LOG_TAG, e);
             }
         });
     }
@@ -305,9 +305,9 @@ public class PBMediaSender {
     private OkHttpClient getOkClient() {
         if (okClient == null) {
             okClient = new OkHttpClient.Builder()
-                    .readTimeout(timeoutInSeconds, TimeUnit.SECONDS)
-                    .connectTimeout(timeoutInSeconds, TimeUnit.SECONDS)
-                    .writeTimeout(timeoutInSeconds, TimeUnit.SECONDS)
+                    .readTimeout(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS)
+                    .connectTimeout(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS)
+                    .writeTimeout(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS)
                     .build();
             createAuthCredentials();
             buildNotificationBuilder();

@@ -25,33 +25,64 @@ public final class Log {
         throw new InstantiationException("This class is not meant to be instantiated!");
     }
 
-	public static void d(String tag, String message) {
+    public static void d(final String tag, final String message) {
         if (BuildConfig.DEBUG) {
-        	android.util.Log.d(tag, message);
+            android.util.Log.d(tag, message);
         }
     }
 
-	public static void e(String tag, String message) {
+    public static void d(final String tag, final Exception e) {
         if (BuildConfig.DEBUG) {
-        	android.util.Log.e(tag, message);
+            android.util.Log.d(tag, e.toString());
         }
     }
 
-	public static void i(String tag, String message) {
+    public static void e(final String tag, final String message) {
         if (BuildConfig.DEBUG) {
-        	android.util.Log.i(tag, message);
+            android.util.Log.e(tag, message);
         }
     }
 
-	public static void v(String tag, String message) {
+    public static void e(final String tag, final Exception e) {
         if (BuildConfig.DEBUG) {
-        	android.util.Log.v(tag, message);
+            android.util.Log.e(tag, e.toString());
         }
     }
 
-	public static void w(String tag, String message) {
+    public static void i(final String tag, final String message) {
+        if (BuildConfig.DEBUG) {
+            android.util.Log.i(tag, message);
+        }
+    }
+
+    public static void i(final String tag, final Exception e) {
+        if (BuildConfig.DEBUG) {
+            android.util.Log.i(tag, e.toString());
+        }
+    }
+
+    public static void v(final String tag, final String message) {
+        if (BuildConfig.DEBUG) {
+            android.util.Log.v(tag, message);
+        }
+    }
+
+    public static void v(final String tag, final Exception e) {
+        if (BuildConfig.DEBUG) {
+            android.util.Log.v(tag, e.toString());
+        }
+    }
+
+    public static void w(final String tag, final String message) {
         if (BuildConfig.DEBUG) {
         	android.util.Log.w(tag, message);
         }
     }
+
+    public static void w(final String tag, final Exception e) {
+        if (BuildConfig.DEBUG) {
+            android.util.Log.w(tag, e.toString());
+        }
+    }
+
 }

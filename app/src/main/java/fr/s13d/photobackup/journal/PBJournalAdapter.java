@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013-2016 Stéphane Péchard.
- *
+ * <p>
  * This file is part of PhotoBackup.
- *
+ * <p>
  * PhotoBackup is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * PhotoBackup is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -26,7 +26,8 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore.Images.Thumbnails;
+import android.provider.MediaStore.Video;
+import android.provider.MediaStore.Images;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,13 +44,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.s13d.photobackup.Log;
-import fr.s13d.photobackup.media.PBMedia;
 import fr.s13d.photobackup.R;
+import fr.s13d.photobackup.media.PBMedia;
 
 
 class PBJournalAdapter extends ArrayAdapter<PBMedia> implements Filterable, Handler.Callback {
     private static final String LOG_TAG = "PBJournalAdapter";
-	private static LayoutInflater inflater;
+    private static LayoutInflater inflater;
     private final Context context;
     private final SharedPreferences preferences;
     private final WeakReference<Handler> handlerWeakReference;
@@ -58,7 +59,7 @@ class PBJournalAdapter extends ArrayAdapter<PBMedia> implements Filterable, Hand
     private List<PBMedia> filteredMedias;
 
 
-	public PBJournalAdapter(final Activity activity, final List<PBMedia> medias) {
+    PBJournalAdapter(final Activity activity, final List<PBMedia> medias) {
         super(activity, 0, medias);
 
         this.context = activity;
@@ -66,16 +67,16 @@ class PBJournalAdapter extends ArrayAdapter<PBMedia> implements Filterable, Hand
         this.medias = medias;
         this.filteredMedias = new ArrayList<>(medias.size());
 
-        inflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         // Create and start a new thread for the handler
         final HandlerThread handlerThread = new HandlerThread("BackgroundThread");
         handlerThread.start();
         handlerWeakReference = new WeakReference<>(new Handler(handlerThread.getLooper(), this));
-	}
+    }
 
 
-    public void close() {
+    void close() {
         if (handlerWeakReference != null) {
             final Handler handler = handlerWeakReference.get();
             if (handler != null) {
@@ -91,16 +92,21 @@ class PBJournalAdapter extends ArrayAdapter<PBMedia> implements Filterable, Hand
     @Override
     public boolean handleMessage(Message message) {
         // done on async thread
-        final View view = (View)message.obj;
-        final ImageView thumbImageView = (ImageView)view.findViewById(R.id.thumbnail);
-        final Bitmap bitmap = Thumbnails.getThumbnail(context.getContentResolver(),
-                message.what, Thumbnails.MICRO_KIND, null);
+        final View view = (View) message.obj;
+        final ImageView thumbImageView = (ImageView) view.findViewById(R.id.thumbnail);
+        Bitmap bitmap = Images.Thumbnails.getThumbnail(context.getContentResolver(),
+                message.what, Images.Thumbnails.MICRO_KIND, null);
+        if (bitmap == null) {
+            bitmap = Video.Thumbnails.getThumbnail(context.getContentResolver(),
+                    message.what, Video.Thumbnails.MICRO_KIND, null);
+        }
+        final Bitmap fBitmap = bitmap;
 
         // back on UI thread to set the bitmap to the view
         new Handler(context.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                thumbImageView.setImageBitmap(bitmap);
+                thumbImageView.setImageBitmap(fBitmap);
             }
         });
 
@@ -113,9 +119,9 @@ class PBJournalAdapter extends ArrayAdapter<PBMedia> implements Filterable, Hand
     /////////////
     @NonNull
     @Override
-	public View getView(int position, View view, @NonNull ViewGroup parent) {
+    public View getView(int position, View adapterView, @NonNull ViewGroup parent) {
         // create the view if not available
-        view = (view == null) ? inflater.inflate(R.layout.list_row, parent, false) : view;
+        final View view = (adapterView == null) ? inflater.inflate(R.layout.list_row, parent, false) : adapterView;
 
         final PBMedia media = filteredMedias.get(position);
         if (media == null || media.getId() == -1) {
@@ -131,7 +137,7 @@ class PBJournalAdapter extends ArrayAdapter<PBMedia> implements Filterable, Hand
         }
 
         // filename
-		final TextView textView = (TextView)view.findViewById(R.id.filename);
+        final TextView textView = (TextView) view.findViewById(R.id.filename);
         if (media.getPath() != null) {
             final File file = new File(media.getPath());
             textView.setText(file.getName());
@@ -140,8 +146,15 @@ class PBJournalAdapter extends ArrayAdapter<PBMedia> implements Filterable, Hand
         }
 
         // indicator
-        final TextView errorTextView = (TextView)view.findViewById(R.id.errorHint);
-        final ImageView imageView = (ImageView)view.findViewById(R.id.state);
+        setIndicator(view, media);
+
+        return view;
+    }
+
+
+    private void setIndicator(final View view, final PBMedia media) {
+        final TextView errorTextView = (TextView) view.findViewById(R.id.errorHint);
+        final ImageView imageView = (ImageView) view.findViewById(R.id.state);
         if (media.getState() == PBMedia.PBMediaState.WAITING) {
             errorTextView.setVisibility(View.GONE);
             imageView.setImageResource(android.R.drawable.presence_away);
@@ -153,8 +166,7 @@ class PBJournalAdapter extends ArrayAdapter<PBMedia> implements Filterable, Hand
             imageView.setImageResource(android.R.drawable.presence_busy);
         }
 
-		return view;
-	}
+    }
 
 
     @Override
@@ -162,9 +174,9 @@ class PBJournalAdapter extends ArrayAdapter<PBMedia> implements Filterable, Hand
         int count = 0;
         try {
             count = filteredMedias.size();
-        } catch (java.lang.NullPointerException e) {
+        } catch (NullPointerException e) {
             Log.w(LOG_TAG, "count = " + count);
-            e.printStackTrace();
+            Log.w(LOG_TAG, e);
         }
         return count;
     }
@@ -175,8 +187,8 @@ class PBJournalAdapter extends ArrayAdapter<PBMedia> implements Filterable, Hand
         PBMedia item = null;
         try {
             item = filteredMedias.get(position);
-        } catch (java.lang.NullPointerException e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
+            Log.w(LOG_TAG, e);
         }
         return item;
     }
@@ -225,17 +237,17 @@ class PBJournalAdapter extends ArrayAdapter<PBMedia> implements Filterable, Hand
     /////////////////////
     private List<PBMedia> getMediaList() {
 
-        //List<PBMedia> mediaList = new ArrayList<>(medias.size());
         filteredMedias.clear();
         final Boolean synced = preferences.getBoolean(PBMedia.PBMediaState.SYNCED.name(), true);
         final Boolean waiting = preferences.getBoolean(PBMedia.PBMediaState.WAITING.name(), true);
         final Boolean error = preferences.getBoolean(PBMedia.PBMediaState.ERROR.name(), true);
 
         for (int i = 0; i < medias.size(); i++) {
-            PBMedia media = medias.get(i);
-            if (media.getState() == PBMedia.PBMediaState.SYNCED && synced ||
-                    media.getState() == PBMedia.PBMediaState.WAITING && waiting ||
-                    media.getState() == PBMedia.PBMediaState.ERROR && error) {
+            final PBMedia media = medias.get(i);
+            final boolean stateSynced = media.getState() == PBMedia.PBMediaState.SYNCED && synced;
+            final boolean stateWaiting = media.getState() == PBMedia.PBMediaState.WAITING && waiting;
+            final boolean stateError = media.getState() == PBMedia.PBMediaState.ERROR && error;
+            if (stateSynced || stateWaiting || stateError) {
                 filteredMedias.add(media);
             }
         }
@@ -244,7 +256,7 @@ class PBJournalAdapter extends ArrayAdapter<PBMedia> implements Filterable, Hand
 
 
     // Getter //
-    public List<PBMedia> getFilteredMedias() {
+    List<PBMedia> getFilteredMedias() {
         return filteredMedias;
     }
 }

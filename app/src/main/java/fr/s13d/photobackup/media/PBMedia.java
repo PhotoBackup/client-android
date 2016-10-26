@@ -40,7 +40,7 @@ public class PBMedia implements Serializable {
     //////////////////
     // Constructors //
     //////////////////
-    public PBMedia(Cursor mediaCursor) {
+    PBMedia(Cursor mediaCursor) {
         this.id = mediaCursor.getInt(mediaCursor.getColumnIndexOrThrow("_id"));
         this.path = mediaCursor.getString(mediaCursor.getColumnIndexOrThrow("_data"));
         this.dateAdded = mediaCursor.getLong(mediaCursor.getColumnIndexOrThrow("date_added"));
@@ -75,7 +75,7 @@ public class PBMedia implements Serializable {
         return this.path;
     }
 
-    public long getDateAdded() {
+    long getDateAdded() {
         return this.dateAdded;
     }
 
@@ -85,7 +85,7 @@ public class PBMedia implements Serializable {
 
     public String getErrorMessage() { return this.errorMessage; }
 
-    public void setErrorMessage(String newMessage) { this.errorMessage = newMessage; }
+    void setErrorMessage(String newMessage) { this.errorMessage = newMessage; }
 
     public PBMediaState getState() {
         return this.state;

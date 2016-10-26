@@ -30,7 +30,7 @@ public class PBBootBroadcastReceiver extends BroadcastReceiver {
     @Override
 	public void onReceive(final Context context, final Intent intent) {
 
-        if (intent != null && intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
+        if (intent != null && "android.intent.action.BOOT_COMPLETED".equals(intent.getAction())) {
             final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
             final boolean running = preferences.getBoolean(PBConstants.PREF_SERVICE_RUNNING, false);
             if (running) {

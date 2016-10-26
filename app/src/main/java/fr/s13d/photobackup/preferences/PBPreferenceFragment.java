@@ -155,7 +155,7 @@ public class PBPreferenceFragment extends PreferenceFragment
         try {
             fillBuckets();
         } catch (SecurityException e) {
-            Log.d(LOG_TAG, "Permission denied...");
+            Log.d(LOG_TAG, e);
         }
 
     }
@@ -181,20 +181,10 @@ public class PBPreferenceFragment extends PreferenceFragment
         if (key.equals(PBConstants.PREF_SERVICE_RUNNING)) {
             startOrStopService(sharedPreferences);
 
-        } else if (key.equals(PBConstants.PREF_WIFI_ONLY)) {
-            setSummaries();
-
-        } else if (key.equals(PBConstants.PREF_RECENT_UPLOAD_ONLY)) {
-            setSummaries();
-
-        } else if (key.equals(PBConstants.PREF_PICTURE_FOLDER_LIST)) {
-            Log.w(LOG_TAG, "PREF_PICTURE_FOLDER_LIST");
-            setSummaries();
+        } else if (key.equals(PBConstants.PREF_PICTURE_FOLDER_LIST) || key.equals(PBConstants.PREF_MEDIA_BACKUP_VIDEO)) {
             PBApplication.getMediaStore().sync();
-        } else if (sharedPreferences == null) {
-            Log.e(LOG_TAG, "Error: preferences == null");
         }
-
+        setSummaries();
     }
 
 
@@ -286,7 +276,7 @@ public class PBPreferenceFragment extends PreferenceFragment
         String bucketSummary = "";
         final Set<String> selectedBuckets = preferences.getStringSet(PBConstants.PREF_PICTURE_FOLDER_LIST, null);
         if (selectedBuckets != null && bucketNames != null) {
-            ArrayList<String> selectedBucketNames = new ArrayList<>();
+            final ArrayList<String> selectedBucketNames = new ArrayList<>();
             for (String entry : selectedBuckets) {
                 String oneName = bucketNames.get(entry);
                 if (oneName != null) {
@@ -403,7 +393,7 @@ public class PBPreferenceFragment extends PreferenceFragment
                 uploadJournalPref.setEnabled(false);
             }
         } catch (IllegalStateException e) {
-            Log.w(LOG_TAG, e.toString());
+            Log.w(LOG_TAG, e);
         }
     }
 
@@ -411,13 +401,13 @@ public class PBPreferenceFragment extends PreferenceFragment
     private void fillBuckets() {
         this.bucketNames = PBApplication.getMediaStore().getBucketData();
 
-        final CharSequence[] bucketIds = this.bucketNames.values().toArray(new CharSequence[this.bucketNames.size()]);
-        final CharSequence[] bucketNames = this.bucketNames.keySet().toArray(new CharSequence[this.bucketNames.size()]);
+        final CharSequence[] ids = this.bucketNames.values().toArray(new CharSequence[this.bucketNames.size()]);
+        final CharSequence[] names = this.bucketNames.keySet().toArray(new CharSequence[this.bucketNames.size()]);
 
-        final MultiSelectListPreference bucketListPreference = (MultiSelectListPreference) findPreference("PREF_PICTURE_FOLDER_LIST");
-        bucketListPreference.setEntries(bucketIds);
+        final MultiSelectListPreference bucketListPreference = (MultiSelectListPreference) findPreference(PBConstants.PREF_PICTURE_FOLDER_LIST);
+        bucketListPreference.setEntries(ids);
         bucketListPreference.setEnabled(true);
-        bucketListPreference.setEntryValues(bucketNames);
+        bucketListPreference.setEntryValues(names);
 
         setSummaries();
     }
@@ -475,6 +465,10 @@ public class PBPreferenceFragment extends PreferenceFragment
     }
 
 
-    public void onSendSuccess() {}
-    public void onSendFailure()  {}
+    public void onSendSuccess() {
+        // Do nothing
+    }
+    public void onSendFailure()  {
+        // Do nothing
+    }
 }

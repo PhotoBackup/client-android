@@ -19,7 +19,6 @@
 package fr.s13d.photobackup;
 
 import android.support.test.InstrumentationRegistry;
-import android.support.test.espresso.NoMatchingViewException;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -44,7 +43,7 @@ public class ApplicationTest {
     public ActivityTestRule<PBActivity> mActivityTestRule = new ActivityTestRule<>(PBActivity.class);
 
     @Test
-    public void startMainActivity_shouldStartWithBasicContent() {
+    public void startMainActivityShouldStartWithBasicContent() {
         // this is the PhotoBackup activity, it contains its name
         onView(withText(R.string.app_name)).check(matches(isDisplayed()));
 
@@ -57,26 +56,19 @@ public class ApplicationTest {
 
 
     @Test
-    public void clickOnAboutPreference_shouldOpenAboutActivity() {
+    public void clickOnAboutPreferenceShouldOpenAboutActivity() {
+        onView(withText(R.string.app_name)).check(matches(isDisplayed()));
 
-        try {
-            onView(withText(R.string.app_name)).check(matches(isDisplayed()));
+        // Service is not running at start
+        onView(withText(R.string.service_state_not_running)).check(matches(isDisplayed()));
 
-            // Service is not running at start
-            onView(withText(R.string.service_state_not_running)).check(matches(isDisplayed()));
+        onView(withText(R.string.about_title)).check(matches(isDisplayed()));
 
-            onView(withText(R.string.about_title)).check(matches(isDisplayed()));
+        // open About activity
+        onView(withText(R.string.about_title)).perform(click());
 
-            // open About activity
-            onView(withText(R.string.about_title)).perform(click());
-
-            // check that About activity is opened
-            String aboutText = InstrumentationRegistry.getTargetContext().getString(R.string.about_text);
-            onView(withId(R.id.aboutTextTextView)).check(matches(withText(aboutText)));
-        } catch (NoMatchingViewException ex) {
-            //openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
-            //onView(withText(R.string.s_ab_filter_by)).perform(click());
-            Log.e(ApplicationTest.class.getName(), ex.toString());
-        }
+        // check that About activity is opened
+        String aboutText = InstrumentationRegistry.getTargetContext().getString(R.string.about_text);
+        onView(withId(R.id.aboutTextTextView)).check(matches(withText(aboutText)));
     }
 }

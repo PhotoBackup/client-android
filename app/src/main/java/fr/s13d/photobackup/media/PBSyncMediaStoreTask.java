@@ -59,7 +59,7 @@ class PBSyncMediaStoreTask extends AsyncTask<Void, Void, Void> {
         try {
             cursor = PBApplication.getMediaStore().getAllMediasCursor();
         } catch (SecurityException e) {
-            Log.d(LOG_TAG, "Permission denied...");
+            Log.d(LOG_TAG, e);
         }
 
         // loop through them to sync

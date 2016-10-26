@@ -49,10 +49,10 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
     public void onCreate() {
         super.onCreate();
         binder = new Binder();
-        imagesContentObserver = new MediaContentObserver();
+        setImagesContentObserver(new MediaContentObserver());
         this.getApplicationContext().getContentResolver().registerContentObserver(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI, false, imagesContentObserver);
-        videosContentObserver = new MediaContentObserver();
+        setVideosContentObserver(new MediaContentObserver());
         this.getApplicationContext().getContentResolver().registerContentObserver(
                 MediaStore.Video.Media.EXTERNAL_CONTENT_URI, false, videosContentObserver);
         PBApplication.getMediaStore().addInterface(this);
@@ -66,7 +66,8 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
         super.onDestroy();
         this.getApplicationContext().getContentResolver().unregisterContentObserver(imagesContentObserver);
         this.getApplicationContext().getContentResolver().unregisterContentObserver(videosContentObserver);
-        setMediaContentObserversToNull();
+        setImagesContentObserver(null);
+        setVideosContentObserver(null);
         PBApplication.getMediaStore().removeInterface(this);
         PBApplication.setMediaStore(null);
 
@@ -127,11 +128,19 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
     //////////////////////////////////////
     // PBMediaSenderInterface callbacks //
     //////////////////////////////////////
-    public void onMessage(final String message) { }
+    public void onMessage(final String message) {
+        // Do nothing
+    }
     public void onSendSuccess() { sendNextMedia(); }
-    public void onSendFailure() {}
-    public void onTestSuccess() {}
-    public void onTestFailure() {}
+    public void onSendFailure() {
+        // Do nothing
+    }
+    public void onTestSuccess() {
+        // Do nothing
+    }
+    public void onTestFailure() {
+        // Do nothing
+    }
 
 
     /////////////////////////////////////////////////////////////
@@ -150,8 +159,8 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
 
             final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(PBService.this);
             final boolean backupVideos = sp.getBoolean(PBConstants.PREF_MEDIA_BACKUP_VIDEO, false);
-            if (uri.toString().equals("content://media/external/images/media") ||
-                    (backupVideos && uri.toString().equals("content://media/external/video/media"))) {
+            if ("content://media/external/images/media".equals(uri.toString()) ||
+                    (backupVideos && "content://media/external/video/media".equals(uri.toString()))) {
 
                 try {
                     final PBMedia media = PBApplication.getMediaStore().createMediaForLatestInStore(backupVideos);
@@ -162,16 +171,16 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
                 }
                 catch (Exception e) {
                     Log.e(LOG_TAG, "Upload failed :-(");
-                    Log.w(LOG_TAG, e.toString());
+                    Log.w(LOG_TAG, e);
                 }
             }
         }
     }
 
 
-    /////////////
-    // getters //
-    /////////////
+    /////////////////////
+    // getters/setters //
+    /////////////////////
     private PBMediaSender getMediaSender() {
         if (mediaSender == null) {
             mediaSender = new PBMediaSender();
@@ -181,9 +190,14 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
     }
 
 
-    private static void setMediaContentObserversToNull(){
-        imagesContentObserver = null;
-        videosContentObserver = null;
+    public static void setVideosContentObserver(MediaContentObserver videosContentObserver) {
+        PBService.videosContentObserver = videosContentObserver;
     }
+
+
+    public static void setImagesContentObserver(MediaContentObserver imagesContentObserver) {
+        PBService.imagesContentObserver = imagesContentObserver;
+    }
+
 
 }

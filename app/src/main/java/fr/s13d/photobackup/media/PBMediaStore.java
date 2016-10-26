@@ -22,7 +22,9 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.MergeCursor;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
@@ -94,7 +96,7 @@ public class PBMediaStore {
             String stateString = picturesPreferences.getString(String.valueOf(media.getId()), PBMedia.PBMediaState.WAITING.name());
             media.setState(PBMedia.PBMediaState.valueOf(stateString));
         } catch (Exception e) {
-            Log.e(LOG_TAG, "Explosion!!");
+            Log.e(LOG_TAG, e);
         }
         closeCursor(cursor);
 
@@ -103,35 +105,40 @@ public class PBMediaStore {
 
 
     Cursor getAllMediasCursor() {
-        String WHERE = null;
+        String where = null;
         final SharedPreferences prefs = getDefaultSharedPreferences(PBApplication.getApp());
         final Set<String> bucketIds = prefs.getStringSet(PBConstants.PREF_PICTURE_FOLDER_LIST, null);
-        if (bucketIds != null && bucketIds.size() > 0) {
-            final String bucket_ids = TextUtils.join(", ", bucketIds);
-            WHERE = "bucket_id in (" + bucket_ids + ")";
+        if (bucketIds != null && !bucketIds.isEmpty()) {
+            final String bucketString = TextUtils.join(", ", bucketIds);
+            where = "bucket_id in (" + bucketString + ")";
         }
 
-        final String[] PROJECTION = new String[] { "_id", "_data", "date_added" };
+        final boolean backupVideos = prefs.getBoolean(PBConstants.PREF_MEDIA_BACKUP_VIDEO, false);
+        final String[] projection = new String[] { "_id", "_data", "date_added" };
         final ContentResolver cr = PBApplication.getApp().getContentResolver();
-        final Cursor cursor = cr.query(imagesUri, PROJECTION, WHERE, null, "date_added DESC");
-        if (cursor == null) {
+        final Cursor[] cursors = new Cursor[backupVideos ? 2 : 1];
+        cursors[0] = cr.query(imagesUri, projection, where, null, "date_added DESC");
+        if (backupVideos) {
+            cursors[1] = cr.query(videosUri, projection, where, null, "date_added DESC");
+        }
+        if (cursors[0] == null) {
             Log.d(LOG_TAG, "Media cursor is null.");
             return null;
         }
 
-        return cursor;
+        return new MergeCursor(cursors);
     }
 
 
     private boolean isBucketSelected(final String requestedBucketId) {
         Log.d(LOG_TAG, "Checking if bucket " + requestedBucketId + " is selected by user.");
-        final SharedPreferences preferences = getDefaultSharedPreferences(PBApplication.getApp());
-        final Set<String> bucketSet = preferences.getStringSet(PBConstants.PREF_PICTURE_FOLDER_LIST, null);
-        return (bucketSet != null && bucketSet.contains(requestedBucketId));
+        final SharedPreferences prefs = getDefaultSharedPreferences(PBApplication.getApp());
+        final Set<String> bucketSet = prefs.getStringSet(PBConstants.PREF_PICTURE_FOLDER_LIST, null);
+        return bucketSet != null && bucketSet.contains(requestedBucketId);
     }
 
 
-    public ArrayMap<String, String> getBucketData() {
+    public ArrayMap<String, String> getBucketData(final ArrayMap<String, String> bucketNamesList, final String buckedId, final String buckedName) {
 
         // We want to group the images by bucket names. We abuse the
         // "WHERE" parameter to insert a "GROUP BY" clause into the SQL statement.
@@ -141,25 +148,20 @@ public class PBMediaStore {
         //    SELECT ... FROM ... WHERE (1) GROUP BY (2)
         // The "(1)" means true. The "(2)" means the second columns specified in projection.
         // Note that because there is a ")" in the template, we use "(2" to match it.
-        final String[] PROJECTION = {
-                MediaStore.Images.ImageColumns.BUCKET_ID,
-                MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME,
-                "count(*) as photo_count"
-        };
-        final String GROUP_BY = "1) GROUP BY (2";
-        final Cursor cursor = PBApplication.getApp().getContentResolver().query(imagesUri, PROJECTION, GROUP_BY, null, "photo_count desc");
-        final ArrayMap<String, String> bucketNamesList = new ArrayMap<>();
+        final String[] projection = { buckedId, buckedName, "count(*) as media_count" };
+        final String groupBy = "1) GROUP BY (2";
+        final Cursor cursor = PBApplication.getApp().getContentResolver().query(imagesUri, projection, groupBy, null, "media_count desc");
 
         if (cursor != null && cursor.moveToFirst()) {
             String name;
             String id;
             String count;
-            final int bucketNameColumn = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
-            final int bucketIdColumn = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID);
-            final int bucketCountColumn = cursor.getColumnIndex("photo_count");
+            final int bucketIdColumn = cursor.getColumnIndex(buckedId);
+            final int bucketNameColumn = cursor.getColumnIndex(buckedName);
+            final int bucketCountColumn = cursor.getColumnIndex("media_count");
             do {
-                name = cursor.getString(bucketNameColumn);
                 id = cursor.getString(bucketIdColumn);
+                name = cursor.getString(bucketNameColumn);
                 count = cursor.getString(bucketCountColumn);
                 bucketNamesList.put(id, name + " (" + count + ")");
             } while (cursor.moveToNext());
@@ -169,6 +171,19 @@ public class PBMediaStore {
         Log.d(LOG_TAG, bucketNamesList.toString());
 
         return bucketNamesList;
+    }
+
+
+    public ArrayMap<String, String> getBucketData() {
+        final ArrayMap<String, String> bucketNames = new ArrayMap<>();
+        getBucketData(bucketNames, MediaStore.Images.ImageColumns.BUCKET_ID, MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME);
+
+        final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(PBApplication.getApp());
+        final boolean backupVideos = sp.getBoolean(PBConstants.PREF_MEDIA_BACKUP_VIDEO, false);
+        if (backupVideos) {
+            getBucketData(bucketNames, MediaStore.Video.VideoColumns.BUCKET_ID, MediaStore.Video.VideoColumns.BUCKET_DISPLAY_NAME);
+        }
+        return bucketNames;
     }
 
 
@@ -187,7 +202,7 @@ public class PBMediaStore {
             syncTask.cancel(true);
         }
 
-        syncTask = new PBSyncMediaStoreTask();
+        setSyncTask(new PBSyncMediaStoreTask());
         syncTask.execute();
         Log.i(LOG_TAG, "Start SyncMediaStoreTask");
     }
@@ -206,7 +221,7 @@ public class PBMediaStore {
     //////////////////
     public List<PBMedia> getMediaList() {
         if (mediaList == null) {
-            mediaList = new ArrayList<>();
+            setMediaList(new ArrayList<PBMedia>());
         }
         return mediaList;
     }
@@ -216,5 +231,6 @@ public class PBMediaStore {
     // Static setters //
     ////////////////////
     private static void setMediaListToNull(){ mediaList = null; }
-
+    private static void setSyncTask(PBSyncMediaStoreTask syncTask) { PBMediaStore.syncTask = syncTask; }
+    private static void setMediaList(List<PBMedia> mediaList) { PBMediaStore.mediaList = mediaList; }
 }
