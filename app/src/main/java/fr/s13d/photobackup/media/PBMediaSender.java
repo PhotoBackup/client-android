@@ -105,7 +105,8 @@ public class PBMediaSender {
 
         Log.i(LOG_TAG, "Connectivity: onWifi=" + onWifi + ", wifiOnly=" + wifiOnly + ", recentPicture=" + recentPicture.toString());
         // test to send or not
-        if (manual || (!wifiOnly || onWifi) && (!uploadRecentOnly || recentPicture)) {
+        final boolean conditionToSend = (!wifiOnly || onWifi) && (!uploadRecentOnly || recentPicture);
+        if (manual || conditionToSend) {
             sendMedia(media);
         }
     }

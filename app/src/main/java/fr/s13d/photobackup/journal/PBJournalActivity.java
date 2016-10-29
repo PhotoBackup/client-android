@@ -42,7 +42,7 @@ import fr.s13d.photobackup.media.PBMediaSender;
 
 public class PBJournalActivity extends ListActivity implements PBMediaSenderInterface {
 
-    private final static String LOG_TAG = "PBJournalActivity";
+    private static final String LOG_TAG = "PBJournalActivity";
 
     private PBJournalAdapter adapter;
     private PBMediaSender mediaSender;

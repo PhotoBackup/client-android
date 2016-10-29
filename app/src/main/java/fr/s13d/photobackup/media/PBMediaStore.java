@@ -51,6 +51,7 @@ public class PBMediaStore {
     private final List<PBMediaStoreInterface> interfaces = new ArrayList<>();
     private static final Uri imagesUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
     private static final Uri videosUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+    private static final String DATE_ADDED_DESC = "date_added DESC";
 
 
     ////////////////
@@ -79,7 +80,7 @@ public class PBMediaStore {
     /////////////
     public PBMedia createMediaForLatestInStore(boolean backupVideos) {
         final ContentResolver cr = PBApplication.getApp().getContentResolver();
-        final Cursor cursor = cr.query(backupVideos ? videosUri : imagesUri, null, null, null, "date_added DESC");
+        final Cursor cursor = cr.query(backupVideos ? videosUri : imagesUri, null, null, null, DATE_ADDED_DESC);
         if (cursor == null || !cursor.moveToFirst()) {
             Log.d(LOG_TAG, "Media cursor is null or empty.");
             return null;
@@ -117,9 +118,9 @@ public class PBMediaStore {
         final String[] projection = new String[] { "_id", "_data", "date_added" };
         final ContentResolver cr = PBApplication.getApp().getContentResolver();
         final Cursor[] cursors = new Cursor[backupVideos ? 2 : 1];
-        cursors[0] = cr.query(imagesUri, projection, where, null, "date_added DESC");
+        cursors[0] = cr.query(imagesUri, projection, where, null, DATE_ADDED_DESC);
         if (backupVideos) {
-            cursors[1] = cr.query(videosUri, projection, where, null, "date_added DESC");
+            cursors[1] = cr.query(videosUri, projection, where, null, DATE_ADDED_DESC);
         }
         if (cursors[0] == null) {
             Log.d(LOG_TAG, "Media cursor is null.");
@@ -138,7 +139,7 @@ public class PBMediaStore {
     }
 
 
-    public ArrayMap<String, String> getBucketData(final ArrayMap<String, String> bucketNamesList, final String buckedId, final String buckedName) {
+    private ArrayMap<String, String> getBucketData(final ArrayMap<String, String> bucketNamesList, final String buckedId, final String buckedName) {
 
         // We want to group the images by bucket names. We abuse the
         // "WHERE" parameter to insert a "GROUP BY" clause into the SQL statement.
@@ -174,6 +175,9 @@ public class PBMediaStore {
     }
 
 
+    /**
+     * @return list of device media bucket names
+     */
     public ArrayMap<String, String> getBucketData() {
         final ArrayMap<String, String> bucketNames = new ArrayMap<>();
         getBucketData(bucketNames, MediaStore.Images.ImageColumns.BUCKET_ID, MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME);
