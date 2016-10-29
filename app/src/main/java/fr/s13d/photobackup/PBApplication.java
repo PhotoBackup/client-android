@@ -80,7 +80,7 @@ public class PBApplication extends Application {
         Log.d(LOG_TAG, "trimMemory");
         if (mediaStore != null) {
             mediaStore.close();
-            setMediaStore(null);
+            nullifyMediaStore();
         }
     }
 
@@ -93,7 +93,7 @@ public class PBApplication extends Application {
     }
 
 
-    public static void setApp(PBApplication application) {
+    private static void setApp(PBApplication application) {
         app = application;
     }
 
@@ -106,7 +106,10 @@ public class PBApplication extends Application {
         return mediaStore;
     }
 
-    public static void setMediaStore(PBMediaStore store) {
-        mediaStore = store;
+    /**
+     * Nullify the media store when destroying it.
+     */
+    public static void nullifyMediaStore() {
+        mediaStore = null;
     }
 }

@@ -33,6 +33,10 @@ import fr.s13d.photobackup.media.PBMedia;
 import fr.s13d.photobackup.media.PBMediaSender;
 
 
+/**
+ * Main background service doing the whole job of listening
+ * to new media being saved and initiating media uploads.
+ */
 public class PBService extends Service implements PBMediaStoreInterface, PBMediaSenderInterface {
 
 	private static final String LOG_TAG = "PBService";
@@ -69,7 +73,7 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
         setImagesContentObserver(null);
         setVideosContentObserver(null);
         PBApplication.getMediaStore().removeInterface(this);
-        PBApplication.setMediaStore(null);
+        PBApplication.nullifyMediaStore();
 
         Log.i(LOG_TAG, "PhotoBackup service has stopped");
     }
@@ -89,6 +93,9 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
     }
 
 
+    /**
+     * Binder class
+     */
     public class Binder extends android.os.Binder {
         public PBService getService() {
             return PBService.this;
@@ -99,6 +106,9 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
     /////////////
     // Methods //
     /////////////
+    /**
+     * Sends next media in store.
+     */
     public void sendNextMedia() {
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(PBApplication.getApp());
         final boolean isRunning = preferences.getBoolean(PBConstants.PREF_SERVICE_RUNNING, false);
@@ -112,6 +122,12 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
         }
     }
 
+
+    /**
+     * Initiates a media media upload.
+     * @param media media to be sent
+     * @param manual indicates if upload is manually or automatically (through sendNextMedia()) initiated.
+     */
     public void sendMedia(PBMedia media, boolean manual) {
         getMediaSender().send(media, manual);
     }
@@ -120,6 +136,9 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
     ////////////////////////////////////
     // PBMediaStoreListener callbacks //
     ////////////////////////////////////
+    /**
+     * Sends next media on media store synchronisation.
+     */
     public void onSyncMediaStoreTaskPostExecute() {
         sendNextMedia();
     }
@@ -128,16 +147,41 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
     //////////////////////////////////////
     // PBMediaSenderInterface callbacks //
     //////////////////////////////////////
+    /**
+     * Does nothing on receiving a message.
+     */
     public void onMessage(final String message) {
         // Do nothing
     }
-    public void onSendSuccess() { sendNextMedia(); }
+
+
+    /**
+     * Send next media on sending with success.
+     */
+    public void onSendSuccess() {
+        sendNextMedia();
+    }
+
+
+    /**
+     * Does nothing on sending with failure.
+     */
     public void onSendFailure() {
         // Do nothing
     }
+
+
+    /**
+     * Does nothing on test success.
+     */
     public void onTestSuccess() {
         // Do nothing
     }
+
+
+    /**
+     * Does nothing on test failure.
+     */
     public void onTestFailure() {
         // Do nothing
     }
@@ -190,13 +234,13 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
     }
 
 
-    public static void setVideosContentObserver(MediaContentObserver videosContentObserver) {
-        PBService.videosContentObserver = videosContentObserver;
+    private static void setVideosContentObserver(MediaContentObserver contentObserver) {
+        videosContentObserver = contentObserver;
     }
 
 
-    public static void setImagesContentObserver(MediaContentObserver imagesContentObserver) {
-        PBService.imagesContentObserver = imagesContentObserver;
+    private  static void setImagesContentObserver(MediaContentObserver contentObserver) {
+        imagesContentObserver = contentObserver;
     }
 
 

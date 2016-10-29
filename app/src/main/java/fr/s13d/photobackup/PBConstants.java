@@ -1,5 +1,9 @@
 package fr.s13d.photobackup;
 
+
+/**
+ * Delivers all public constants to the application.
+ */
 public class PBConstants {
 
     // should correspond to what is in preferences.xml

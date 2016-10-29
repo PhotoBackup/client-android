@@ -139,7 +139,7 @@ public class PBMediaStore {
     }
 
 
-    private ArrayMap<String, String> getBucketData(final ArrayMap<String, String> bucketNamesList, final String buckedId, final String buckedName) {
+    private void getBucketData(final ArrayMap<String, String> bucketNamesList, final String buckedId, final String buckedName) {
 
         // We want to group the images by bucket names. We abuse the
         // "WHERE" parameter to insert a "GROUP BY" clause into the SQL statement.
@@ -170,8 +170,6 @@ public class PBMediaStore {
         closeCursor(cursor);
 
         Log.d(LOG_TAG, bucketNamesList.toString());
-
-        return bucketNamesList;
     }
 
 

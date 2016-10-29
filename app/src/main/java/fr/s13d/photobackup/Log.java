@@ -19,66 +19,129 @@
 package fr.s13d.photobackup;
 
 
+/**
+ * Own logger class to avoid leaking logs in release mode.
+ */
 public final class Log {
 
     private Log() throws InstantiationException {
         throw new InstantiationException("This class is not meant to be instantiated!");
     }
 
+
+    /**
+     * Log a debug message
+     * @param tag tag of the logged message
+     * @param message message logged
+     */
     public static void d(final String tag, final String message) {
         if (BuildConfig.DEBUG) {
             android.util.Log.d(tag, message);
         }
     }
 
+
+    /**
+     * Log a debug exception
+     * @param tag tag of the logged exception
+     * @param e exception logged
+     */
     public static void d(final String tag, final Exception e) {
         if (BuildConfig.DEBUG) {
             android.util.Log.d(tag, e.toString());
         }
     }
 
+
+    /**
+     * Log an error message
+     * @param tag tag of the logged message
+     * @param message message logged
+     */
     public static void e(final String tag, final String message) {
         if (BuildConfig.DEBUG) {
             android.util.Log.e(tag, message);
         }
     }
 
+
+    /**
+     * Log an error exception
+     * @param tag tag of the logged exception
+     * @param e exception logged
+     */
     public static void e(final String tag, final Exception e) {
         if (BuildConfig.DEBUG) {
             android.util.Log.e(tag, e.toString());
         }
     }
 
+
+    /**
+     * Log an info message
+     * @param tag tag of the logged message
+     * @param message message logged
+     */
     public static void i(final String tag, final String message) {
         if (BuildConfig.DEBUG) {
             android.util.Log.i(tag, message);
         }
     }
 
+
+    /**
+     * Log an info exception
+     * @param tag tag of the logged exception
+     * @param e exception logged
+     */
     public static void i(final String tag, final Exception e) {
         if (BuildConfig.DEBUG) {
             android.util.Log.i(tag, e.toString());
         }
     }
 
+
+    /**
+     * Log a verbose message
+     * @param tag tag of the logged message
+     * @param message message logged
+     */
     public static void v(final String tag, final String message) {
         if (BuildConfig.DEBUG) {
             android.util.Log.v(tag, message);
         }
     }
 
+
+    /**
+     * Log a verbose exception
+     * @param tag tag of the logged exception
+     * @param e exception logged
+     */
     public static void v(final String tag, final Exception e) {
         if (BuildConfig.DEBUG) {
             android.util.Log.v(tag, e.toString());
         }
     }
 
+
+    /**
+     * Log a warning message
+     * @param tag tag of the logged message
+     * @param message message logged
+     */
     public static void w(final String tag, final String message) {
         if (BuildConfig.DEBUG) {
         	android.util.Log.w(tag, message);
         }
     }
 
+
+    /**
+     * Log a warning exception
+     * @param tag tag of the logged exception
+     * @param e exception logged
+     */
     public static void w(final String tag, final Exception e) {
         if (BuildConfig.DEBUG) {
             android.util.Log.w(tag, e.toString());

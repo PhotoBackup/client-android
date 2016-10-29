@@ -25,6 +25,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+
+/**
+ * Receives boot broadcast intents and start PB service if required.
+ */
 public class PBBootBroadcastReceiver extends BroadcastReceiver {
 
     @Override
@@ -32,8 +36,8 @@ public class PBBootBroadcastReceiver extends BroadcastReceiver {
 
         if (intent != null && "android.intent.action.BOOT_COMPLETED".equals(intent.getAction())) {
             final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-            final boolean running = preferences.getBoolean(PBConstants.PREF_SERVICE_RUNNING, false);
-            if (running) {
+            final boolean shouldRun = preferences.getBoolean(PBConstants.PREF_SERVICE_RUNNING, false);
+            if (shouldRun) {
                 final Intent startServiceIntent = new Intent(context, PBService.class);
                 context.startService(startServiceIntent);
             }

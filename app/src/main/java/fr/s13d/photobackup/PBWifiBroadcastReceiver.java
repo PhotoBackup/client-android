@@ -85,11 +85,11 @@ public class PBWifiBroadcastReceiver extends BroadcastReceiver {
     /////////////////////
     // getters/setters //
     /////////////////////
-    public static long getLastFiredOn() {
+    private static long getLastFiredOn() {
         return lastFiredOn;
     }
 
-    public static void setLastFiredOn(long lastFiredOn) {
+    private static void setLastFiredOn(long lastFiredOn) {
         PBWifiBroadcastReceiver.lastFiredOn = lastFiredOn;
     }
 }
