@@ -22,11 +22,13 @@ import android.app.Application;
 import android.preference.PreferenceManager;
 
 import java.util.Map;
-import java.util.Set;
 
 import fr.s13d.photobackup.media.PBMediaStore;
 
 
+/**
+ * Application of the app
+ */
 public class PBApplication extends Application {
 
     private static final String LOG_TAG = "PBApplication";
@@ -52,11 +54,10 @@ public class PBApplication extends Application {
 
         if (BuildConfig.DEBUG) {
             Log.d(LOG_TAG, "Default SharedPreferences:");
-            Map<String, ?> allPrefs = PreferenceManager.getDefaultSharedPreferences(this).getAll();
-            Set<String> set = allPrefs.keySet();
-            for (String s : set) {
-                Log.d(LOG_TAG, s + "<" + allPrefs.get(s).getClass().getSimpleName() + "> =  "
-                        + allPrefs.get(s).toString());
+            final Map<String, ?> allPrefs = PreferenceManager.getDefaultSharedPreferences(this).getAll();
+            for (final Map.Entry<String, ?> entry : allPrefs.entrySet()) {
+                Log.d(LOG_TAG, entry.getKey() + "<" + entry.getValue().getClass().getSimpleName() + "> =  "
+                        + entry.getValue().toString());
             }
         }
     }

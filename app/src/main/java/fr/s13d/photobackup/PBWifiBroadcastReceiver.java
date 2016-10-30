@@ -32,6 +32,9 @@ import java.util.List;
 import fr.s13d.photobackup.media.PBMedia;
 
 
+/**
+ * Receives wifi broadcast intents and starts media upload if required.
+ */
 public class PBWifiBroadcastReceiver extends BroadcastReceiver {
     private static final String LOG_TAG = "PBWifiBroadcastReceiver";
     private static long lastFiredOn = 0;

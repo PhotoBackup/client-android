@@ -27,6 +27,10 @@ import java.io.Serializable;
 import fr.s13d.photobackup.Log;
 import fr.s13d.photobackup.PBApplication;
 
+
+/**
+ * Media object adding information over device medias.
+ */
 public class PBMedia implements Serializable {
     private final int id;
     private final String path;
@@ -34,6 +38,13 @@ public class PBMedia implements Serializable {
     private final SharedPreferences mediasPreferences;
     private String errorMessage;
     private PBMediaState state;
+
+    /**
+     * Enumeration of all possible media states
+     * - waiting: the media waits for being uploaded;
+     * - synced: the media is synced with the server already;
+     * - error: an error occurred.
+     */
     public enum PBMediaState { WAITING, SYNCED, ERROR }
 
 

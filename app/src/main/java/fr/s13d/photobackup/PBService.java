@@ -149,6 +149,7 @@ public class PBService extends Service implements PBMediaStoreInterface, PBMedia
     //////////////////////////////////////
     /**
      * Does nothing on receiving a message.
+     * @param message received message
      */
     public void onMessage(final String message) {
         // Do nothing
