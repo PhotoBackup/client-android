@@ -1,19 +1,19 @@
 apply plugin: 'com.android.application'
 
-ext.supportLibVersion = '24.2.1'
+ext.supportLibVersion = '25.0.0'
 
 
 android {
-    compileSdkVersion 24
+    compileSdkVersion 25
     buildToolsVersion "24.0.3"
     dataBinding.enabled = true
 
     defaultConfig {
         applicationId "fr.s13d.photobackup"
         minSdkVersion 16
-        targetSdkVersion 24
-        versionCode 32
-        versionName "0.10.5"
+        targetSdkVersion 25
+        versionCode 33
+        versionName "0.11.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -30,6 +30,8 @@ android {
     lintOptions {
         abortOnError false
     }
+
+    // to force Gradle version conflicts resolving
     configurations.all {
         resolutionStrategy.force 'com.google.code.findbugs:jsr305:2.0.1'
     }
