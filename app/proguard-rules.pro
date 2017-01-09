@@ -15,3 +15,16 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+# do not print notes
+-dontnote
+
+# keep attributes
+-keepattributes EnclosingMethod
+
+# keep class from included classes
+-dontwarn java.nio.file.**
+-keep class java.nio.file.** { *; }
+
+-dontwarn org.codehaus.mojo.**
+-keep class org.codehaus.mojo.** { *; }

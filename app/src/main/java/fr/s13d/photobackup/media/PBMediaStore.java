@@ -52,7 +52,7 @@ public class PBMediaStore {
     private static final Uri imagesUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
     private static final Uri videosUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
     private static final String DATE_ADDED_DESC = "date_added DESC";
-    private static final String[] projection = new String[] { "_id", "_data", "date_added" };
+    private static final String[] imagesProjection = new String[] { "_id", "_data", "date_added" };
 
 
     ////////////////
@@ -84,18 +84,14 @@ public class PBMediaStore {
         final Cursor cursor = cr.query(backupVideos ? videosUri : imagesUri, null, null, null, DATE_ADDED_DESC);
         if (cursor == null || !cursor.moveToFirst()) {
             Log.d(LOG_TAG, "Media cursor is null or empty.");
-            if (cursor != null) {
-				cursor.close();
-			}
+            closeCursor(cursor);
 			return null;
         }
 
         final int bucketId = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID);
         if (!backupVideos && !isBucketSelected(cursor.getString(bucketId))) {
             Log.d(LOG_TAG, "Media not in selected buckets.");
-            if (cursor != null) {
-				cursor.close();
-			}
+            closeCursor(cursor);
 			return null;
         }
 
@@ -124,9 +120,9 @@ public class PBMediaStore {
         final boolean backupVideos = prefs.getBoolean(PBConstants.PREF_MEDIA_BACKUP_VIDEO, false);
         final ContentResolver cr = PBApplication.getApp().getContentResolver();
         final Cursor[] cursors = new Cursor[backupVideos ? 2 : 1];
-        cursors[0] = cr.query(imagesUri, projection, where, null, DATE_ADDED_DESC);
+        cursors[0] = cr.query(imagesUri, imagesProjection, where, null, DATE_ADDED_DESC);
         if (backupVideos) {
-            cursors[1] = cr.query(videosUri, projection, where, null, DATE_ADDED_DESC);
+            cursors[1] = cr.query(videosUri, imagesProjection, where, null, DATE_ADDED_DESC);
         }
         if (cursors[0] == null) {
             Log.d(LOG_TAG, "Media cursor is null.");

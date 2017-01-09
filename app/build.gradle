@@ -14,16 +14,19 @@ android {
         targetSdkVersion 25
         versionCode 33
         versionName "0.11.0"
-
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         debug {
+            debuggable true
+            minifyEnabled false
             applicationIdSuffix ".debug"
             versionNameSuffix '-dev'
         }
         release {
-            minifyEnabled false
+            debuggable false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

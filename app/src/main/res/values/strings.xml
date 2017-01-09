@@ -48,10 +48,6 @@
     <string name="about_open_source_licenses">Open source licenses</string>
 
     <string name="notif_start_text">Your photo is being backed up on your server.</string>
-    <plurals name="notif_success">
-        <item quantity="zero"> </item>
-        <item quantity="other">%d on your server</item>
-    </plurals>
     <plurals name="notif_failure">
         <item quantity="one">%d failure</item>
         <item quantity="other">%d failures</item>

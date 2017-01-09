@@ -29,7 +29,6 @@ import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,6 +55,9 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 
+/**
+ * The sender of medias
+ */
 public class PBMediaSender {
     private static final String LOG_TAG = "PBMediaSender";
     private static final String PASS_PARAM = "password";
@@ -69,16 +71,14 @@ public class PBMediaSender {
     private Notification.Builder builder;
     private OkHttpClient okClient;
     private static final List<PBMediaSenderInterface> interfaces = new ArrayList<>();
-    private static int successCount = 0;
     private static int failureCount = 0;
     private static final int TIMEOUT_IN_SECONDS = 60;
 
 
     public PBMediaSender() {
-        this.notificationManager = (NotificationManager) PBApplication.getApp().getSystemService(Context.NOTIFICATION_SERVICE);
-        this.preferences = PreferenceManager.getDefaultSharedPreferences(PBApplication.getApp());
-        this.serverUrl = removeFinalSlashes(preferences.getString(PBServerPreferenceFragment.PREF_SERVER_URL, ""));
-        buildNotificationBuilder();
+        notificationManager = (NotificationManager) PBApplication.getApp().getSystemService(Context.NOTIFICATION_SERVICE);
+        preferences = PreferenceManager.getDefaultSharedPreferences(PBApplication.getApp());
+        serverUrl = removeFinalSlashes(preferences.getString(PBServerPreferenceFragment.PREF_SERVER_URL, ""));
     }
 
 
@@ -113,11 +113,6 @@ public class PBMediaSender {
 
 
     private void sendMedia(final PBMedia media) {
-        this.builder.setContentText(PBApplication.getApp().getResources().getString(R.string.notif_start_text))
-                .setLargeIcon(MediaStore.Images.Thumbnails.getThumbnail(PBApplication.getApp().getContentResolver(),
-                        media.getId(), MediaStore.Images.Thumbnails.MICRO_KIND, null));
-        notificationManager.notify(0, this.builder.build());
-
         final MediaType mediaTypeJPG = MediaType.parse("image/jpg");
         final File upfile = new File(media.getPath());
         final RequestBody requestBody = new MultipartBody.Builder()
@@ -206,7 +201,7 @@ public class PBMediaSender {
         Log.d(LOG_TAG, "Redirected to " + redirection);
         String newUrl = removeFinalSlashes(redirection).substring(0, redirection.length() - TEST_PATH.length());
         Log.d(LOG_TAG, "Update server url to " + newUrl);
-        this.serverUrl = newUrl;
+        serverUrl = newUrl;
         preferences.edit().putString(PBServerPreferenceFragment.PREF_SERVER_URL, newUrl).apply();
     }
 
@@ -215,44 +210,27 @@ public class PBMediaSender {
         // add HTTP Basic Auth to the client
         final String login = preferences.getString(PBServerPreferenceFragment.PREF_SERVER_HTTP_AUTH_LOGIN, "");
         final String pass = preferences.getString(PBServerPreferenceFragment.PREF_SERVER_HTTP_AUTH_PASS, "");
-        if(preferences.getBoolean(PBServerPreferenceFragment.PREF_SERVER_HTTP_AUTH_SWITCH, false) &&
+        if (preferences.getBoolean(PBServerPreferenceFragment.PREF_SERVER_HTTP_AUTH_SWITCH, false) &&
                 !preferences.getString(PBServerPreferenceFragment.PREF_SERVER_HTTP_AUTH_LOGIN, "").isEmpty() &&
                 !preferences.getString(PBServerPreferenceFragment.PREF_SERVER_HTTP_AUTH_PASS, "").isEmpty()) {
-            this.credentials = Credentials.basic(login, pass);
+            credentials = Credentials.basic(login, pass);
         } else {
-            this.credentials = null;
+            credentials = null;
         }
     }
 
 
-    private void buildNotificationBuilder() {
-        this.builder = new Notification.Builder(PBApplication.getApp());
-        this.builder.setSmallIcon(R.drawable.ic_backup_white_48dp)
-                .setContentTitle(PBApplication.getApp().getResources().getString(R.string.app_name));
-
-        // add content intent to reopen the activity
-        final Intent intent = new Intent(PBApplication.getApp(), PBActivity.class);
-        intent.setAction(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        final PendingIntent resultPendingIntent = PendingIntent.getActivity(PBApplication.getApp(), 0, intent, 0);
-        this.builder.setContentIntent(resultPendingIntent);
-    }
-
-
     private void sendDidSucceed(final PBMedia media) {
-        this.builder.setSmallIcon(R.drawable.ic_done_white_48dp);
         media.setState(PBMedia.PBMediaState.SYNCED);
         media.setErrorMessage("");
         for (PBMediaSenderInterface senderInterface : interfaces) {
             senderInterface.onSendSuccess();
         }
-        incrementSuccessCount();
-        updateNotificationText();
     }
 
 
     private void sendDidFail(final PBMedia media, final Throwable e) {
-        this.builder.setSmallIcon(R.drawable.ic_error_outline_white_48dp);
+        getNotificationBuilder().setSmallIcon(R.drawable.ic_error_outline_white_48dp);
         media.setState(PBMedia.PBMediaState.ERROR);
         media.setErrorMessage(e.getLocalizedMessage());
         for (PBMediaSenderInterface senderInterface : interfaces) {
@@ -283,20 +261,9 @@ public class PBMediaSender {
 
 
     private void updateNotificationText() {
-        final String successContent = PBApplication.getApp().getResources().getQuantityString(R.plurals.notif_success, successCount, successCount);
         final String failureContent = PBApplication.getApp().getResources().getQuantityString(R.plurals.notif_failure, failureCount, failureCount);
-
-        String contentText = successContent + " ; " + failureContent;
-        if (successCount != 0 && failureCount == 0) {
-            contentText = successContent;
-        }
-        if (successCount == 0 && failureCount != 0) {
-            contentText = failureContent;
-        }
-        final Bitmap icon = BitmapFactory.decodeResource(PBApplication.getApp().getResources(), R.mipmap.ic_launcher);
-        this.builder.setLargeIcon(icon).setContentText(contentText);
-
-        notificationManager.notify(0, this.builder.build());
+        getNotificationBuilder().setContentText(failureContent);
+        notificationManager.notify(0, getNotificationBuilder().build());
     }
 
 
@@ -311,9 +278,27 @@ public class PBMediaSender {
                     .writeTimeout(TIMEOUT_IN_SECONDS, TimeUnit.SECONDS)
                     .build();
             createAuthCredentials();
-            buildNotificationBuilder();
         }
         return okClient;
+    }
+
+
+    private Notification.Builder getNotificationBuilder() {
+        if (builder == null) {
+            final Bitmap icon = BitmapFactory.decodeResource(PBApplication.getApp().getResources(), R.mipmap.ic_launcher);
+            builder = new Notification.Builder(PBApplication.getApp());
+            builder.setSmallIcon(R.drawable.ic_backup_white_48dp)
+                    .setContentTitle(PBApplication.getApp().getResources().getString(R.string.app_name))
+                    .setLargeIcon(icon);
+
+            // add content intent to reopen the activity
+            final Intent intent = new Intent(PBApplication.getApp(), PBActivity.class);
+            intent.setAction(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_LAUNCHER);
+            final PendingIntent resultPendingIntent = PendingIntent.getActivity(PBApplication.getApp(), 0, intent, 0);
+            builder.setContentIntent(resultPendingIntent);
+        }
+        return builder;
     }
 
 
@@ -331,11 +316,6 @@ public class PBMediaSender {
         }
 
         return s.substring(0, s.length() - count);
-    }
-
-
-    private static void incrementSuccessCount() {
-        successCount++;
     }
 
 

@@ -24,6 +24,7 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -66,7 +67,8 @@ class PBSyncMediaStoreTask extends AsyncTask<Void, Void, Void> {
         PBMedia media;
         String stateString;
         PBMedia.PBMediaState state;
-        PBApplication.getMediaStore().getMediaList().clear();
+        final List<PBMedia> mediaList = PBApplication.getMediaStore().getMediaList();
+        mediaList.clear();
         while (cursor != null && cursor.moveToNext()) {
             if(isCancelled()) {
                 Log.i(LOG_TAG, "PBSyncMediaStoreTask cancelled");
@@ -77,7 +79,7 @@ class PBSyncMediaStoreTask extends AsyncTask<Void, Void, Void> {
             stateString = (String)mediasMap.get(Integer.toString(media.getId()));
             state = (stateString != null) ? PBMedia.PBMediaState.valueOf(stateString) : PBMedia.PBMediaState.WAITING;
             media.setState(state);
-            PBApplication.getMediaStore().getMediaList().add(media); // populate list
+            mediaList.add(media); // populate list
             inCursor.add(Integer.toString(media.getId()));
         }
         if (cursor != null && !cursor.isClosed()) {
@@ -86,12 +88,12 @@ class PBSyncMediaStoreTask extends AsyncTask<Void, Void, Void> {
 
         // purge pictures in preferences that were removed from device
         final Set<String> inCursorCopy = new HashSet<>(inCursor);
-        final Set<String> inMap = new HashSet<>(mediasMap.keySet());
-        inMap.removeAll(inCursor);
+        final Set<String> inPreferences = new HashSet<>(mediasMap.keySet());
+        inPreferences.removeAll(inCursor);
         inCursor.removeAll(inCursorCopy);
-        inMap.addAll(inCursor);
+        inPreferences.addAll(inCursor);
 
-        for (final String key : inMap) {
+        for (final String key : inPreferences) {
             Log.d(LOG_TAG, "Remove media " + key + " from preference");
             picturesPreferences.edit().remove(key).apply();
         }

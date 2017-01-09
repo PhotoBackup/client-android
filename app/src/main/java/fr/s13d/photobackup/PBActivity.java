@@ -19,6 +19,8 @@
 package fr.s13d.photobackup;
 
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -41,6 +43,14 @@ public class PBActivity extends Activity {
         getFragmentManager().beginTransaction().replace(android.R.id.content, preferenceFragment).commit();
         setActionBar();
 	}
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        final NotificationManager nm = (NotificationManager) PBApplication.getApp().getSystemService(Context.NOTIFICATION_SERVICE);
+        nm.cancelAll();
+    }
 
 
     @Override

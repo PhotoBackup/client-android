@@ -34,6 +34,7 @@ public class PBApplication extends Application {
     private static final String LOG_TAG = "PBApplication";
     private static PBApplication app;
     private static PBMediaStore mediaStore;
+    private static final Object lock = new Object();
 
 
     ///////////////
@@ -100,9 +101,11 @@ public class PBApplication extends Application {
 
 
     public static PBMediaStore getMediaStore() {
-        if (mediaStore == null) {
-            mediaStore = new PBMediaStore();
-            mediaStore.sync();
+        synchronized (lock) {
+            if (mediaStore == null) {
+                mediaStore = new PBMediaStore();
+                mediaStore.sync();
+            }
         }
         return mediaStore;
     }
@@ -111,6 +114,8 @@ public class PBApplication extends Application {
      * Nullify the media store when destroying it.
      */
     public static void nullifyMediaStore() {
-        mediaStore = null;
+        synchronized (lock) {
+            mediaStore = null;
+        }
     }
 }

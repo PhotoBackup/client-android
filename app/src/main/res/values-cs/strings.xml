@@ -44,11 +44,6 @@
     <string name="about_open_source_licenses">Open source licence</string>
 
     <string name="notif_start_text">Vaše fotografie jsou zálohovány na váš server.</string>
-    <plurals name="notif_success">
-        <item quantity="one"> </item>
-        <item quantity="few"> </item>
-        <item quantity="other">%d na vašem serveru</item>
-    </plurals>
     <plurals name="notif_failure">
         <item quantity="one">%d chyba</item>
         <item quantity="few">%d chyba</item>
