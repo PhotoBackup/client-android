@@ -52,6 +52,7 @@ public class PBMediaStore {
     private static final Uri imagesUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
     private static final Uri videosUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
     private static final String DATE_ADDED_DESC = "date_added DESC";
+    private static final String[] projection = new String[] { "_id", "_data", "date_added" };
 
 
     ////////////////
@@ -115,7 +116,6 @@ public class PBMediaStore {
         }
 
         final boolean backupVideos = prefs.getBoolean(PBConstants.PREF_MEDIA_BACKUP_VIDEO, false);
-        final String[] projection = new String[] { "_id", "_data", "date_added" };
         final ContentResolver cr = PBApplication.getApp().getContentResolver();
         final Cursor[] cursors = new Cursor[backupVideos ? 2 : 1];
         cursors[0] = cr.query(imagesUri, projection, where, null, DATE_ADDED_DESC);
