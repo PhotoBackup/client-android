@@ -84,13 +84,19 @@ public class PBMediaStore {
         final Cursor cursor = cr.query(backupVideos ? videosUri : imagesUri, null, null, null, DATE_ADDED_DESC);
         if (cursor == null || !cursor.moveToFirst()) {
             Log.d(LOG_TAG, "Media cursor is null or empty.");
-            return null;
+            if (cursor != null) {
+				cursor.close();
+			}
+			return null;
         }
 
         final int bucketId = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID);
         if (!backupVideos && !isBucketSelected(cursor.getString(bucketId))) {
             Log.d(LOG_TAG, "Media not in selected buckets.");
-            return null;
+            if (cursor != null) {
+				cursor.close();
+			}
+			return null;
         }
 
         final PBMedia media = new PBMedia(cursor);
