@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">PhotoBackup</string>
+    <string name="app_version">PhotoBackup version %1$s</string>
+
+    <string name="service_title">サービス</string>
+    <string name="service_state_running">PhotoBackup は実行しています。</string>
+    <string name="service_state_not_running">PhotoBackup は実行していません。</string>
+
+    <string name="server_pref_title">サーバーの設定</string>
+    <string name="server_pref_summary">サーバーはありません</string>
+    <string name="server_url_title">アドレス</string>
+    <string name="server_url_summary">サーバーのアドレス。</string>
+    <string name="server_password_title">パスワード</string>
+    <string name="server_password_summary">サーバーのパスワード。</string>
+    <string name="server_password_summary_set">パスワードを設定しました。</string>
+
+    <string name="only_wifi_title">バックアップ</string>
+    <string name="only_wifi">Wi-Fi 接続時のみ</string>
+    <string name="not_only_wifi">Wi-Fi 接続またはモバイルネットワーク</string>
+    <string name="only_wifi_default">@string/only_wifi</string>
+
+    <string name="only_recent_upload_title">アップロードする写真</string>
+    <string name="only_recent_upload">新しい撮影のみ</string>
+    <string name="not_only_recent_upload">デバイスのすべての写真</string>
+    <string name="only_recent_upload_default">@string/only_recent_upload</string>
+
+    <string name="toast_urisyntaxexception">サーバーアドレスが正しくありません!</string>
+    <string name="toast_serverpassempty">パスワードは空にできません!</string>
+    <string name="toast_configuration_ok">サーバーは正しく設定されています!</string>
+    <string name="toast_configuration_ko">サーバーのテストに失敗しました。設定を確認してください。</string>
+    <string name="toast_permission_not_granted">PhotoBackup は写真を読み取るアクセス許可がないと正しく動作できません。</string>
+    <string name="toast_upload_all">開始して、写真をアップロードします。</string>
+
+    <string name="info_conf">情報</string>
+    <string name="journal_title">アップロードジャーナル</string>
+    <string name="journal_noaccess">サービスを起動して、ジャーナルにアクセスします。</string>
+    <string name="journal_backedup">保存しました</string>
+    <string name="journal_waiting">待機しています</string>
+    <string name="journal_error">エラー</string>
+    <string name="upload_all">すべてアップロード</string>
+
+    <string name="about_title">アプリについて</string>
+    <string name="about_text">PhotoBackup for Android は自宅のサーバーにこのデバイスの
+    写真をバックアップします。 この方法は、あなたが写真の唯一の所有者で使用者です。
+    サーバーのインストールと設定方法は、こちらをご覧ください:</string>
+    <string name="about_open_source_licenses">オープンソース ライセンス</string>
+
+    <string name="notif_start_text">写真をサーバーにバックアップしています。</string>
+    <plurals name="notif_failure">
+        <item quantity="one">%d 失敗</item>
+        <item quantity="other">%d 失敗</item>
+    </plurals>
+
+    <string name="cancel">キャンセル</string>
+    <string name="name">写真の名前</string>
+    <string name="thumbnail_description">写真のサムネイル</string>
+    <string name="manual_backup_title">手動バックアップ</string>
+    <string name="manual_backup_message">今すぐ写真を保存します!</string>
+
+    <string name="folders_to_backup_title">バックアップするフォルダー</string>
+
+</resources>
