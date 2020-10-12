@@ -48,7 +48,7 @@ dependencies {
     compile('de.psdev.licensesdialog:licensesdialog:1.8.1')
 
     // jUnit
-    testCompile 'junit:junit:4.12'
+    testCompile 'junit:junit:4.13.1'
 
     // androidTestCompile
     androidTestCompile 'com.android.support.test:runner:0.5'
